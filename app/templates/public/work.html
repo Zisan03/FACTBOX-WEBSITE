@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Our Work — Fact Box Consult Portfolio{% endblock %}
+
+{% block content %}
+<section style="padding: 72px 0;">
+  <div class="container">
+    <div style="max-width: 800px; margin-bottom: 40px;">
+      <span style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-primary); display: inline-block; margin-bottom: 12px;">
+        Portfolio & Documentaries
+      </span>
+      <h1 class="display-title">Selected Projects</h1>
+      <p style="font-size: 18px; color: var(--color-text-muted);">
+        A curated showcase of our audiovisual productions, research-backed media, and documentary features.
+      </p>
+    </div>
+
+    <div id="portfolio-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 32px;">
+      <!-- Initial foundation placeholder cards; will be populated from PostgreSQL in Stage 3/5 -->
+      <article style="background: white; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-subtle);">
+        <div style="background-color: var(--color-surface-container); height: 220px; display: flex; align-items: center; justify-content: center; color: var(--color-text-muted);">
+          <span>Documentary Showcase</span>
+        </div>
+        <div style="padding: 24px;">
+          <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--color-primary);">Audiovisual</span>
+          <h2 style="font-size: 20px; margin: 8px 0 12px;">Investigative Feature Series</h2>
+          <p style="font-size: 14px; color: var(--color-text-muted);">
+            High-impact visual journalism exploring institutional accountability and sustainable community development.
+          </p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+{% endblock %}

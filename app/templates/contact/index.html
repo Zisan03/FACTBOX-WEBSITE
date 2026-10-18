@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us — Fact Box Consult{% endblock %}
+
+{% block content %}
+<section style="padding: 72px 0;">
+  <div class="container" style="max-width: 700px;">
+    <div style="margin-bottom: 40px; text-align: center;">
+      <span style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-primary); display: inline-block; margin-bottom: 12px;">
+        Get in Touch
+      </span>
+      <h1 class="display-title">Start a Conversation</h1>
+      <p style="font-size: 17px; color: var(--color-text-muted);">
+        Reach out to discuss documentary production, research, or strategic media consultancy.
+      </p>
+    </div>
+
+    <div style="background: white; padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);">
+      <form method="POST" action="{{ url_for('contact.index') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div style="margin-bottom: 20px;">
+          <label for="full_name" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px;">Full Name *</label>
+          <input type="text" id="full_name" name="full_name" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 15px;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label for="organization" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px;">Organization</label>
+          <input type="text" id="organization" name="organization" style="width: 100%; padding: 12px 16px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 15px;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label for="email" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px;">Email Address *</label>
+          <input type="email" id="email" name="email" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 15px;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label for="subject" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px;">Subject *</label>
+          <input type="text" id="subject" name="subject" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 15px;">
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <label for="message" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px;">Message *</label>
+          <textarea id="message" name="message" rows="5" required style="width: 100%; padding: 12px 16px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 15px; resize: vertical;"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px;">Send Message</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -3,6 +3,7 @@
 This package is the agreed starting contract for a fresh build. It is not application code and does not claim that the project has been implemented or deployed.
 
 ## Read in this order
+
 1. **`PRD.md`** — product scope, users, requirements, acceptance criteria, exclusions.
 2. **`ARCHITECTURE.md`** — components, boundaries, deployment shape, security, data flows.
 3. **`ARCHITECTURE_DECISIONS.md`** — binding technology and scope decisions, including why they were chosen.
@@ -13,11 +14,13 @@ This package is the agreed starting contract for a fresh build. It is not applic
 8. **`CLAUDE.md`** — Claude Code entry point that refers to `AGENTS.md`.
 
 ## Document authority
-PRD defines *what*. Architecture defines *how*. Architecture decisions record why and what cannot change silently. Database schema specifies the initial data model. Roadmap controls order. Tests and release checklist prove behaviour. Agent instruction files enforce working discipline.
+
+PRD defines _what_. Architecture defines _how_. Architecture decisions record why and what cannot change silently. Database schema specifies the initial data model. Roadmap controls order. Tests and release checklist prove behaviour. Agent instruction files enforce working discipline.
 
 If a conflict appears, do not code around it. Raise it and update the relevant documents together. Approved scope changes must update PRD, architecture/ADRs, schema, roadmap, and tests as relevant.
 
 ## Approved V1 summary
+
 - Flask + Jinja2 + SQLAlchemy + PostgreSQL; PostgreSQL only in every environment, including tests.
 - HTML/CSS/vanilla JavaScript frontend.
 - Public pages: Home, About Us, Services, Our Work, Contact Us.
@@ -28,6 +31,7 @@ If a conflict appears, do not code around it. Raise it and update the relevant d
 - Social links, blog, testimonials, team profiles, request-a-quote, individual project detail pages, public portal, and separate Clients & Partners page are out of launch scope.
 
 ## Not yet confirmed; do not invent
+
 - Final production hosting plan and region.
 - Domain purchase, DNS access, and registrar.
 - Actual sender and recipient email addresses, Gmail account type, SMTP authentication method, and whether outbound SMTP works from chosen host.
@@ -36,4 +40,5 @@ If a conflict appears, do not code around it. Raise it and update the relevant d
 - Exact Cloudinary account/plan and media usage forecast.
 
 ## Fresh-build instruction
+
 When the user uploads these documents into the coding environment, inspect the workspace, install no paid services, and begin at Roadmap Stage 0/1. Do not generate all application features in one uncontrolled pass.
