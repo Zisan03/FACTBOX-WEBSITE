@@ -1,0 +1,226 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Clients &amp; Partners | Fact Box Consult</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#005323",
+                        "on-tertiary-fixed-variant": "#2b5000",
+                        "surface-bright": "#fcf9f8",
+                        "surface-variant": "#e5e2e1",
+                        "on-surface-variant": "#3f493f",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#005225",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-secondary-container": "#25703b",
+                        "outline-variant": "#becabc",
+                        "inverse-on-surface": "#f3f0ef",
+                        "primary-fixed": "#9af7ac",
+                        "tertiary": "#325c00",
+                        "surface-container-low": "#f6f3f2",
+                        "on-surface": "#1c1b1b",
+                        "inverse-primary": "#7eda92",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#ebe7e7",
+                        "secondary-container": "#a4f1af",
+                        "on-secondary-fixed": "#00210a",
+                        "tertiary-fixed-dim": "#87dc2b",
+                        "outline": "#6f7a6e",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#f0edec",
+                        "on-tertiary-fixed": "#0e2000",
+                        "on-primary-fixed": "#00210b",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "secondary-fixed": "#a7f4b1",
+                        "on-primary-container": "#a9ffb8",
+                        "secondary-fixed-dim": "#8cd897",
+                        "surface-tint": "#006d33",
+                        "primary-container": "#177a3d",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "primary": "#005f2b",
+                        "tertiary-fixed": "#a1fa48",
+                        "inverse-surface": "#313030",
+                        "on-error": "#ffffff",
+                        "background": "#fcf9f8",
+                        "tertiary-container": "#427700",
+                        "on-tertiary-container": "#b8ff74",
+                        "on-background": "#1c1b1b",
+                        "primary-fixed-dim": "#7eda92",
+                        "secondary": "#206c37",
+                        "surface": "#fcf9f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "container-max": "1280px",
+                        "stack-md": "16px",
+                        "section-gap": "120px",
+                        "gutter": "24px",
+                        "margin-mobile": "20px",
+                        "stack-lg": "32px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Poppins"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Poppins"],
+                        "headline-md": ["Poppins"],
+                        "label-caps": ["Inter"],
+                        "headline-lg": ["Poppins"],
+                        "body-lg": ["Inter"],
+                        "display-lg-mobile": ["Poppins"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["48px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .text-glow {
+            text-shadow: 0 0 30px rgba(252, 249, 248, 0.5);
+        }
+        .fact-card {
+            border-left: 4px solid #a1fa48; /* tertiary-fixed approximation for Lime */
+        }
+        .smooth-hover {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-transparent backdrop-blur-md dark:bg-transparent shadow-sm bg-surface/10 backdrop-blur-xl border-b border-white/5 transition-all duration-500 ease-in-out">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-6 max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md tracking-tighter text-on-surface dark:text-on-primary-fixed">
+                Fact Box Consult
+            </div>
+<nav class="hidden md:flex items-center gap-stack-lg">
+<a class="font-label-caps text-label-caps text-on-surface dark:text-on-surface hover:text-primary dark:hover:text-primary-fixed transition-colors hover:opacity-80 duration-300" href="#">Portfolios</a>
+<a class="font-label-caps text-label-caps text-on-surface dark:text-on-surface hover:text-primary dark:hover:text-primary-fixed transition-colors hover:opacity-80 duration-300" href="#">Services</a>
+<a class="font-label-caps text-label-caps text-on-surface dark:text-on-surface hover:text-primary dark:hover:text-primary-fixed transition-colors hover:opacity-80 duration-300" href="#">Methodology</a>
+<a class="font-label-caps text-label-caps text-primary dark:text-primary-fixed border-b-2 border-primary dark:border-primary-fixed pb-1 hover:opacity-80 duration-300" href="#">Partners</a>
+<a class="font-label-caps text-label-caps text-on-surface dark:text-on-surface hover:text-primary dark:hover:text-primary-fixed transition-colors hover:opacity-80 duration-300" href="#">Archive</a>
+</nav>
+<button class="hidden md:flex items-center justify-center bg-primary text-on-primary font-label-caps text-label-caps px-6 py-3 rounded-DEFAULT hover:bg-tertiary-fixed hover:text-on-tertiary-fixed transition-colors duration-300">
+                Partner With Us
+            </button>
+<button class="md:hidden text-on-surface">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative w-full min-h-[819px] flex items-center justify-center pt-24 overflow-hidden">
+<div class="absolute inset-0 z-0">
+<div class="bg-cover bg-center w-full h-full" data-alt="A sweeping, cinematic wide shot of a documentary film crew working in a vibrant African community setting. The scene is bathed in warm, golden hour sunlight, creating long soft shadows and a high-end editorial aesthetic. The color palette emphasizes deep rich greens of the landscape against the bright, hopeful sky. Minimalist framing with plenty of negative space to convey authority and trust in impactful storytelling." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDNccHGJQ0uDooytShKkBpISe2YKdb_GiMNvH0iiF7IxzTaYQcncPj6OxEEZ35X3YhakDYr-bLB0sd5UKoM0pgcqrSfI7y4AyN9kOTHivl5crjsT0EQgFAjO5XcvKFFhb6Fd8SgZ18im4UAxAS4Xi-vm-KvYoyMTtXMGtqkGQqYlbpxXePsFhxHT9bwPTRDBTegR82mB2XGdA4iCCTHKtUhZGdzPt_ZepdrFEdfuVOR5KNp_nsJ1f6yZvYS-twK9QH2BNocj2Rksfg')"></div>
+<div class="absolute inset-0 bg-surface/30 backdrop-blur-sm"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
+</div>
+<div class="relative z-10 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col items-center text-center mt-section-gap">
+<h1 class="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-on-surface mb-stack-md text-glow max-w-4xl">
+                    Our Clients &amp; Partners
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto glass-panel p-stack-md rounded-lg">
+                    Trusted by organizations creating lasting impact across Africa.
+                </p>
+</div>
+</section>
+<!-- Featured Partners Grid -->
+<section class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-gap">
+<div class="flex flex-col items-center text-center mb-stack-lg">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-stack-sm">Featured Collaborators</h2>
+<div class="w-16 h-1 bg-primary mb-stack-md"></div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">We partner with leading global organizations to deliver compelling narratives.</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-12 gap-y-16 items-center justify-items-center max-w-4xl mx-auto">
+<div class="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+<span class="font-headline-md text-on-surface font-bold tracking-tight">WHO</span>
+</div>
+<div class="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+<span class="font-headline-md text-on-surface font-bold tracking-tight">Mercy Corps</span>
+</div>
+<div class="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+<span class="font-headline-md text-on-surface font-bold tracking-tight">USAID</span>
+</div>
+<div class="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+<span class="font-headline-md text-on-surface font-bold tracking-tight">UNICEF</span>
+</div>
+<div class="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+<span class="font-body-lg text-on-surface font-bold tracking-tight text-center">Search for Common Ground</span>
+</div>
+<div class="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+<span class="font-headline-md text-on-surface font-bold tracking-tight text-center">International Alert</span>
+</div>
+<div class="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+<span class="font-headline-md text-on-surface font-bold tracking-tight">PSI</span>
+</div>
+<div class="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+<span class="font-headline-md text-on-surface font-bold tracking-tight">SFH</span>
+</div>
+<div class="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+<span class="font-headline-md text-on-surface font-bold tracking-tight">NRC</span>
+</div>
+<div class="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+<span class="font-body-lg text-on-surface font-bold tracking-tight text-center">Johns Hopkins CCP</span>
+</div>
+<div class="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+<span class="font-body-lg text-on-surface font-bold tracking-tight text-center">Breakthrough ACTION</span>
+</div>
+<div class="flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-300">
+<span class="font-body-lg text-on-surface font-bold tracking-tight text-center">Nigeria Health Watch</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-inverse-surface w-full pt-section-gap pb-stack-lg border-t border-outline-variant dark:border-outline">
+<div class="flex flex-col md:flex-row justify-between items-start px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto gap-stack-lg">
+<div class="flex flex-col gap-stack-md">
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">
+                    Fact Box Consult
+                </div>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant max-w-sm">
+                    © 2024 Fact Box Consult. Storytelling for Impact.
+                </p>
+</div>
+<nav class="grid grid-cols-2 md:grid-cols-4 gap-gutter w-full md:w-auto">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Documentaries</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Strategic Comms</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Ethics &amp; Standards</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Privacy Policy</a>
+</nav>
+</div>
+</footer>
+</body></html>

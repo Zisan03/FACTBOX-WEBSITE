@@ -1,0 +1,447 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Our Team - Fact Box Consult</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#7eda92",
+                        "surface-tint": "#006d33",
+                        "primary-fixed-dim": "#7eda92",
+                        "on-tertiary-fixed-variant": "#2b5000",
+                        "on-error": "#ffffff",
+                        "on-background": "#1c1b1b",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#a9ffb8",
+                        "surface-container-highest": "#e5e2e1",
+                        "secondary-container": "#a4f1af",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#206c37",
+                        "primary-fixed": "#9af7ac",
+                        "on-primary-fixed-variant": "#005225",
+                        "secondary-fixed": "#a7f4b1",
+                        "outline": "#6f7a6e",
+                        "on-surface-variant": "#3f493f",
+                        "tertiary-fixed-dim": "#87dc2b",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#f3f0ef",
+                        "primary-container": "#177a3d",
+                        "tertiary": "#325c00",
+                        "surface-dim": "#dcd9d9",
+                        "outline-variant": "#becabc",
+                        "on-tertiary-fixed": "#0e2000",
+                        "inverse-surface": "#313030",
+                        "on-secondary-fixed": "#00210a",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "primary": "#005f2b",
+                        "on-secondary-container": "#25703b",
+                        "on-surface": "#1c1b1b",
+                        "tertiary-container": "#427700",
+                        "surface-container-low": "#f6f3f2",
+                        "secondary-fixed-dim": "#8cd897",
+                        "on-primary-fixed": "#00210b",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#fcf9f8",
+                        "on-tertiary-container": "#b8ff74",
+                        "surface": "#fcf9f8",
+                        "background": "#fcf9f8",
+                        "surface-container": "#f0edec",
+                        "surface-variant": "#e5e2e1",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#a1fa48",
+                        "surface-container-high": "#ebe7e7",
+                        "on-secondary-fixed-variant": "#005323"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "stack-md": "16px",
+                        "container-max": "1280px",
+                        "section-gap": "120px"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Poppins", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "headline-md": ["Poppins", "sans-serif"],
+                        "headline-lg": ["Poppins", "sans-serif"],
+                        "display-lg": ["Poppins", "sans-serif"],
+                        "display-lg-mobile": ["Poppins", "sans-serif"],
+                        "label-caps": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["48px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .font-headline-md, .font-headline-lg, .font-headline-xl, .font-display-lg, .font-display-lg-mobile { font-family: 'Poppins', sans-serif; }
+        
+        /* Subtle glow for accents */
+        .glow-accent {
+            box-shadow: 0 0 40px rgba(166, 255, 77, 0.15);
+        }
+        
+        /* Fact Card specific styling */
+        .fact-card {
+            border-left: 4px solid var(--color-tertiary-fixed); /* Using Lime Accent from theme */
+            transition: all 0.3s ease;
+        }
+        .fact-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 40px -10px rgba(0, 95, 43, 0.1);
+        }
+
+        /* Glassmorphism utility */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md dark:bg-inverse-surface/80 shadow-sm transition-all duration-300 ease-in-out">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-stack-md max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-inverse-primary tracking-tight">
+                Fact Box Consult
+            </div>
+<!-- Desktop Navigation -->
+<div class="hidden md:flex items-center gap-8">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors font-body-md text-body-md" href="#">Our Story</a>
+<a class="text-primary dark:text-inverse-primary border-b-2 border-primary dark:border-inverse-primary pb-1 font-body-md text-body-md" href="#">The Team</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors font-body-md text-body-md" href="#">Expertise</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors font-body-md text-body-md" href="#">Documentaries</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors font-body-md text-body-md" href="#">Reports</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors font-body-md text-body-md" href="#">Contact</a>
+</div>
+<div class="hidden md:block">
+<button class="bg-primary hover:bg-tertiary-fixed hover:text-on-tertiary-fixed text-on-primary font-body-md text-body-md px-6 py-2.5 rounded-full transition-all duration-300">
+                    Consult Us
+                </button>
+</div>
+<!-- Mobile Menu Button -->
+<button class="md:hidden text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+</div>
+</nav>
+<main>
+<!-- Hero Section -->
+<section class="relative min-h-[80vh] flex items-center justify-center pt-24 overflow-hidden">
+<!-- Background Image -->
+<div class="absolute inset-0 z-0">
+<div class="absolute inset-0 bg-gradient-to-b from-surface-tint/60 via-surface-tint/40 to-surface z-10 mix-blend-multiply"></div>
+<img alt="Team working on a documentary set" class="w-full h-full object-cover object-center" src="https://lh3.googleusercontent.com/aida/AP1WRLuQNzQUI7G8s5Fg6bYCxeuyzhxxEoUT11B5hyv5sxeXeJA73cSJf3nJWb9pUG3XR6t-4CPdLWkJN7ZL0jZUcSPeeBf2PxYvUl_nClNWaYniSY3_JrjOgB2X6g__7vvHTpI3YhSlhGj7SXs9vUrGY7Zo3abbxyJatKhmUBE8yYKxdmjbsCabrNiW2tS-7u_UirKL2Sea7wOglzQSPIQp_xhQz6cbz3on5yS3IRJZORHa9vGl3j2SKgOdx-8">
+</div>
+<div class="relative z-20 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center text-on-primary mt-16 md:mt-24">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg mb-6 drop-shadow-lg">Meet Our Team</h1>
+<p class="font-body-lg text-body-lg max-w-3xl mx-auto opacity-90 drop-shadow-md">
+                    Passionate storytellers, creative thinkers, and communication professionals dedicated to creating meaningful impact through visual storytelling.
+                </p>
+</div>
+</section>
+<!-- Leadership Section -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop bg-surface-container-lowest">
+<div class="max-w-container-max mx-auto">
+<div class="text-center mb-16">
+<span class="font-label-caps text-label-caps text-primary tracking-widest uppercase mb-4 block">Leadership</span>
+<h2 class="font-headline-xl text-headline-xl text-on-surface">The Visionaries</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- James Kazah Boman -->
+<div class="bg-surface-container-low rounded-2xl p-8 flex flex-col md:flex-row gap-8 items-start border border-outline-variant/30 hover:border-primary-container transition-colors duration-300 group">
+<div class="w-full md:w-1/3 aspect-square rounded-xl overflow-hidden shrink-0 relative">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Professional cinematic headshot of James Kazah Boman, a confident Lead Producer &amp; Director, in a modern office environment. Soft natural lighting from a window, highlighting professional attire. The mood is authoritative yet approachable, reflecting leadership in documentary production. Muted background colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBh39dYpjLKOGM8eSFAHyCnfZ89xLxbq3F36P1k9gBVU6lazXeNUwBUMiMsbyNSH1EVSb1YC84gAxYnpmn97RU8S5EsGHV1VUYSP8AwWMmogb0-2YOJasIQPgqfZMFKvJjzm6IBf3ur_b2AJO_YVpwtQjnJ9KJwtDp8kRNIZTCsOO9yI4PN97R5gR-S6P7JhwUsnNbDLOUPRMUOpU7RtUWoN9qojqNrFr9ECBzrsdDZmBS1V8xNz8COLM7G7D7RORaqIS4rbvdzB-M">
+<div class="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors"></div>
+</div>
+<div class="flex flex-col h-full justify-between">
+<div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-2">James Kazah Boman</h3>
+<p class="font-label-caps text-label-caps text-primary mb-4">Lead Producer &amp; Director</p>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 line-clamp-4">
+                                    With over a decade of experience in documentary filmmaking and media consultancy, James leads the creative vision at Fact Box Consult. His expertise lies in crafting compelling narratives that resonate globally, blending journalistic integrity with cinematic aesthetics.
+                                </p>
+</div>
+<div class="flex gap-4">
+<a class="text-outline hover:text-primary transition-colors flex items-center gap-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">link</span>
+<span class="font-body-md text-body-md">LinkedIn</span>
+</a>
+<a class="text-outline hover:text-primary transition-colors flex items-center gap-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">mail</span>
+<span class="font-body-md text-body-md">Email</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Mathew John Raji -->
+<div class="bg-surface-container-low rounded-2xl p-8 flex flex-col md:flex-row gap-8 items-start border border-outline-variant/30 hover:border-primary-container transition-colors duration-300 group">
+<div class="w-full md:w-1/3 aspect-square rounded-xl overflow-hidden shrink-0 relative">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Professional cinematic headshot of Mathew John Raji, an experienced Lead Cinematographer &amp; Editor, outdoors with a hint of nature. Warm, golden hour lighting creating a dynamic, creative feel. The subject looks focused and artistic, reflecting expertise in visual storytelling. High contrast." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBACtmyfXPW0yPSnE2-GHqeg3n7moKFdMX8Ws9iMcCvlR_M_C0zbIecs7RFX2C7cELnhBXxMRF6JtcQV8B5UXMzgrmXKpp8RjDuuc3k6zya5bc6JBkHRU01cOAz3TnWUmxNKkunCSZhWN0fzh-YgdFkNluwO0mYNumxkjOD04WXy6ExbaOtMLPFmu2wyj4W6wBOmTkDmWd9ELUZN0aR_WQ-gGx3xn44hOqc7kEdVwep6I_4P-HMagp4-nRgz3IOSFg7AtCsMleT2_0">
+<div class="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors"></div>
+</div>
+<div class="flex flex-col h-full justify-between">
+<div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-2">Mathew John Raji</h3>
+<p class="font-label-caps text-label-caps text-primary mb-4">Lead Cinematographer &amp; Editor</p>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 line-clamp-4">
+                                    Mathew translates complex concepts into visually stunning imagery. His profound understanding of lighting, composition, and pacing ensures that every frame delivers emotional impact and analytical clarity.
+                                </p>
+</div>
+<div class="flex gap-4">
+<a class="text-outline hover:text-primary transition-colors flex items-center gap-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">link</span>
+<span class="font-body-md text-body-md">LinkedIn</span>
+</a>
+<a class="text-outline hover:text-primary transition-colors flex items-center gap-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">mail</span>
+<span class="font-body-md text-body-md">Email</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Our Creative Team Section -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop bg-surface relative overflow-hidden">
+<!-- Decorative Background Element -->
+<div class="absolute -right-64 top-1/4 w-[800px] h-[800px] bg-secondary-container/20 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+<div class="max-w-container-max mx-auto">
+<div class="mb-16">
+<span class="font-label-caps text-label-caps text-primary tracking-widest uppercase mb-4 block">The Experts</span>
+<h2 class="font-headline-xl text-headline-xl text-on-surface max-w-2xl">Our Creative Team</h2>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Abah Adanu Mathias -->
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-[3/4] rounded-2xl overflow-hidden mb-6 bg-surface-container-high">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Portrait of Abah Adanu Mathias, Photographer, holding a professional camera. Set in an urban documentary environment. Sharp focus, high definition, with a documentary aesthetic. Crisp lighting emphasizing textures. Modern, professional styling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASm2LoLk1eVmBqnnFn5CCc1yQ7ogbeT_oJh1tCqFLcwuxDYNrLMZnMHxRZj5mhxn2Ad4RZ8hwPpkfJc9UQR4KnTTBaJJww8jxrMwI_iPvTm0_DMYWxjA9sqhXEZNOr1cT3Hxr5e4WRTx6PYs_G7W-_wcHa7Hs3KH_5oYDuHc6Tj1xQ7T9npUpt_2mPaAyS7JZraxCjWurfhWqA44UnBkc7DpcXDfI5_1lOS9g3rtCg0-_G7lajiMxxR96CjsuAnyjkvzi_D18fHSg">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+<p class="text-on-primary font-body-md text-body-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">Specializes in striking photojournalism and field documentation.</p>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Abah Adanu Mathias</h3>
+<p class="font-body-md text-body-md text-primary mt-1">Photographer</p>
+</div>
+<!-- Lois Abba Sambo -->
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-[3/4] rounded-2xl overflow-hidden mb-6 bg-surface-container-high">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Portrait of Lois Abba Sambo, Script Writer &amp; Content Creator. Elegant, thoughtful pose in a bright, modern studio. Soft, diffused lighting creating a serene atmosphere. Creative, intellectual vibe. High-key aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCW2PHgJx-G9rq7dEdSfoGTdqeD_autkUpqkvRrIWqDCL5ItJ1zDeypORMun2wRTMI8afd0PO1vd-GCWiZl9irIQxGeAIDhBihdOOHyMz9FHpfZdQG-O-KDRK7k_fXKJBheaNG9oMQA3Y3j4yyaq5w46mUx0LxgC-v05L6RTtGaQa5wYALI2NwidsAJaPFxjiZffDiDNzEiHffBO3qyd1B6K8wjhz2E1grNFnBKfws8rv0akF46Pwtci3j__JKt-HPK-EpTz0UaKVA">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+<p class="text-on-primary font-body-md text-body-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">Crafting compelling narratives and engaging content strategies.</p>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Lois Abba Sambo</h3>
+<p class="font-body-md text-body-md text-primary mt-1">Script Writer &amp; Content Creator</p>
+</div>
+<!-- Moses N. Stephen -->
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-[3/4] rounded-2xl overflow-hidden mb-6 bg-surface-container-high">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Portrait of Moses N. Stephen, Cinematographer &amp; Editor, working in an editing suite or with a cinema rig. Moody, cinematic lighting with subtle green and blue undertones. Focused expression, technical expertise conveyed through the setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuByCd3mMQHoO_zOYwIR_XSbabcIyQkVGsL_6-FE98FGG1Lwif1nPGV0IJunrjYA4Z57EjmxFJGIeBG4kKx0xbkAYqlFora1FcpJTY2H6MTgvED1ijyPeBID6TMkcLh8WkLHcHpg-bNHBD8cqjoLPU8BpEmsefcEeVzCTBc_y2KfEobbuJvbEzm6CvNAA71GAhlyXz-qLPHesdGxHvDMOp2lMySdcP3K_UvuW5fbPP92Bt7NPy9eoeg8k-dqFfJqaCX2P0z2l9G5Wb8">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+<p class="text-on-primary font-body-md text-body-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">Expert in dynamic framing and precise post-production workflows.</p>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Moses N. Stephen</h3>
+<p class="font-body-md text-body-md text-primary mt-1">Cinematographer &amp; Editor</p>
+</div>
+<!-- Mahuel Wilfred James -->
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-[3/4] rounded-2xl overflow-hidden mb-6 bg-surface-container-high">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Portrait of Mahuel Wilfred James, Media Expert. Confident stance in a corporate yet creative environment. Polished, professional lighting. Muted background to emphasize the subject. Evokes strategic communication and consulting expertise." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAheyJdnraNNZhIql2w2KgTZyLUowkpyw2smKsR3J8otDSx39sKy96IzGKVEFjEDqndikv_Nw7dbNnndlOhnFhODzxSffzf0owHfOUQ3UpiyQFVag_InLFQ8GQ6dt3g7HiyJRPNsLKhyF3vk4ny-By6W_gW2vhYwdnI_3ruh4nXM0lT8T3Q-IXsb5hvZNXGZb_Kq3VD4vbnjdgJ6EOUOtPGAJkxt71dEPlXnTJrjkizge4hBtM_ggJ5ZMVx28anfoBRNLVVjgS7TN0">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+<p class="text-on-primary font-body-md text-body-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">Strategic media planning and deep-dive analytical insights.</p>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Mahuel Wilfred James</h3>
+<p class="font-body-md text-body-md text-primary mt-1">Media Expert</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Why Our Team Stands Out -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop bg-surface-container">
+<div class="max-w-container-max mx-auto">
+<div class="text-center mb-16">
+<span class="font-label-caps text-label-caps text-primary tracking-widest uppercase mb-4 block">Our Approach</span>
+<h2 class="font-headline-xl text-headline-xl text-on-surface">Why Our Team Stands Out</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Feature 1 -->
+<div class="bg-surface rounded-2xl p-8 fact-card">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center mb-6 text-primary">
+<span class="material-symbols-outlined">movie</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-3">Experienced Documentary Producers</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Decades of combined experience managing complex productions in challenging environments, ensuring rigorous standards.</p>
+</div>
+<!-- Feature 2 -->
+<div class="bg-surface rounded-2xl p-8 fact-card">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center mb-6 text-primary">
+<span class="material-symbols-outlined">workspace_premium</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-3">Award-Worthy Storytelling</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">We craft narratives that don't just inform, but resonate emotionally, aiming for the highest cinematic quality.</p>
+</div>
+<!-- Feature 3 -->
+<div class="bg-surface rounded-2xl p-8 fact-card">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center mb-6 text-primary">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-3">Research-Driven Approach</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Every project begins with deep, fact-based research, ensuring our creative outputs are grounded in reality.</p>
+</div>
+<!-- Feature 4 -->
+<div class="bg-surface rounded-2xl p-8 fact-card">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center mb-6 text-primary">
+<span class="material-symbols-outlined">camera</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-3">Creative Visual Excellence</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Leveraging state-of-the-art equipment and innovative techniques to deliver visually stunning and impactful content.</p>
+</div>
+<!-- Feature 5 -->
+<div class="bg-surface rounded-2xl p-8 fact-card">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center mb-6 text-primary">
+<span class="material-symbols-outlined">public</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-3">Nationwide Field Experience</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Extensive experience operating across diverse geographies, understanding local nuances and logistical challenges.</p>
+</div>
+<!-- Feature 6 -->
+<div class="bg-surface rounded-2xl p-8 fact-card">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center mb-6 text-primary">
+<span class="material-symbols-outlined">handshake</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-3">Trusted by Leading Partners</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">A proven track record of successful collaborations with international NGOs, corporate clients, and development agencies.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Our Expertise -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop bg-surface">
+<div class="max-w-container-max mx-auto flex flex-col lg:flex-row gap-16 items-center">
+<div class="w-full lg:w-1/2">
+<span class="font-label-caps text-label-caps text-primary tracking-widest uppercase mb-4 block">Core Competencies</span>
+<h2 class="font-headline-xl text-headline-xl text-on-surface mb-6">Our Expertise</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-12 max-w-xl">
+                        We bring a multidisciplinary approach to every project, combining technical precision with strategic insight to deliver comprehensive media solutions.
+                    </p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="flex items-center gap-3 p-4 rounded-xl border border-outline-variant/50 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface">Documentary Production</span>
+</div>
+<div class="flex items-center gap-3 p-4 rounded-xl border border-outline-variant/50 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface">Cinematography</span>
+</div>
+<div class="flex items-center gap-3 p-4 rounded-xl border border-outline-variant/50 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface">Photography</span>
+</div>
+<div class="flex items-center gap-3 p-4 rounded-xl border border-outline-variant/50 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface">Video Editing</span>
+</div>
+<div class="flex items-center gap-3 p-4 rounded-xl border border-outline-variant/50 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface">Scriptwriting</span>
+</div>
+<div class="flex items-center gap-3 p-4 rounded-xl border border-outline-variant/50 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface">Strategic Communication</span>
+</div>
+<div class="flex items-center gap-3 p-4 rounded-xl border border-outline-variant/50 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface">Behaviour Change Comm.</span>
+</div>
+<div class="flex items-center gap-3 p-4 rounded-xl border border-outline-variant/50 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface">Project Management</span>
+</div>
+</div>
+</div>
+<div class="w-full lg:w-1/2 relative">
+<!-- Replacing image with a subtle animated aesthetic element to represent expertise/data -->
+<div class="rounded-2xl overflow-hidden aspect-[4/3] bg-surface-container-high relative flex items-center justify-center border border-outline-variant/20 shadow-lg">
+
+<div class="z-10 text-center p-8 bg-surface/80 backdrop-blur-md rounded-xl border border-outline-variant/30 max-w-sm">
+<span class="material-symbols-outlined text-4xl text-primary mb-4" style="font-variation-settings: 'FILL' 1;">insights</span>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Data-Driven Creativity</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Merging analytical rigor with cinematic artistry to maximize impact.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop bg-primary text-on-primary relative overflow-hidden">
+<!-- Background pattern/texture -->
+<div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-tertiary-fixed to-transparent"></div>
+<div class="max-w-4xl mx-auto text-center relative z-10">
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg mb-6">Work With Our Creative Team</h2>
+<p class="font-body-lg text-body-lg mb-10 opacity-90 max-w-2xl mx-auto">
+                    Ready to bring your vision to life? Partner with experts who understand the power of authentic storytelling and visual precision.
+                </p>
+<div class="flex flex-col sm:flex-row justify-center gap-4">
+<button class="bg-tertiary-fixed text-on-tertiary-fixed hover:bg-white font-headline-md text-headline-md px-8 py-4 rounded-full transition-all duration-300 shadow-lg glow-accent flex items-center justify-center gap-2">
+                        Start Your Project
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="border-2 border-primary-fixed text-primary-fixed hover:bg-primary-fixed/10 font-headline-md text-headline-md px-8 py-4 rounded-full transition-all duration-300 flex items-center justify-center gap-2">
+                        Contact Our Team
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-inverse-surface border-t border-outline-variant dark:border-outline w-full px-margin-mobile md:px-margin-desktop py-stack-lg flex flex-col md:flex-row justify-between items-center gap-gutter">
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-inverse-primary">
+            Fact Box Consult
+        </div>
+<div class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant text-center md:text-left">
+            © 2024 Fact Box Consult. Investigative Rigor. Cinematic Depth.
+        </div>
+<div class="flex flex-wrap justify-center md:justify-end gap-6 font-body-md text-body-md">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Press Kit</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Production Ethics</a>
+</div>
+</footer>
+</body></html>

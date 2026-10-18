@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Contact Us - Fact Box Consult</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#2b5000",
+                        "secondary-fixed": "#a7f4b1",
+                        "background": "#fcf9f8",
+                        "outline": "#6f7a6e",
+                        "inverse-surface": "#313030",
+                        "secondary-fixed-dim": "#8cd897",
+                        "primary-container": "#177a3d",
+                        "on-tertiary-container": "#b8ff74",
+                        "surface-variant": "#e5e2e1",
+                        "surface-container": "#f0edec",
+                        "surface": "#fcf9f8",
+                        "on-tertiary-fixed": "#0e2000",
+                        "on-surface": "#1c1b1b",
+                        "primary": "#005f2b",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-primary-container": "#a9ffb8",
+                        "surface-container-low": "#f6f3f2",
+                        "outline-variant": "#becabc",
+                        "inverse-primary": "#7eda92",
+                        "on-background": "#1c1b1b",
+                        "on-secondary-fixed": "#00210a",
+                        "tertiary": "#325c00",
+                        "tertiary-fixed-dim": "#87dc2b",
+                        "tertiary-container": "#427700",
+                        "error": "#ba1a1a",
+                        "primary-fixed": "#9af7ac",
+                        "on-primary-fixed-variant": "#005225",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#a4f1af",
+                        "on-secondary-fixed-variant": "#005323",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#a1fa48",
+                        "surface-container-high": "#ebe7e7",
+                        "on-secondary-container": "#25703b",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "surface-tint": "#006d33",
+                        "primary-fixed-dim": "#7eda92",
+                        "on-primary-fixed": "#00210b",
+                        "secondary": "#206c37",
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#fcf9f8",
+                        "on-surface-variant": "#3f493f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "section-gap": "120px",
+                        "margin-mobile": "20px",
+                        "stack-sm": "8px",
+                        "margin-desktop": "64px",
+                        "container-max": "1280px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Poppins"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "display-lg-mobile": ["Poppins"],
+                        "headline-lg": ["Poppins"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Poppins"],
+                        "display-lg": ["Poppins"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["48px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .fact-card-border {
+            border-left: 4px solid #A6FF4D; /* Lime Accent override for Fact Card specific style */
+        }
+        .ambient-glow {
+            box-shadow: 0 10px 40px -10px rgba(23, 122, 61, 0.08); /* Primary color low opacity */
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased overflow-x-hidden">
+<!-- Top Navigation Placeholder (Generated from JSON) -->
+<header class="fixed w-full z-50 bg-transparent backdrop-blur-md dark:bg-surface-container-lowest/80 docked full-width top-0 sticky no-border shadow-sm shadow-sm dark:shadow-none transition-all duration-300">
+<div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="text-headline-md font-headline-md font-bold tracking-tight text-primary dark:text-primary-fixed">
+                Fact Box Consult
+            </div>
+<nav class="hidden md:flex gap-stack-lg items-center">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md text-body-md hover:opacity-80 transition-opacity" href="#">Our Work</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md text-body-md hover:opacity-80 transition-opacity" href="#">Services</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md text-body-md hover:opacity-80 transition-opacity" href="#">Reports</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md text-body-md hover:opacity-80 transition-opacity" href="#">Journal</a>
+<a class="text-primary dark:text-primary-fixed font-bold border-b-2 border-primary dark:border-primary-fixed pb-1 font-body-md text-body-md hover:opacity-80 transition-opacity" href="#">Contact</a>
+</nav>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-lg font-body-md hover:bg-secondary transition-colors md:block hidden scale-95 active:scale-90 transition-transform">Inquire</button>
+</div>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative w-full h-[70vh] min-h-[600px] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<div class="absolute inset-0 bg-black/50 z-10"></div>
+<img alt="" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLuQNzQUI7G8s5Fg6bYCxeuyzhxxEoUT11B5hyv5sxeXeJA73cSJf3nJWb9pUG3XR6t-4CPdLWkJN7ZL0jZUcSPeeBf2PxYvUl_nClNWaYniSY3_JrjOgB2X6g__7vvHTpI3YhSlhGj7SXs9vUrGY7Zo3abbxyJatKhmUBE8yYKxdmjbsCabrNiW2tS-7u_UirKL2Sea7wOglzQSPIQp_xhQz6cbz3on5yS3IRJZORHa9vGl3j2SKgOdx-8"/>
+</div>
+<div class="relative z-20 text-center px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full text-white mt-20">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg mb-stack-md text-white drop-shadow-lg">Let's Tell Your Story</h1>
+<p class="font-body-lg text-body-lg max-w-2xl mx-auto opacity-90 drop-shadow-md">Whether you're planning a documentary, advocacy campaign, strategic communication project, or media production, we'd love to hear from you.</p>
+</div>
+</section>
+<!-- Main Content Area -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-gap relative -mt-24 z-30">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Contact Information Column -->
+<div class="lg:col-span-4 flex flex-col gap-stack-md">
+<div class="bg-surface-container-lowest rounded-xl p-8 ambient-glow hover:translate-y-[-4px] transition-transform duration-300">
+<div class="flex items-start gap-4">
+<div class="p-3 bg-surface-container-low rounded-lg text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md mb-2 text-on-surface">Office Address</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Jos, Plateau State, Nigeria.</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-8 ambient-glow hover:translate-y-[-4px] transition-transform duration-300">
+<div class="flex items-start gap-4">
+<div class="p-3 bg-surface-container-low rounded-lg text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">call</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md mb-2 text-on-surface">Phone Number</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">+234 (0) 800 000 0000</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-8 ambient-glow hover:translate-y-[-4px] transition-transform duration-300">
+<div class="flex items-start gap-4">
+<div class="p-3 bg-surface-container-low rounded-lg text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">mail</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md mb-2 text-on-surface">Email Address</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">hello@factboxconsult.com</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-8 ambient-glow hover:translate-y-[-4px] transition-transform duration-300 fact-card-border">
+<div class="flex items-start gap-4">
+<div class="p-3 bg-surface-container-low rounded-lg text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">schedule</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md mb-2 text-on-surface">Business Hours</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Mon-Fri, 9am - 5pm</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Contact Form Column -->
+<div class="lg:col-span-8">
+<div class="bg-surface-container-lowest rounded-xl p-8 md:p-12 ambient-glow h-full border border-surface-container">
+<form class="space-y-stack-md">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Full Name</label>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 font-body-md text-on-surface transition-colors" placeholder="Jane Doe" type="text"/>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Organization</label>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 font-body-md text-on-surface transition-colors" placeholder="Company Name" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Email</label>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 font-body-md text-on-surface transition-colors" placeholder="jane@example.com" type="email"/>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Phone</label>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 font-body-md text-on-surface transition-colors" placeholder="+234..." type="tel"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Service Required</label>
+<select class="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 font-body-md text-on-surface transition-colors appearance-none">
+<option disabled="" selected="" value="">Select a service...</option>
+<option value="doc">Documentary Production</option>
+<option value="photo">Photography</option>
+<option value="video">Videography</option>
+<option value="strat">Strategic Communication</option>
+<option value="dev">Development Communication</option>
+<option value="bcc">BCC</option>
+<option value="advocacy">Advocacy Campaigns</option>
+<option value="consulting">Media Consulting</option>
+<option value="other">Other</option>
+</select>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Project Budget (Optional)</label>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 font-body-md text-on-surface transition-colors" placeholder="e.g. $10,000 - $50,000" type="text"/>
+</div>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">Message</label>
+<textarea class="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 font-body-md text-on-surface transition-colors resize-none" placeholder="Tell us about your project goals and timeline..." rows="4"></textarea>
+</div>
+<div class="pt-4 flex justify-end">
+<button class="bg-primary text-on-primary px-8 py-3 rounded-lg font-body-md font-semibold hover:bg-[#A6FF4D] hover:text-primary-container transition-colors duration-300 shadow-md" type="button">
+                                    Send Message
+                                </button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Map Section -->
+<section class="w-full h-96 relative bg-surface-variant overflow-hidden">
+<!-- Placeholder for Map -->
+<div class="absolute inset-0 flex items-center justify-center opacity-50 bg-surface-container-high" data-location="Jos, Nigeria" style="">
+<div class="text-center">
+<span class="material-symbols-outlined text-display-lg text-outline mb-4">map</span>
+<p class="font-body-md text-outline">Interactive Map of Jos, Nigeria</p>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-inverse-surface full-width no-border flat no shadows grid grid-cols-1 md:grid-cols-2 gap-stack-lg w-full px-margin-desktop py-section-gap max-w-container-max mx-auto opacity-100 hover:opacity-80">
+<div class="flex flex-col gap-stack-md">
+<div class="text-headline-sm font-headline-sm text-primary dark:text-primary-fixed">
+                    Fact Box Consult
+                </div>
+<p class="text-body-md font-body-md text-primary dark:text-primary-fixed-dim">
+                    © 2024 Fact Box Consult. Based in Jos, Nigeria. Premium Documentary Production &amp; Strategic Communication.
+                </p>
+</div>
+<div class="flex flex-col md:items-end gap-stack-sm">
+<div class="flex flex-wrap gap-4 text-label-caps font-label-caps">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-tertiary dark:hover:text-tertiary-fixed transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-tertiary dark:hover:text-tertiary-fixed transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-tertiary dark:hover:text-tertiary-fixed transition-colors" href="#">Production Standards</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-tertiary dark:hover:text-tertiary-fixed transition-colors" href="#">Global Ethics</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-tertiary dark:hover:text-tertiary-fixed transition-colors" href="#">Careers</a>
+</div>
+</div>
+</footer>
+</main>
+</body></html>

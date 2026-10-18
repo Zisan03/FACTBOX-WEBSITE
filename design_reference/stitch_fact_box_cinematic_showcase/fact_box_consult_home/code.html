@@ -1,0 +1,337 @@
+<!DOCTYPE html><html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Fact Box Consult - Stories that Shape the Future</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#2b5000",
+                        "on-error-container": "#93000a",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#dcd9d9",
+                        "primary-fixed": "#9af7ac",
+                        "on-primary-container": "#a9ffb8",
+                        "on-surface": "#1c1b1b",
+                        "on-primary-fixed": "#00210b",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#7eda92",
+                        "on-secondary-container": "#25703b",
+                        "outline": "#6f7a6e",
+                        "inverse-primary": "#7eda92",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#ebe7e7",
+                        "on-background": "#1c1b1b",
+                        "outline-variant": "#becabc",
+                        "primary": "#005f2b",
+                        "inverse-on-surface": "#f3f0ef",
+                        "tertiary-container": "#427700",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#325c00",
+                        "inverse-surface": "#313030",
+                        "on-error": "#ffffff",
+                        "background": "#fcf9f8",
+                        "surface-variant": "#e5e2e1",
+                        "tertiary-fixed": "#a1fa48",
+                        "primary-container": "#177a3d",
+                        "surface": "#fcf9f8",
+                        "surface-tint": "#006d33",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#f0edec",
+                        "secondary-container": "#a4f1af",
+                        "secondary": "#206c37",
+                        "surface-bright": "#fcf9f8",
+                        "on-tertiary-container": "#b8ff74",
+                        "on-secondary-fixed": "#00210a",
+                        "secondary-fixed-dim": "#8cd897",
+                        "surface-container-low": "#f6f3f2",
+                        "on-tertiary-fixed": "#0e2000",
+                        "on-surface-variant": "#3f493f",
+                        "on-primary-fixed-variant": "#005225",
+                        "surface-container-highest": "#e5e2e1",
+                        "secondary-fixed": "#a7f4b1",
+                        "on-secondary-fixed-variant": "#005323",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#87dc2b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "section-gap": "120px",
+                        "container-max": "1280px",
+                        "stack-md": "16px",
+                        "margin-mobile": "20px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Poppins"],
+                        "display-lg": ["Poppins"],
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Poppins"],
+                        "label-caps": ["Inter"],
+                        "display-lg-mobile": ["Poppins"],
+                        "headline-md": ["Poppins"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "display-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-xl": ["48px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "600"}],
+                        "display-lg-mobile": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .fact-card {
+            border-left: 4px solid var(--tw-colors-tertiary-fixed);
+        }
+        
+        .ambient-shadow {
+            box-shadow: 0 20px 40px -15px rgba(0, 95, 43, 0.08);
+        }
+        
+        /* Smooth reveal animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-transparent backdrop-blur-md shadow-sm transition-all duration-500 ease-in-out">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-6 max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md tracking-tighter text-on-primary">
+                Fact Box Consult
+            </div>
+<div class="hidden md:flex gap-8 items-center bg-surface/10 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3">
+<a class="font-label-caps text-label-caps text-on-primary hover:text-primary-fixed transition-colors" href="#">Portfolios</a>
+<a class="font-label-caps text-label-caps text-on-primary hover:text-primary-fixed transition-colors" href="#">Services</a>
+<a class="font-label-caps text-label-caps text-on-primary hover:text-primary-fixed transition-colors" href="#">Methodology</a>
+<a class="font-label-caps text-label-caps text-on-primary hover:text-primary-fixed transition-colors" href="#">Archive</a>
+</div>
+<button class="hidden md:flex items-center justify-center bg-primary text-on-primary font-label-caps text-label-caps px-6 py-3 rounded-full hover:bg-tertiary-fixed hover:text-on-tertiary-fixed transition-all duration-300">
+                Partner With Us
+            </button>
+<!-- Mobile Menu Toggle -->
+<button class="md:hidden text-on-primary p-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+</div>
+</nav>
+<!-- Hero Section -->
+<section class="relative w-full h-screen min-h-[800px] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 z-0 bg-on-background">
+<img class="w-full h-full object-cover opacity-60 mix-blend-overlay" data-alt="A powerful, cinematic wide shot of a documentary film crew in a rural Nigerian setting during golden hour. The lighting is dramatic and natural, casting long shadows. A prominent camera rig is in the foreground, out of focus, while the background shows authentic, high-impact human interaction. The overall aesthetic is premium, moody, and reminiscent of high-end investigative journalism platforms with a distinct Netflix documentary visual style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhc_kuepqEuIjbopOiPwr8FPrLb1n1Be6Md5ubyJ3Z3yipND5PAmsbRiiQhs6LLTe3lINedY_QiAKKYZTi3p8NXkxnO6BBCW3AZxwjFLLK1EBxdvWPPQ8wTlYKgopqR0f8eQdmGxd_Ok4oN6A6nqB3dC0HBiPx6wsgIboYg3O0SB-K3NJaN4fwRrtkBx4It5KCI6T3Lrj_Ad3auj1Qd9h8xxuCk6aU_RVMBFjbIYisOhSEy8BuPDtnHnyWOFGf0GJus0l_4YoYslo">
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-black/50"></div>
+</div>
+<div class="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop w-full flex flex-col items-start mt-20">
+<div class="glass-panel p-stack-lg rounded-xl max-w-3xl reveal">
+<span class="inline-block px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed font-label-caps text-label-caps rounded mb-stack-sm uppercase tracking-widest">Premium Storytelling</span>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-primary mb-stack-md">
+                    Stories that Shape the Future
+                </h1>
+<p class="font-body-lg text-body-lg text-surface-container max-w-2xl mb-stack-lg">
+                    We are an investigative media consultancy bridging the gap between rigorous research and high-fidelity cinematic production. We document impact for global change-makers.
+                </p>
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-8 py-4 rounded hover:bg-tertiary-fixed hover:text-on-tertiary-fixed transition-all duration-300 flex items-center justify-center gap-2 uppercase tracking-wider">
+                        Explore Our Work <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+<button class="bg-transparent border border-on-primary text-on-primary font-label-caps text-label-caps px-8 py-4 rounded hover:bg-white/10 transition-all duration-300 uppercase tracking-wider">
+                        View Methodology
+                    </button>
+</div>
+</div>
+</div>
+<!-- Scroll indicator -->
+<div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-on-primary opacity-50 animate-bounce">
+<span class="material-symbols-outlined text-3xl">keyboard_arrow_down</span>
+</div>
+</section>
+<!-- Services Section -->
+<section class="py-section-gap bg-background">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="mb-16 reveal">
+<h2 class="font-headline-xl text-headline-xl text-on-background mb-4">Core Competencies</h2>
+<div class="h-1 w-24 bg-primary"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Service 1 -->
+<div class="bg-surface-container-lowest p-stack-lg rounded-xl ambient-shadow reveal border border-surface-variant hover:-translate-y-2 transition-transform duration-300 group">
+<div class="w-14 h-14 bg-primary-container rounded-lg flex items-center justify-center mb-stack-lg group-hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-on-primary-container text-3xl" style="font-variation-settings: 'FILL' 1;">campaign</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-stack-sm">Strategic Communication</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">
+                        Developing robust advocacy campaigns that translate complex NGO initiatives into compelling, actionable narratives for global audiences.
+                    </p>
+<a class="inline-flex items-center gap-2 font-label-caps text-label-caps text-primary group-hover:text-tertiary-container transition-colors uppercase tracking-wider" href="#">
+                        Learn More <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<!-- Service 2 -->
+<div class="bg-surface-container-lowest p-stack-lg rounded-xl ambient-shadow reveal border border-surface-variant hover:-translate-y-2 transition-transform duration-300 group" style="transition-delay: 100ms;">
+<div class="w-14 h-14 bg-primary-container rounded-lg flex items-center justify-center mb-stack-lg group-hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-on-primary-container text-3xl" style="font-variation-settings: 'FILL' 1;">movie</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-stack-sm">Visual Production</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">
+                        End-to-end production of premium documentaries and visual reports. We combine cinematic aesthetics with journalistic integrity.
+                    </p>
+<a class="inline-flex items-center gap-2 font-label-caps text-label-caps text-primary group-hover:text-tertiary-container transition-colors uppercase tracking-wider" href="#">
+                        Learn More <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<!-- Service 3 -->
+<div class="bg-surface-container-lowest p-stack-lg rounded-xl ambient-shadow reveal border border-surface-variant hover:-translate-y-2 transition-transform duration-300 group" style="transition-delay: 200ms;">
+<div class="w-14 h-14 bg-primary-container rounded-lg flex items-center justify-center mb-stack-lg group-hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-on-primary-container text-3xl" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-stack-sm">Behavior Change</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md">
+                        Evidence-based media consulting designed to influence societal behavior and support large-scale public health and educational goals.
+                    </p>
+<a class="inline-flex items-center gap-2 font-label-caps text-label-caps text-primary group-hover:text-tertiary-container transition-colors uppercase tracking-wider" href="#">
+                        Learn More <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Impact/Fact Section -->
+<section class="py-section-gap bg-on-background text-on-primary relative overflow-hidden">
+<!-- Abstract gradient background -->
+<div class="absolute inset-0 opacity-20" style="background: radial-gradient(circle at top right, var(--tw-colors-primary), transparent 50%);"></div>
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop relative z-10">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
+<div class="lg:col-span-5 reveal">
+<span class="inline-block px-3 py-1 bg-surface/10 text-tertiary-fixed font-label-caps text-label-caps rounded mb-stack-sm uppercase tracking-widest border border-tertiary-fixed/30">Documented Impact</span>
+<h2 class="font-headline-xl text-headline-xl mb-stack-lg">Data-Driven Storytelling for Global Change.</h2>
+<p class="font-body-lg text-body-lg text-surface-dim mb-stack-lg">
+                        We partner with leading international organizations like UNICEF, WHO, and global NGOs to deliver narratives that move needles, change policies, and secure funding.
+                    </p>
+<button class="bg-transparent border-2 border-primary-fixed text-primary-fixed font-label-caps text-label-caps px-8 py-3 rounded hover:bg-primary-fixed hover:text-on-primary-fixed transition-all duration-300 uppercase tracking-wider">
+                        View Impact Reports
+                    </button>
+</div>
+<div class="lg:col-span-6 lg:col-start-7 space-y-stack-md reveal" style="transition-delay: 200ms;">
+<!-- Fact Card 1 -->
+<div class="fact-card bg-surface/5 p-stack-lg rounded-r-xl backdrop-blur-sm">
+<div class="font-display-lg text-display-lg text-tertiary-fixed mb-2">50+</div>
+<h4 class="font-headline-md text-headline-md mb-2">Documentaries Produced</h4>
+<p class="font-body-md text-body-md text-surface-variant">Spanning 15 countries, focusing on health, education, and governance.</p>
+</div>
+<!-- Fact Card 2 -->
+<div class="fact-card bg-surface/5 p-stack-lg rounded-r-xl backdrop-blur-sm">
+<div class="font-display-lg text-display-lg text-tertiary-fixed mb-2">12M</div>
+<h4 class="font-headline-md text-headline-md mb-2">Audience Reach</h4>
+<p class="font-body-md text-body-md text-surface-variant">Through strategic distribution channels and global broadcast partnerships.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-container-highest w-full pt-section-gap pb-stack-lg border-t border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-start px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto gap-stack-lg">
+<div class="flex flex-col gap-4 max-w-sm">
+<div class="font-headline-md text-headline-md font-bold text-primary">
+                    Fact Box Consult
+                </div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    Storytelling for Impact. Bridging investigative rigor with cinematic production for global change-makers.
+                </p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-4">
+                    © 2024 Fact Box Consult. Storytelling for Impact.
+                </p>
+</div>
+<div class="flex flex-col gap-3">
+<span class="font-label-caps text-label-caps text-on-surface font-bold uppercase tracking-widest mb-2">Navigation</span>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Documentaries</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Strategic Comms</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Ethics &amp; Standards</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Privacy Policy</a>
+</div>
+<div class="flex flex-col gap-3">
+<span class="font-label-caps text-label-caps text-on-surface font-bold uppercase tracking-widest mb-2">Contact</span>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200 flex items-center gap-2" href="mailto:contact@factbox.com">
+<span class="material-symbols-outlined text-sm">mail</span> contact@factbox.com
+                </a>
+<div class="flex gap-4 mt-4">
+<!-- Social placeholders -->
+<a class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface hover:bg-primary hover:text-on-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-lg">language</span>
+</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Simple Intersection Observer for scroll animations
+        document.addEventListener("DOMContentLoaded", () => {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal').forEach((element) => {
+                observer.observe(element);
+            });
+            
+            // Navbar scroll effect
+            const navbar = document.querySelector('nav');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('bg-surface/90', 'dark:bg-inverse-surface/90', 'backdrop-blur-xl', 'border-b', 'border-outline-variant/20');
+                    navbar.classList.remove('bg-transparent');
+                } else {
+                    navbar.classList.remove('bg-surface/90', 'dark:bg-inverse-surface/90', 'backdrop-blur-xl', 'border-b', 'border-outline-variant/20');
+                    navbar.classList.add('bg-transparent');
+                }
+            });
+        });
+    </script>
+</body></html>
