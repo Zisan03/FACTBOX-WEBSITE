@@ -1,16 +1,19 @@
 """Application factory module.
 
 Constructs and configures the Flask application instance according to project specifications.
+Enforces ADR-001, ADR-009, and Stage 2 requirements.
 """
 import logging
 import sys
+import uuid
 from flask import Flask, render_template, jsonify, request
 from app.config import get_config
-from app.extensions import db, migrate, csrf
+from app.extensions import db, migrate, csrf, login_manager, limiter
 from app.blueprints.health import health_bp
 from app.blueprints.public import public_bp
 from app.blueprints.contact import contact_bp
 from app.blueprints.admin import admin_bp
+import app.models  # Ensures all models are registered with SQLAlchemy metadata
 
 
 def configure_logging(app: Flask):
@@ -47,6 +50,15 @@ def register_error_handlers(app: Flask):
             return jsonify({"error": "Resource not found"}), 404
         return render_template("errors/404.html"), 404
 
+    @app.errorhandler(429)
+    def rate_limit_exceeded(error):
+        if request.path.startswith("/api/") or request.path == "/health":
+            return jsonify({"error": "Rate limit exceeded. Please try again later."}), 429
+        return render_template(
+            "errors/400.html",
+            error_message="Too many requests. Please wait a moment before trying again.",
+        ), 429
+
     @app.errorhandler(500)
     def internal_server_error(error):
         app.logger.error("Unhandled exception: %s", error)
@@ -66,6 +78,45 @@ def register_security_headers(app: Flask):
         return response
 
 
+def register_cli_commands(app: Flask):
+    """Register administrative CLI commands."""
+    import click
+    from app.models.admin import AdminUser, AdminAuditEvent
+
+    @app.cli.command("create-admin")
+    @click.option("--email", prompt="Admin Email", help="Administrator email address")
+    @click.password_option(help="Administrator password (minimum 8 characters)")
+    def create_admin(email, password):
+        """Provision an administrator account securely."""
+        normalized_email = email.strip().lower()
+        if not normalized_email or "@" not in normalized_email:
+            click.echo("Error: Please provide a valid email address.")
+            sys.exit(1)
+
+        if len(password) < 8:
+            click.echo("Error: Password must be at least 8 characters long.")
+            sys.exit(1)
+
+        existing = AdminUser.query.filter_by(email=normalized_email).first()
+        if existing:
+            click.echo(f"Error: Admin user with email '{normalized_email}' already exists.")
+            sys.exit(1)
+
+        admin = AdminUser(email=normalized_email, is_active=True)
+        admin.set_password(password)
+        db.session.add(admin)
+        db.session.flush()
+
+        audit = AdminAuditEvent(
+            admin_user_id=admin.id,
+            event_type="admin_provisioned_cli",
+            safe_metadata={"email": normalized_email},
+        )
+        db.session.add(audit)
+        db.session.commit()
+        click.echo(f"Successfully provisioned administrator: {normalized_email}")
+
+
 def create_app(config_name: str | None = None) -> Flask:
     """Application factory for Fact Box Consult web application."""
     app = Flask(__name__)
@@ -78,11 +129,23 @@ def create_app(config_name: str | None = None) -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
+    login_manager.init_app(app)
+    limiter.init_app(app)
+
+    # Configure user loader for Flask-Login
+    @login_manager.user_loader
+    def load_user(user_id):
+        try:
+            from app.models.admin import AdminUser
+            return db.session.get(AdminUser, uuid.UUID(user_id))
+        except (ValueError, TypeError):
+            return None
 
     # Configure logging, error handlers, and security headers
     configure_logging(app)
     register_error_handlers(app)
     register_security_headers(app)
+    register_cli_commands(app)
 
     # Register blueprints
     app.register_blueprint(health_bp)

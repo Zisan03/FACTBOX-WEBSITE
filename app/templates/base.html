@@ -11,7 +11,10 @@
 <body>
   <header class="site-header">
     <div class="container nav-wrap">
-      <a href="{{ url_for('public.home') }}" class="brand-logo">FACT BOX CONSULT</a>
+      <a href="{{ url_for('public.home') }}" class="brand-logo">
+        <img src="{{ url_for('static', filename='img/factbox_logo.jpg') }}" alt="Fact Box Consult Logo" class="brand-logo-img">
+        <span>FACT BOX CONSULT</span>
+      </a>
       <nav aria-label="Main Navigation">
         <ul class="nav-links">
           <li><a href="{{ url_for('public.home') }}">Home</a></li>
@@ -32,7 +35,10 @@
     <div class="container">
       <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 32px;">
         <div style="max-width: 400px;">
-          <h3 style="color: #ffffff; margin-bottom: 16px;">FACT BOX CONSULT</h3>
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <img src="{{ url_for('static', filename='img/factbox_logo.jpg') }}" alt="Fact Box Consult Logo" style="height: 38px; width: 38px; border-radius: 4px; object-fit: contain; background: #000; padding: 2px;">
+            <h3 style="color: #ffffff; margin: 0; font-size: 18px;">FACT BOX CONSULT</h3>
+          </div>
           <p style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">
             Audiovisual media, research, and creative consultancy. RC: 7592601.
           </p>
