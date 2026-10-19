@@ -40,6 +40,12 @@ class BaseConfig:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
 
+    # Media & Uploads (ADR-004: Cloudinary is media store, 10MB limit)
+    MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10 MB
+    CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME")
+    CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
+    CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
+
 
 class DevelopmentConfig(BaseConfig):
     """Configuration for local development."""
@@ -61,6 +67,7 @@ class TestingConfig(BaseConfig):
     DEBUG = False
     TESTING = True
     WTF_CSRF_ENABLED = False  # Allows straightforward testing of endpoints
+    RATELIMIT_ENABLED = False  # Disables throttling during automated testing
 
     def __init__(self):
         super().__init__()

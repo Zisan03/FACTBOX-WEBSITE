@@ -1,0 +1,98 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_title %}Categories{% endblock %}
+{% block admin_heading %}Portfolio Categories{% endblock %}
+
+{% block admin_content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <h2 style="font-size: 20px; font-weight: 700; color: var(--color-text-main); margin: 0;">Category Management</h2>
+    <p style="font-size: 14px; color: var(--color-text-muted); margin: 4px 0 0;">
+      Organize documentary films, investigative research, and strategic media projects into classification filters.
+    </p>
+  </div>
+  <a href="{{ url_for('admin.new_category') }}" class="btn btn-primary" style="padding: 10px 18px; font-size: 14px; color: #fff; text-decoration: none; border-radius: var(--radius-sm); font-weight: 600;">
+    + New Category
+  </a>
+</div>
+
+<div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle); overflow: hidden;">
+  {% if categories %}
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <thead>
+          <tr style="background: #fbfdfc; border-bottom: 2px solid var(--color-border); text-align: left;">
+            <th style="padding: 12px 16px; font-weight: 600; color: var(--color-text-muted);">Name</th>
+            <th style="padding: 12px 16px; font-weight: 600; color: var(--color-text-muted);">Slug</th>
+            <th style="padding: 12px 16px; font-weight: 600; color: var(--color-text-muted);">Display Order</th>
+            <th style="padding: 12px 16px; font-weight: 600; color: var(--color-text-muted);">Projects Linked</th>
+            <th style="padding: 12px 16px; font-weight: 600; color: var(--color-text-muted);">Status</th>
+            <th style="padding: 12px 16px; font-weight: 600; color: var(--color-text-muted); text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cat in categories %}
+            <tr style="border-bottom: 1px solid var(--color-border);">
+              <td style="padding: 14px 16px; font-weight: 600; color: var(--color-text-main);">
+                {{ cat.name }}
+              </td>
+              <td style="padding: 14px 16px; color: var(--color-text-muted); font-family: monospace; font-size: 13px;">
+                {{ cat.slug }}
+              </td>
+              <td style="padding: 14px 16px; color: var(--color-text-main);">
+                {{ cat.display_order }}
+              </td>
+              <td style="padding: 14px 16px;">
+                <span style="display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #e0f2fe; color: #0369a1;">
+                  {{ cat.projects.count() }} projects
+                </span>
+              </td>
+              <td style="padding: 14px 16px;">
+                {% if cat.is_active %}
+                  <span style="display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #dcfce7; color: #15803d;">
+                    Active
+                  </span>
+                {% else %}
+                  <span style="display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #f3f4f6; color: #4b5563;">
+                    Inactive
+                  </span>
+                {% endif %}
+              </td>
+              <td style="padding: 14px 16px; text-align: right;">
+                <div style="display: inline-flex; align-items: center; gap: 8px;">
+                  <a href="{{ url_for('admin.edit_category', category_id=cat.id) }}" style="padding: 6px 12px; font-size: 13px; color: var(--color-primary); background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">
+                    Edit
+                  </a>
+                  
+                  <!-- Toggle Active Form -->
+                  <form method="POST" action="{{ url_for('admin.toggle_category_active', category_id=cat.id) }}" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" style="padding: 6px 12px; font-size: 13px; color: var(--color-text-muted); background: #f9fafb; border: 1px solid var(--color-border); border-radius: var(--radius-sm); cursor: pointer;">
+                      {{ "Deactivate" if cat.is_active else "Activate" }}
+                    </button>
+                  </form>
+
+                  <!-- Delete Form -->
+                  <form method="POST" action="{{ url_for('admin.delete_category', category_id=cat.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete category {{ cat.name }}?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" style="padding: 6px 12px; font-size: 13px; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius-sm); cursor: pointer;" {% if cat.projects.count() > 0 %}title="Category contains projects and cannot be deleted"{% endif %}>
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div style="padding: 48px; text-align: center; color: var(--color-text-muted);">
+      <p style="font-size: 16px; margin-bottom: 12px;">No portfolio categories created yet.</p>
+      <a href="{{ url_for('admin.new_category') }}" class="btn btn-primary" style="padding: 8px 16px; font-size: 14px; text-decoration: none; color: #fff;">
+        Create Your First Category
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

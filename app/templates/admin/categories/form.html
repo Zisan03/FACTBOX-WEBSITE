@@ -1,0 +1,78 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_title %}{{ title }}{% endblock %}
+{% block admin_heading %}{{ title }}{% endblock %}
+
+{% block admin_content %}
+<div style="max-width: 640px; margin: 0 auto;">
+  <div style="margin-bottom: 20px;">
+    <a href="{{ url_for('admin.list_categories') }}" style="color: var(--color-primary); text-decoration: none; font-size: 14px; font-weight: 600;">
+      &larr; Back to Categories
+    </a>
+  </div>
+
+  <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-subtle);">
+    <form method="POST">
+      {{ form.hidden_tag() }}
+
+      <div style="margin-bottom: 20px;">
+        <label for="name" style="display: block; font-size: 14px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          Category Name *
+        </label>
+        {{ form.name(id="name", style="width: 100%; padding: 11px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 15px;", placeholder="e.g. Documentary Films or Investigative Research") }}
+        <p style="font-size: 12px; color: var(--color-text-muted); margin-top: 4px;">
+          This name appears on the portfolio filter tabs (e.g. "Documentary Films").
+        </p>
+        {% if form.name.errors %}
+          <div style="color: #b91c1c; font-size: 13px; margin-top: 4px;">{{ form.name.errors[0] }}</div>
+        {% endif %}
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label for="display_order" style="display: block; font-size: 14px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          Display Order
+        </label>
+        {{ form.display_order(id="display_order", type="number", min="0", style="width: 120px; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 14px;") }}
+        <p style="font-size: 12px; color: var(--color-text-muted); margin-top: 4px;">
+          Order in which tabs appear. 0 shows first.
+        </p>
+        {% if form.display_order.errors %}
+          <div style="color: #b91c1c; font-size: 13px; margin-top: 4px;">{{ form.display_order.errors[0] }}</div>
+        {% endif %}
+      </div>
+
+      <div style="margin-bottom: 20px; padding: 12px 16px; background: #fbfdfc; border: 1px solid var(--color-border); border-radius: var(--radius-sm);">
+        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--color-text-main);">
+          {{ form.is_active(style="width: 18px; height: 18px; accent-color: var(--color-primary); cursor: pointer;") }}
+          <span>Active Category (Make available for projects and portfolio tabs)</span>
+        </label>
+      </div>
+
+      <!-- Advanced / Custom Web Link (Optional dropdown) -->
+      <details style="margin-bottom: 28px; background: #fbfdfc; border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 12px 16px;">
+        <summary style="font-size: 13px; font-weight: 600; color: var(--color-primary); cursor: pointer; user-select: none;">
+          &#9881; Optional: Customize Web Link Address (Auto-created if left blank)
+        </summary>
+        <div style="margin-top: 10px;">
+          <label for="slug" style="display: block; font-size: 12px; color: var(--color-text-muted); margin-bottom: 4px;">
+            Web link identifier (e.g. <code>documentary-films</code>). You can leave this blank to auto-create from the name.
+          </label>
+          {{ form.slug(id="slug", style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 13px; font-family: monospace;") }}
+          {% if form.slug.errors %}
+            <div style="color: #b91c1c; font-size: 12px; margin-top: 4px;">{{ form.slug.errors[0] }}</div>
+          {% endif %}
+        </div>
+      </details>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--color-border); padding-top: 20px;">
+        <a href="{{ url_for('admin.list_categories') }}" class="btn" style="padding: 10px 18px; font-size: 14px; background: #f3f4f6; color: var(--color-text-main); border-radius: var(--radius-sm); text-decoration: none; border: 1px solid var(--color-border);">
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 14px; color: #fff; border-radius: var(--radius-sm); cursor: pointer; font-weight: 700;">
+          Save Category
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

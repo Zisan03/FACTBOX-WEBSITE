@@ -1,144 +1,134 @@
-{% extends "base.html" %}
+{% extends "admin/base_admin.html" %}
 
-{% block title %}Administrator Dashboard — Fact Box Consult{% endblock %}
+{% block admin_title %}Dashboard{% endblock %}
+{% block admin_heading %}Management Dashboard{% endblock %}
 
-{% block content %}
-<section style="padding: 48px 0; background-color: var(--color-bg); min-height: 80vh;">
-  <div class="container">
-    <!-- Top admin bar -->
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--color-border);">
-      <div>
-        <h1 style="font-size: 28px; font-weight: 700; color: var(--color-text); margin-bottom: 4px;">Management Dashboard</h1>
-        <p style="color: var(--color-text-muted); font-size: 14px;">
-          Signed in as <strong>{{ current_user.email }}</strong>
-          {% if current_user.last_login_at %}
-            &bull; Last login: {{ current_user.last_login_at.strftime('%Y-%m-%d %H:%M UTC') }}
-          {% endif %}
-        </p>
-      </div>
-      <div>
-        <a href="{{ url_for('admin.logout') }}" class="btn btn-secondary" style="font-size: 14px; padding: 10px 18px;">
-          Sign Out
-        </a>
-      </div>
+{% block admin_content %}
+<!-- Metric Cards Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px;">
+  
+  <!-- Projects Card -->
+  <div style="background: #ffffff; padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary);">
+        Portfolio Projects
+      </span>
+      <a href="{{ url_for('admin.list_projects') }}" style="font-size: 13px; font-weight: 600; color: var(--color-primary); text-decoration: none;">View &rarr;</a>
     </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div style="margin-bottom: 24px;">
-          {% for category, message in messages %}
-            <div style="padding: 12px 16px; border-radius: var(--radius-md); font-size: 14px; margin-bottom: 8px; {% if category == 'error' %}background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca;{% elif category == 'success' %}background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0;{% else %}background-color: #e0f2fe; color: #075985; border: 1px solid #bae6fd;{% endif %}">
-              {{ message }}
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-
-    <!-- Metric Cards Grid -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-bottom: 40px;">
-      <!-- Projects Card -->
-      <div style="background: #ffffff; padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
-        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary); margin-bottom: 8px;">
-          Portfolio Projects
-        </div>
-        <div style="font-size: 36px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">
-          {{ total_projects }}
-        </div>
-        <div style="font-size: 13px; color: var(--color-text-muted);">
-          <span>{{ published_projects }} published</span> &bull; <span>{{ draft_projects }} drafts</span>
-        </div>
-      </div>
-
-      <!-- Services Card -->
-      <div style="background: #ffffff; padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
-        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary); margin-bottom: 8px;">
-          Consulting Services
-        </div>
-        <div style="font-size: 36px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">
-          {{ total_services }}
-        </div>
-        <div style="font-size: 13px; color: var(--color-text-muted);">
-          <span>{{ published_services }} active services</span>
-        </div>
-      </div>
-
-      <!-- Enquiries Card -->
-      <div style="background: #ffffff; padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
-        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary); margin-bottom: 8px;">
-          Client Enquiries
-        </div>
-        <div style="font-size: 36px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">
-          {{ total_enquiries }}
-        </div>
-        <div style="font-size: 13px; color: var(--color-text-muted);">
-          <span style="color: {% if new_enquiries > 0 %}#b91c1c{% else %}inherit{% endif %}; font-weight: {% if new_enquiries > 0 %}600{% else %}normal{% endif %};">{{ new_enquiries }} new enquiries</span>
-          {% if pending_notifications > 0 %}
-            &bull; <span style="color: #b45309;">{{ pending_notifications }} pending notification</span>
-          {% endif %}
-        </div>
-      </div>
+    <div style="font-size: 36px; font-weight: 700; color: var(--color-text-main); margin-bottom: 8px;">
+      {{ total_projects }}
     </div>
-
-    <!-- Quick Actions & Roadmap Note -->
-    <div style="background: #ffffff; padding: 28px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle); margin-bottom: 40px;">
-      <h2 style="font-size: 18px; font-weight: 700; color: var(--color-text); margin-bottom: 12px;">Stage 2 Status & Next Milestones</h2>
-      <p style="color: var(--color-text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 16px;">
-        Database schema and administrator authentication have been established in Stage 2. Content management CRUD for projects, categories, Cloudinary media upload, and services will be enabled in <strong>Stage 3</strong>.
-      </p>
-      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-        <span style="display: inline-block; padding: 6px 12px; background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 13px; color: var(--color-text);">
-          Authentication: Active
-        </span>
-        <span style="display: inline-block; padding: 6px 12px; background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 13px; color: var(--color-text);">
-          PostgreSQL Persistence: Active
-        </span>
-        <span style="display: inline-block; padding: 6px 12px; background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 13px; color: var(--color-text);">
-          CSRF & Rate Limiting: Active
-        </span>
-      </div>
+    <div style="font-size: 13px; color: var(--color-text-muted);">
+      <span style="color: #166534; font-weight: 600;">{{ published_projects }} published</span> &bull; 
+      <span style="color: #854d0e;">{{ draft_projects }} drafts</span>
     </div>
+  </div>
 
-    <!-- Recent Security & Audit Events -->
-    <div style="background: #ffffff; padding: 28px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
-      <h2 style="font-size: 18px; font-weight: 700; color: var(--color-text); margin-bottom: 16px;">Recent Security & Audit Events</h2>
-      {% if recent_events %}
-        <div style="overflow-x: auto;">
-          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-            <thead>
-              <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
-                <th style="padding: 10px 12px; color: var(--color-text-muted); font-weight: 600;">Time (UTC)</th>
-                <th style="padding: 10px 12px; color: var(--color-text-muted); font-weight: 600;">Event Type</th>
-                <th style="padding: 10px 12px; color: var(--color-text-muted); font-weight: 600;">Admin</th>
-                <th style="padding: 10px 12px; color: var(--color-text-muted); font-weight: 600;">Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for event in recent_events %}
-                <tr style="border-bottom: 1px solid var(--color-border);">
-                  <td style="padding: 12px; color: var(--color-text-muted); white-space: nowrap;">
-                    {{ event.occurred_at.strftime('%Y-%m-%d %H:%M:%S') }}
-                  </td>
-                  <td style="padding: 12px; font-weight: 600;">
-                    <span style="display: inline-block; padding: 4px 8px; border-radius: var(--radius-sm); font-size: 12px; {% if event.event_type == 'login_success' %}background-color: #dcfce7; color: #166534;{% elif event.event_type == 'login_failure' %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: var(--color-surface); color: var(--color-text);{% endif %}">
-                      {{ event.event_type }}
-                    </span>
-                  </td>
-                  <td style="padding: 12px; color: var(--color-text);">
-                    {{ event.admin_user.email if event.admin_user else "System / Anonymous" }}
-                  </td>
-                  <td style="padding: 12px; color: var(--color-text-muted); font-family: monospace; font-size: 12px;">
-                    {{ event.safe_metadata | tojson if event.safe_metadata else "-" }}
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      {% else %}
-        <p style="color: var(--color-text-muted); font-size: 14px;">No audit events recorded yet.</p>
+  <!-- Categories Card -->
+  <div style="background: #ffffff; padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary);">
+        Categories
+      </span>
+      <a href="{{ url_for('admin.list_categories') }}" style="font-size: 13px; font-weight: 600; color: var(--color-primary); text-decoration: none;">View &rarr;</a>
+    </div>
+    <div style="font-size: 36px; font-weight: 700; color: var(--color-text-main); margin-bottom: 8px;">
+      {{ total_categories }}
+    </div>
+    <div style="font-size: 13px; color: var(--color-text-muted);">
+      Active classifications
+    </div>
+  </div>
+
+  <!-- Services Card -->
+  <div style="background: #ffffff; padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary);">
+        Services
+      </span>
+      <a href="{{ url_for('admin.list_services') }}" style="font-size: 13px; font-weight: 600; color: var(--color-primary); text-decoration: none;">View &rarr;</a>
+    </div>
+    <div style="font-size: 36px; font-weight: 700; color: var(--color-text-main); margin-bottom: 8px;">
+      {{ total_services }}
+    </div>
+    <div style="font-size: 13px; color: var(--color-text-muted);">
+      <span style="color: #166534; font-weight: 600;">{{ published_services }} live services</span>
+    </div>
+  </div>
+
+  <!-- Enquiries Card -->
+  <div style="background: #ffffff; padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary);">
+        Client Enquiries
+      </span>
+    </div>
+    <div style="font-size: 36px; font-weight: 700; color: var(--color-text-main); margin-bottom: 8px;">
+      {{ total_enquiries }}
+    </div>
+    <div style="font-size: 13px; color: var(--color-text-muted);">
+      <span style="color: {% if new_enquiries > 0 %}#b91c1c{% else %}inherit{% endif %}; font-weight: {% if new_enquiries > 0 %}600{% else %}normal{% endif %};">{{ new_enquiries }} new enquiries</span>
+      {% if pending_notifications > 0 %}
+        &bull; <span style="color: #b45309;">{{ pending_notifications }} pending notification</span>
       {% endif %}
     </div>
   </div>
-</section>
+</div>
+
+<!-- Quick Action Shortcuts -->
+<div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 32px; box-shadow: var(--shadow-subtle);">
+  <h2 style="font-size: 17px; font-weight: 700; color: var(--color-text-main); margin-bottom: 16px;">Quick Actions</h2>
+  <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+    <a href="{{ url_for('admin.new_project') }}" class="btn btn-primary" style="padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: var(--radius-sm); color: #fff;">
+      + Add Portfolio Project
+    </a>
+    <a href="{{ url_for('admin.new_category') }}" class="btn" style="padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: var(--radius-sm); background: #f0edec; color: var(--color-text-main); border: 1px solid var(--color-border);">
+      + Add Category
+    </a>
+    <a href="{{ url_for('admin.new_service') }}" class="btn" style="padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: var(--radius-sm); background: #f0edec; color: var(--color-text-main); border: 1px solid var(--color-border);">
+      + Add Service
+    </a>
+  </div>
+</div>
+
+<!-- Recent Security & Audit Events -->
+<div style="background: #ffffff; padding: 24px 28px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
+  <h2 style="font-size: 17px; font-weight: 700; color: var(--color-text-main); margin-bottom: 16px;">Recent Security & Audit Events</h2>
+  {% if recent_events %}
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
+            <th style="padding: 10px 12px; color: var(--color-text-muted); font-weight: 600;">Time (UTC)</th>
+            <th style="padding: 10px 12px; color: var(--color-text-muted); font-weight: 600;">Event Type</th>
+            <th style="padding: 10px 12px; color: var(--color-text-muted); font-weight: 600;">Admin</th>
+            <th style="padding: 10px 12px; color: var(--color-text-muted); font-weight: 600;">Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for event in recent_events %}
+            <tr style="border-bottom: 1px solid var(--color-border);">
+              <td style="padding: 12px; color: var(--color-text-muted); white-space: nowrap;">
+                {{ event.occurred_at.strftime('%Y-%m-%d %H:%M:%S') }}
+              </td>
+              <td style="padding: 12px; font-weight: 600;">
+                <span style="display: inline-block; padding: 4px 8px; border-radius: var(--radius-sm); font-size: 12px; {% if 'success' in event.event_type or 'create' in event.event_type %}background-color: #dcfce7; color: #166534;{% elif 'failure' in event.event_type or 'delete' in event.event_type %}background-color: #fee2e2; color: #991b1b;{% else %}background-color: var(--color-surface); color: var(--color-text-main);{% endif %}">
+                  {{ event.event_type }}
+                </span>
+              </td>
+              <td style="padding: 12px; color: var(--color-text-main);">
+                {{ event.admin_user.email if event.admin_user else "System / Anonymous" }}
+              </td>
+              <td style="padding: 12px; color: var(--color-text-muted); font-family: monospace; font-size: 12px;">
+                {{ event.safe_metadata | tojson if event.safe_metadata else "-" }}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p style="color: var(--color-text-muted); font-size: 14px;">No audit events recorded yet.</p>
+  {% endif %}
+</div>
 {% endblock %}

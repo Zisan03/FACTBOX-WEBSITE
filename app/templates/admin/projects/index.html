@@ -1,0 +1,150 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_title %}Projects{% endblock %}
+{% block admin_heading %}Portfolio Projects{% endblock %}
+
+{% block admin_content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <h2 style="font-size: 20px; font-weight: 700; color: var(--color-text-main); margin: 0;">Portfolio Content Management</h2>
+    <p style="font-size: 14px; color: var(--color-text-muted); margin: 4px 0 0;">
+      Manage case studies, documentaries, and investigative reports with Cloudinary media and YouTube embeds.
+    </p>
+  </div>
+  <a href="{{ url_for('admin.new_project') }}" class="btn btn-primary" style="padding: 10px 18px; font-size: 14px; color: #fff; text-decoration: none; border-radius: var(--radius-sm); font-weight: 600;">
+    + New Project
+  </a>
+</div>
+
+<!-- Filters Bar -->
+<div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+  <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+    <span style="font-size: 13px; font-weight: 600; color: var(--color-text-muted);">Status:</span>
+    <a href="{{ url_for('admin.list_projects', status='all', category=active_category.slug if active_category else None) }}" 
+       style="font-size: 13px; padding: 4px 10px; border-radius: 12px; text-decoration: none; {% if status_filter == 'all' %}background: var(--color-primary); color: #fff; font-weight: 600;{% else %}background: #f3f4f6; color: var(--color-text-main);{% endif %}">
+      All
+    </a>
+    <a href="{{ url_for('admin.list_projects', status='published', category=active_category.slug if active_category else None) }}" 
+       style="font-size: 13px; padding: 4px 10px; border-radius: 12px; text-decoration: none; {% if status_filter == 'published' %}background: #15803d; color: #fff; font-weight: 600;{% else %}background: #f3f4f6; color: var(--color-text-main);{% endif %}">
+      Published
+    </a>
+    <a href="{{ url_for('admin.list_projects', status='draft', category=active_category.slug if active_category else None) }}" 
+       style="font-size: 13px; padding: 4px 10px; border-radius: 12px; text-decoration: none; {% if status_filter == 'draft' %}background: #854d0e; color: #fff; font-weight: 600;{% else %}background: #f3f4f6; color: var(--color-text-main);{% endif %}">
+      Drafts
+    </a>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <span style="font-size: 13px; font-weight: 600; color: var(--color-text-muted);">Category:</span>
+    <select onchange="window.location.href=this.value" style="padding: 6px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 13px;">
+      <option value="{{ url_for('admin.list_projects', status=status_filter) }}">All Categories</option>
+      {% for cat in categories %}
+        <option value="{{ url_for('admin.list_projects', status=status_filter, category=cat.slug) }}" {% if active_category and active_category.id == cat.id %}selected{% endif %}>
+          {{ cat.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+
+<div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle); overflow: hidden;">
+  {% if projects %}
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <thead>
+          <tr style="background: #fbfdfc; border-bottom: 2px solid var(--color-border); text-align: left;">
+            <th style="padding: 12px 16px; font-weight: 600; color: var(--color-text-muted);">Project</th>
+            <th style="padding: 12px 16px; font-weight: 600; color: var(--color-text-muted);">Category</th>
+            <th style="padding: 12px 16px; font-weight: 600; color: var(--color-text-muted);">Status</th>
+            <th style="padding: 12px 16px; font-weight: 600; color: var(--color-text-muted);">Media</th>
+            <th style="padding: 12px 16px; font-weight: 600; color: var(--color-text-muted);">Order</th>
+            <th style="padding: 12px 16px; font-weight: 600; color: var(--color-text-muted); text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in projects %}
+            <tr style="border-bottom: 1px solid var(--color-border);">
+              <td style="padding: 14px 16px;">
+                <div style="font-weight: 700; color: var(--color-text-main);">
+                  <a href="{{ url_for('admin.view_project', project_id=p.id) }}" style="color: var(--color-text-main); text-decoration: none;">
+                    {{ p.title }}
+                  </a>
+                  {% if p.is_featured %}
+                    <span style="display: inline-block; padding: 2px 6px; font-size: 11px; font-weight: 700; background: #fef08a; color: #854d0e; border-radius: 4px; margin-left: 6px;">
+                      Featured
+                    </span>
+                  {% endif %}
+                </div>
+                <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 2px;">
+                  /work/{{ p.slug }}
+                  {% if p.client_name %} &bull; Client: {{ p.client_name }}{% endif %}
+                </div>
+              </td>
+              <td style="padding: 14px 16px;">
+                <span style="display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #f3f4f6; color: #374151;">
+                  {{ p.category.name if p.category else "Uncategorized" }}
+                </span>
+              </td>
+              <td style="padding: 14px 16px;">
+                {% if p.status == 'published' %}
+                  <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; background: #dcfce7; color: #15803d;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #16a34a;"></span>
+                    Published
+                  </span>
+                {% else %}
+                  <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; background: #fef9c3; color: #854d0e;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #ca8a04;"></span>
+                    Draft
+                  </span>
+                {% endif %}
+              </td>
+              <td style="padding: 14px 16px; font-size: 13px; color: var(--color-text-muted);">
+                <span>{{ p.images|length }} images</span> &bull; <span>{{ p.videos|length }} videos</span>
+              </td>
+              <td style="padding: 14px 16px; color: var(--color-text-main);">
+                {{ p.display_order }}
+              </td>
+              <td style="padding: 14px 16px; text-align: right;">
+                <div style="display: inline-flex; align-items: center; gap: 6px;">
+                  <!-- Manage / Detail Hub -->
+                  <a href="{{ url_for('admin.view_project', project_id=p.id) }}" style="padding: 6px 12px; font-size: 13px; color: var(--color-primary); background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">
+                    Manage Media
+                  </a>
+
+                  <!-- Toggle Status Form -->
+                  <form method="POST" action="{{ url_for('admin.toggle_project_status', project_id=p.id) }}" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" style="padding: 6px 10px; font-size: 12px; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--color-border); background: #ffffff; color: var(--color-text-main);">
+                      {{ "Unpublish" if p.status == 'published' else "Publish" }}
+                    </button>
+                  </form>
+
+                  <!-- Preview -->
+                  <a href="{{ url_for('admin.preview_project', project_id=p.id) }}" target="_blank" style="padding: 6px 10px; font-size: 12px; color: var(--color-text-muted); background: #f9fafb; border: 1px solid var(--color-border); border-radius: var(--radius-sm); text-decoration: none;">
+                    Preview
+                  </a>
+
+                  <!-- Delete -->
+                  <form method="POST" action="{{ url_for('admin.delete_project', project_id=p.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete project {{ p.title }} and its media?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" style="padding: 6px 10px; font-size: 12px; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius-sm); cursor: pointer;">
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div style="padding: 48px; text-align: center; color: var(--color-text-muted);">
+      <p style="font-size: 16px; margin-bottom: 12px;">No portfolio projects found matching criteria.</p>
+      <a href="{{ url_for('admin.new_project') }}" class="btn btn-primary" style="padding: 8px 16px; font-size: 14px; text-decoration: none; color: #fff;">
+        Create A Project
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

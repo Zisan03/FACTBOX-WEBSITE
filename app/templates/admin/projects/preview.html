@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Internal Preview: {{ project.title }} — Fact Box Consult{% endblock %}
+
+{% block content %}
+<!-- Internal Draft Preview Banner -->
+<div style="background: #fef08a; border-bottom: 2px solid #ca8a04; padding: 12px 0;">
+  <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #854d0e; color: #ffffff; text-transform: uppercase;">
+        {{ project.status }}
+      </span>
+      <span style="font-size: 14px; font-weight: 600; color: #854d0e;">
+        Internal Administrator Preview Mode &bull; {% if project.status == 'draft' %}Hidden from public visitors{% else %}Published on live website{% endif %}
+      </span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="{{ url_for('admin.view_project', project_id=project.id) }}" class="btn" style="padding: 6px 14px; font-size: 13px; background: #ffffff; color: var(--color-text-main); border: 1px solid var(--color-border); border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">
+        &larr; Back to Media Hub
+      </a>
+      <form method="POST" action="{{ url_for('admin.toggle_project_status', project_id=project.id) }}" style="display: inline;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn" style="padding: 6px 14px; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; {% if project.status == 'draft' %}background: var(--color-primary); color: #fff; border: 1px solid var(--color-primary);{% else %}background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;{% endif %}">
+          {{ "Publish Live Now" if project.status == 'draft' else "Unpublish" }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding: 48px 0 80px; max-width: 900px;">
+  <!-- Category and Header -->
+  <div style="margin-bottom: 24px;">
+    <span style="display: inline-block; padding: 4px 12px; background: #e0f2fe; color: #0369a1; border-radius: 16px; font-size: 13px; font-weight: 600; margin-bottom: 12px;">
+      {{ project.category.name }}
+    </span>
+    <h1 style="font-size: 36px; font-weight: 800; color: var(--color-text-main); line-height: 1.2; margin-bottom: 12px;">
+      {{ project.title }}
+    </h1>
+    <div style="display: flex; gap: 16px; font-size: 14px; color: var(--color-text-muted); flex-wrap: wrap;">
+      {% if project.client_name %}
+        <span><strong>Client:</strong> {{ project.client_name }}</span>
+      {% endif %}
+      {% if project.project_date %}
+        <span><strong>Date:</strong> {{ project.project_date.strftime('%B %Y') }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Summary Card -->
+  <div style="font-size: 18px; line-height: 1.6; color: var(--color-text-main); background: #fcf9f8; border-left: 4px solid var(--color-primary); padding: 18px 24px; border-radius: 0 var(--radius-md) var(--radius-md) 0; margin-bottom: 32px;">
+    {{ project.summary }}
+  </div>
+
+  <!-- Featured Media: First Video or First Image -->
+  {% if project.videos %}
+    <div style="margin-bottom: 40px; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-subtle);">
+      <div style="position: relative; padding-bottom: 56.25%; height: 0; background: #000;">
+        <iframe 
+          src="{{ get_youtube_embed_url(project.videos[0].youtube_video_id) }}" 
+          title="{{ project.videos[0].title or project.title }}"
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen
+          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+        </iframe>
+      </div>
+      {% if project.videos[0].title %}
+        <div style="padding: 10px 16px; background: #f3f4f6; font-size: 13px; color: var(--color-text-muted);">
+          {{ project.videos[0].title }}
+        </div>
+      {% endif %}
+    </div>
+  {% elif project.images %}
+    <div style="margin-bottom: 40px; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-subtle);">
+      <img src="{{ project.images[0].secure_url }}" alt="{{ project.images[0].alt_text }}" style="width: 100%; max-height: 500px; object-fit: cover; display: block;">
+      {% if project.images[0].caption %}
+        <div style="padding: 10px 16px; background: #f3f4f6; font-size: 13px; color: var(--color-text-muted); font-style: italic;">
+          {{ project.images[0].caption }}
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <!-- Description Body -->
+  <div style="font-size: 16px; line-height: 1.8; color: var(--color-text-main); margin-bottom: 48px; white-space: pre-line;">
+    {{ project.description }}
+  </div>
+
+  <!-- Additional Gallery Photos -->
+  {% if project.images and project.images|length > 1 %}
+    <div style="margin-bottom: 48px;">
+      <h3 style="font-size: 20px; font-weight: 700; color: var(--color-text-main); margin-bottom: 20px;">
+        Project Photo Gallery
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;">
+        {% for img in project.images[1:] %}
+          <div style="border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-subtle); background: #ffffff;">
+            <img src="{{ img.secure_url }}" alt="{{ img.alt_text }}" style="width: 100%; height: 200px; object-fit: cover; display: block;">
+            {% if img.caption %}
+              <div style="padding: 8px 12px; font-size: 12px; color: var(--color-text-muted); font-style: italic;">
+                {{ img.caption }}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Additional Videos -->
+  {% if project.videos and project.videos|length > 1 %}
+    <div style="margin-bottom: 48px;">
+      <h3 style="font-size: 20px; font-weight: 700; color: var(--color-text-main); margin-bottom: 20px;">
+        Additional Media & Recordings
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px;">
+        {% for vid in project.videos[1:] %}
+          <div style="border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-subtle); background: #000;">
+            <div style="position: relative; padding-bottom: 56.25%; height: 0;">
+              <iframe 
+                src="{{ get_youtube_embed_url(vid.youtube_video_id) }}" 
+                title="{{ vid.title or 'YouTube video' }}"
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+              </iframe>
+            </div>
+            {% if vid.title %}
+              <div style="padding: 8px 12px; background: #f3f4f6; font-size: 13px; color: var(--color-text-muted);">
+                {{ vid.title }}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

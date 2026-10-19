@@ -16,33 +16,43 @@
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 32px;">
-      <div style="background: white; padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);">
-        <h2 style="font-size: 24px; margin-bottom: 12px;">Audiovisual Media Production</h2>
-        <p style="color: var(--color-text-muted); font-size: 16px;">
-          Documentary production, corporate videos, photography, interviews, event coverage, and other visual storytelling crafted to international broadcast and digital standards.
-        </p>
-      </div>
-
-      <div style="background: white; padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);">
-        <h2 style="font-size: 24px; margin-bottom: 12px;">Media Consultancy</h2>
-        <p style="color: var(--color-text-muted); font-size: 16px;">
-          Strategic media planning, communication support, content strategy, and media advisory services tailored to stakeholder engagement and organizational impact.
-        </p>
-      </div>
-
-      <div style="background: white; padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);">
-        <h2 style="font-size: 24px; margin-bottom: 12px;">Research & Planning</h2>
-        <p style="color: var(--color-text-muted); font-size: 16px;">
-          Empirical research, data collection, investigative analysis, documentation, project planning, and evidence-based communication frameworks.
-        </p>
-      </div>
-
-      <div style="background: white; padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);">
-        <h2 style="font-size: 24px; margin-bottom: 12px;">Digital & New Media</h2>
-        <p style="color: var(--color-text-muted); font-size: 16px;">
-          Social media content, digital storytelling, online campaigns, multimedia content production, and data-backed audience engagement.
-        </p>
-      </div>
+      {% if services %}
+        {% for s in services %}
+          <div style="background: white; padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle); border: 1px solid var(--color-border);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+              <span style="display: inline-block; padding: 4px 10px; background: #e0f2fe; color: #0369a1; border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                {{ s.icon_key or 'Service' }}
+              </span>
+              <h2 style="font-size: 24px; color: var(--color-text-main); margin: 0;">{{ s.title }}</h2>
+            </div>
+            <p style="color: var(--color-text-main); font-size: 16px; font-weight: 500; margin-bottom: 12px;">
+              {{ s.summary }}
+            </p>
+            <div style="color: var(--color-text-muted); font-size: 15px; line-height: 1.7; white-space: pre-line;">
+              {{ s.description }}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div style="background: white; padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);">
+          <h2 style="font-size: 24px; margin-bottom: 12px;">Audiovisual Media Production</h2>
+          <p style="color: var(--color-text-muted); font-size: 16px;">
+            Documentary production, corporate videos, photography, interviews, event coverage, and other visual storytelling crafted to international broadcast and digital standards.
+          </p>
+        </div>
+        <div style="background: white; padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);">
+          <h2 style="font-size: 24px; margin-bottom: 12px;">Media Consultancy</h2>
+          <p style="color: var(--color-text-muted); font-size: 16px;">
+            Strategic media planning, communication support, content strategy, and media advisory services tailored to stakeholder engagement and organizational impact.
+          </p>
+        </div>
+        <div style="background: white; padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);">
+          <h2 style="font-size: 24px; margin-bottom: 12px;">Research & Planning</h2>
+          <p style="color: var(--color-text-muted); font-size: 16px;">
+            Empirical research, data collection, investigative analysis, documentation, project planning, and evidence-based communication frameworks.
+          </p>
+        </div>
+      {% endif %}
     </div>
   </div>
 </section>
