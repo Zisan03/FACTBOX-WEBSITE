@@ -49,6 +49,10 @@
          style="padding: 10px 18px; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: var(--radius-md); transition: all 0.15s ease; {% if 'service' in (request.endpoint or '') %}background: var(--color-primary); color: #ffffff;{% else %}color: var(--color-text-main); background: transparent;{% endif %}">
         Consulting Services
       </a>
+      <a href="{{ url_for('admin.list_enquiries') }}" 
+         style="padding: 10px 18px; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: var(--radius-md); transition: all 0.15s ease; {% if 'enquir' in (request.endpoint or '') %}background: var(--color-primary); color: #ffffff;{% else %}color: var(--color-text-main); background: transparent;{% endif %}">
+        Contact Enquiries
+      </a>
     </nav>
 
     <!-- Flashed Alert Messages -->

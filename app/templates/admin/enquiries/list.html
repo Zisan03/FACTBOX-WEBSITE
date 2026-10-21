@@ -1,0 +1,157 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_title %}Contact Enquiries{% endblock %}
+{% block admin_heading %}Contact Enquiries{% endblock %}
+
+{% block admin_content %}
+<div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <h2 style="font-size: 22px; font-weight: 700; color: var(--color-text-main); margin: 0 0 4px;">
+      Client & Organization Submissions
+    </h2>
+    <p style="font-size: 14px; color: var(--color-text-muted); margin: 0;">
+      All messages submitted via the public contact form are durably archived here.
+    </p>
+  </div>
+</div>
+
+<!-- Filter Tabs -->
+<div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 24px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; box-shadow: var(--shadow-subtle);">
+  <span style="font-size: 13px; font-weight: 600; color: var(--color-text-muted); margin-right: 8px;">Filters:</span>
+  
+  <a href="{{ url_for('admin.list_enquiries') }}"
+     style="padding: 6px 12px; font-size: 13px; font-weight: 600; text-decoration: none; border-radius: var(--radius-sm); transition: all 0.15s ease; {% if not status_filter and not notification_filter %}background: var(--color-primary); color: #fff;{% else %}background: #f0edec; color: var(--color-text-main);{% endif %}">
+    All ({{ total_count }})
+  </a>
+
+  <a href="{{ url_for('admin.list_enquiries', status='new') }}"
+     style="padding: 6px 12px; font-size: 13px; font-weight: 600; text-decoration: none; border-radius: var(--radius-sm); transition: all 0.15s ease; {% if status_filter == 'new' %}background: var(--color-primary); color: #fff;{% else %}background: #f0edec; color: var(--color-text-main);{% endif %}">
+    New ({{ new_count }})
+  </a>
+
+  <a href="{{ url_for('admin.list_enquiries', status='in_review') }}"
+     style="padding: 6px 12px; font-size: 13px; font-weight: 600; text-decoration: none; border-radius: var(--radius-sm); transition: all 0.15s ease; {% if status_filter == 'in_review' %}background: var(--color-primary); color: #fff;{% else %}background: #f0edec; color: var(--color-text-main);{% endif %}">
+    In Review ({{ in_review_count }})
+  </a>
+
+  <a href="{{ url_for('admin.list_enquiries', status='closed') }}"
+     style="padding: 6px 12px; font-size: 13px; font-weight: 600; text-decoration: none; border-radius: var(--radius-sm); transition: all 0.15s ease; {% if status_filter == 'closed' %}background: var(--color-primary); color: #fff;{% else %}background: #f0edec; color: var(--color-text-main);{% endif %}">
+    Closed ({{ closed_count }})
+  </a>
+
+  <a href="{{ url_for('admin.list_enquiries', notification_status='failed') }}"
+     style="padding: 6px 12px; font-size: 13px; font-weight: 600; text-decoration: none; border-radius: var(--radius-sm); transition: all 0.15s ease; {% if notification_filter == 'failed' %}background: #b91c1c; color: #fff;{% else %}{% if failed_notif_count > 0 %}background: #fee2e2; color: #991b1b;{% else %}background: #f0edec; color: var(--color-text-main);{% endif %}{% endif %}">
+    Delivery Failed ({{ failed_notif_count }})
+  </a>
+</div>
+
+<!-- Enquiries Table -->
+<div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle); overflow: hidden;">
+  {% if enquiries %}
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
+        <thead>
+          <tr style="background: #f8faf9; border-bottom: 1px solid var(--color-border); color: var(--color-text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+            <th style="padding: 14px 20px;">Date</th>
+            <th style="padding: 14px 20px;">Sender</th>
+            <th style="padding: 14px 20px;">Subject</th>
+            <th style="padding: 14px 20px;">Review Status</th>
+            <th style="padding: 14px 20px;">Notification</th>
+            <th style="padding: 14px 20px; text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for enquiry in enquiries %}
+            <tr style="border-bottom: 1px solid var(--color-border); transition: background-color 0.15s ease;">
+              
+              <!-- Date -->
+              <td style="padding: 16px 20px; color: var(--color-text-muted); white-space: nowrap; font-size: 13px;">
+                {{ enquiry.created_at.strftime('%Y-%m-%d %H:%M') if enquiry.created_at else '—' }}
+              </td>
+
+              <!-- Sender -->
+              <td style="padding: 16px 20px;">
+                <div style="font-weight: 600; color: var(--color-text-main);">{{ enquiry.full_name }}</div>
+                <div style="font-size: 13px; color: var(--color-text-muted);">
+                  {{ enquiry.email }}
+                  {% if enquiry.organization %}
+                    &bull; {{ enquiry.organization }}
+                  {% endif %}
+                </div>
+              </td>
+
+              <!-- Subject -->
+              <td style="padding: 16px 20px; max-width: 280px;">
+                <div style="font-weight: 500; color: var(--color-text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  {{ enquiry.subject }}
+                </div>
+                <div style="font-size: 12px; color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  {{ enquiry.message[:80] }}{% if enquiry.message|length > 80 %}...{% endif %}
+                </div>
+              </td>
+
+              <!-- Review Status Badge -->
+              <td style="padding: 16px 20px; white-space: nowrap;">
+                {% if enquiry.status == 'new' %}
+                  <span style="display: inline-block; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 9999px; background: #fee2e2; color: #991b1b;">
+                    New
+                  </span>
+                {% elif enquiry.status == 'in_review' %}
+                  <span style="display: inline-block; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 9999px; background: #e0f2fe; color: #0369a1;">
+                    In Review
+                  </span>
+                {% else %}
+                  <span style="display: inline-block; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 9999px; background: #f3f4f6; color: #4b5563;">
+                    Closed
+                  </span>
+                {% endif %}
+              </td>
+
+              <!-- Notification Delivery Status -->
+              <td style="padding: 16px 20px; white-space: nowrap;">
+                {% if enquiry.notification_status == 'sent' %}
+                  <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 9999px; background: #dcfce7; color: #15803d;">
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #15803d;"></span>
+                    Sent
+                  </span>
+                {% elif enquiry.notification_status == 'failed' %}
+                  <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 9999px; background: #fee2e2; color: #b91c1c;">
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #b91c1c;"></span>
+                    Failed ({{ enquiry.notification_attempts }})
+                  </span>
+                {% else %}
+                  <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 9999px; background: #fef3c7; color: #b45309;">
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #b45309;"></span>
+                    Pending
+                  </span>
+                {% endif %}
+              </td>
+
+              <!-- Action Link -->
+              <td style="padding: 16px 20px; text-align: right; white-space: nowrap;">
+                <a href="{{ url_for('admin.view_enquiry', enquiry_id=enquiry.id) }}"
+                   style="display: inline-block; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--color-primary); background: #f0edec; border: 1px solid var(--color-border); border-radius: var(--radius-sm); text-decoration: none;">
+                  View &rarr;
+                </a>
+              </td>
+
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div style="padding: 48px 24px; text-align: center; color: var(--color-text-muted);">
+      <div style="font-size: 32px; margin-bottom: 12px;">📬</div>
+      <h3 style="font-size: 18px; font-weight: 600; color: var(--color-text-main); margin-bottom: 6px;">No enquiries found</h3>
+      <p style="font-size: 14px; margin: 0;">
+        {% if status_filter or notification_filter %}
+          No enquiries match the selected filter criteria. <a href="{{ url_for('admin.list_enquiries') }}" style="color: var(--color-primary);">Clear filters</a>.
+        {% else %}
+          When visitors submit messages through the contact form, they will appear here.
+        {% endif %}
+      </p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

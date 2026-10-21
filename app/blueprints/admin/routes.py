@@ -54,6 +54,7 @@ from app.services.media import (
     MediaValidationError,
     CloudinaryUploadError,
 )
+from app.services.email import process_enquiry_notification
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -157,6 +158,7 @@ def dashboard():
     total_enquiries = Enquiry.query.count()
     new_enquiries = Enquiry.query.filter_by(status="new").count()
     pending_notifications = Enquiry.query.filter_by(notification_status="pending").count()
+    failed_notifications = Enquiry.query.filter_by(notification_status="failed").count()
 
     recent_events = (
         AdminAuditEvent.query.order_by(AdminAuditEvent.occurred_at.desc())
@@ -175,6 +177,7 @@ def dashboard():
         total_enquiries=total_enquiries,
         new_enquiries=new_enquiries,
         pending_notifications=pending_notifications,
+        failed_notifications=failed_notifications,
         recent_events=recent_events,
     )
 
@@ -786,3 +789,106 @@ def delete_service(service_id):
     log_admin_audit("delete_service", "service", service_id, {"title": title})
     flash(f"Service '{title}' has been deleted.", "success")
     return redirect(url_for("admin.list_services"))
+
+
+# ============================================================================
+# Contact Enquiries Management (Stage 4)
+# ============================================================================
+
+@admin_bp.route("/enquiries")
+@login_required
+def list_enquiries():
+    """List contact enquiries with review status and notification delivery filters."""
+    status_filter = request.args.get("status", "").strip().lower()
+    notification_filter = request.args.get("notification_status", "").strip().lower()
+
+    query = Enquiry.query
+    if status_filter in ("new", "in_review", "closed"):
+        query = query.filter_by(status=status_filter)
+    if notification_filter in ("pending", "sent", "failed"):
+        query = query.filter_by(notification_status=notification_filter)
+
+    enquiries = query.order_by(Enquiry.created_at.desc()).all()
+
+    # Aggregate metric counters
+    total_count = Enquiry.query.count()
+    new_count = Enquiry.query.filter_by(status="new").count()
+    in_review_count = Enquiry.query.filter_by(status="in_review").count()
+    closed_count = Enquiry.query.filter_by(status="closed").count()
+    pending_notif_count = Enquiry.query.filter_by(notification_status="pending").count()
+    failed_notif_count = Enquiry.query.filter_by(notification_status="failed").count()
+
+    return render_template(
+        "admin/enquiries/list.html",
+        enquiries=enquiries,
+        status_filter=status_filter,
+        notification_filter=notification_filter,
+        total_count=total_count,
+        new_count=new_count,
+        in_review_count=in_review_count,
+        closed_count=closed_count,
+        pending_notif_count=pending_notif_count,
+        failed_notif_count=failed_notif_count,
+    )
+
+
+@admin_bp.route("/enquiries/<uuid:enquiry_id>")
+@login_required
+def view_enquiry(enquiry_id):
+    """View enquiry detail with safely escaped user content."""
+    enquiry = db.get_or_404(Enquiry, enquiry_id)
+    return render_template("admin/enquiries/detail.html", enquiry=enquiry)
+
+
+@admin_bp.route("/enquiries/<uuid:enquiry_id>/status", methods=["POST"])
+@login_required
+def update_enquiry_status(enquiry_id):
+    """Update review status of an enquiry (new, in_review, closed)."""
+    enquiry = db.get_or_404(Enquiry, enquiry_id)
+    new_status = request.form.get("status", "").strip().lower()
+
+    if new_status not in ("new", "in_review", "closed"):
+        flash("Invalid status specified.", "error")
+        return redirect(url_for("admin.view_enquiry", enquiry_id=enquiry_id))
+
+    old_status = enquiry.status
+    enquiry.status = new_status
+    db.session.commit()
+
+    log_admin_audit(
+        "update_enquiry_status",
+        "enquiry",
+        enquiry.id,
+        {"old_status": old_status, "new_status": new_status, "email": enquiry.email},
+    )
+    flash(f"Enquiry status updated to '{new_status}'.", "success")
+    return redirect(url_for("admin.view_enquiry", enquiry_id=enquiry_id))
+
+
+@admin_bp.route("/enquiries/<uuid:enquiry_id>/retry-notification", methods=["POST"])
+@login_required
+def retry_enquiry_notification(enquiry_id):
+    """Retry sending the internal notification email for an enquiry."""
+    enquiry = db.get_or_404(Enquiry, enquiry_id)
+    success, error_code = process_enquiry_notification(enquiry, is_retry=True)
+
+    log_admin_audit(
+        "retry_enquiry_notification",
+        "enquiry",
+        enquiry.id,
+        {
+            "success": success,
+            "error_code": error_code,
+            "attempts": enquiry.notification_attempts,
+        },
+    )
+
+    if success:
+        flash("Internal email notification delivered successfully.", "success")
+    else:
+        flash(
+            f"Notification retry failed ({error_code or 'UNKNOWN'}). Enquiry remains safely preserved.",
+            "error",
+        )
+
+    return redirect(url_for("admin.view_enquiry", enquiry_id=enquiry_id))

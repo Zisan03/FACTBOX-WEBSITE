@@ -79,6 +79,20 @@ Fields: `id` UUID PK; `name` string required; `logo_cloudinary_public_id` string
 
 This is not a separate public Clients & Partners page. Use only in an approved page section or related portfolio context. If logos can be adequately represented as project-linked assets in the initial content, defer this table rather than build unused functionality.
 
+## 8a. HomePagePhoto
+Fields:
+- `id` UUID PK
+- `title` string nullable
+- `caption` string nullable
+- `cloudinary_public_id` string required, unique
+- `secure_url` string required
+- `alt_text` string required
+- `display_order` integer required, default 0
+- `is_active` boolean required, default true
+- `created_at`, `updated_at` timestamptz
+
+Rules: Dedicated to the home page hero background gallery. Completely isolated from `portfolio_project` and `portfolio_image`. Managed in the admin panel under a dedicated "Home Page Photos" page. Check constraint on `display_order >= 0`. Deletions must safely clean up Cloudinary assets and database records.
+
 ## 9. Enquiry
 Fields:
 - `id` UUID PK

@@ -97,6 +97,12 @@ The five public pages must be responsive, navigable, and usable on mobile, table
 ### FR-04 — Services and page content
 The administrator can update approved service descriptions and designated editable page content without editing templates. Layout, navigation, security-sensitive configuration, and arbitrary template/code editing are not exposed through the admin panel.
 
+### FR-04a — Home Page Photos (Cinematic Gallery)
+- The home page hero features an auto-advancing cinematic background photo gallery.
+- Transitions every 30 seconds with a smooth CSS cross-fade, pauses on hover and keyboard focus, and respects `prefers-reduced-motion`.
+- Managed in the admin panel under a dedicated, clearly labeled "Home Page Photos" page (completely separated from portfolio projects to avoid confusion).
+- Administrators can upload photos to Cloudinary, set required alt text, optional captions, reorder display order, and toggle active status.
+
 ### FR-05 — Contact enquiries
 - The form collects only necessary contact and enquiry information.
 - Validate input on the server, escape displayed content, apply CSRF protection, and rate-limit submissions.

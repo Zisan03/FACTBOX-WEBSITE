@@ -46,6 +46,17 @@ class BaseConfig:
     CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
     CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
 
+    # Email Notifications (ADR-005: Internal enquiry notifications via Gmail SMTP)
+    MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+    MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
+    MAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "true").lower() in ("true", "1", "yes")
+    MAIL_USE_SSL = os.getenv("MAIL_USE_SSL", "false").lower() in ("true", "1", "yes")
+    MAIL_USERNAME = os.getenv("MAIL_USERNAME")
+    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+    MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", os.getenv("MAIL_USERNAME", "noreply@factboxconsult.com"))
+    ENQUIRY_RECIPIENT = os.getenv("ENQUIRY_RECIPIENT", "info@factboxconsult.com")
+    MAIL_SUPPRESS_SEND = False
+
 
 class DevelopmentConfig(BaseConfig):
     """Configuration for local development."""
@@ -68,6 +79,7 @@ class TestingConfig(BaseConfig):
     TESTING = True
     WTF_CSRF_ENABLED = False  # Allows straightforward testing of endpoints
     RATELIMIT_ENABLED = False  # Disables throttling during automated testing
+    MAIL_SUPPRESS_SEND = True  # Prevents actual socket connection during tests
 
     def __init__(self):
         super().__init__()

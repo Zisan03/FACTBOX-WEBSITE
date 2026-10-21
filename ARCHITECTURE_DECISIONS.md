@@ -54,3 +54,10 @@
 **Decision:** Blog, testimonials, team profiles, request-a-quote, individual project detail pages, a separate client/partner page, public registration, and social links are not initial-launch features. Social links are planned for future expansion.
 
 **Reason:** Preserve the two-week launch target and prevent accidental scope growth.
+
+## ADR-010 — Home Page Photos are dedicated assets distinct from Portfolio media
+**Decision:** Home page hero slideshow imagery is stored in a dedicated `home_page_photo` table and managed through a dedicated "Home Page Photos" admin screen, rather than being queried from portfolio projects.
+
+**Reason:** Keeps home page presentation assets isolated from client portfolio case studies, avoiding accidental leaks or confusion when non-technical administrators manage the site.
+
+**Controls:** Uses the existing Cloudinary upload service, server-side MIME and size validation, CSRF protection, and non-negative ordering constraints. Scheduled for delivery in Stage 5.

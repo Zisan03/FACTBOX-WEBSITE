@@ -8,7 +8,7 @@ import sys
 import uuid
 from flask import Flask, render_template, jsonify, request
 from app.config import get_config
-from app.extensions import db, migrate, csrf, login_manager, limiter
+from app.extensions import db, migrate, csrf, login_manager, limiter, mail
 from app.blueprints.health import health_bp
 from app.blueprints.public import public_bp
 from app.blueprints.contact import contact_bp
@@ -131,6 +131,7 @@ def create_app(config_name: str | None = None) -> Flask:
     csrf.init_app(app)
     login_manager.init_app(app)
     limiter.init_app(app)
+    mail.init_app(app)
 
     # Configure user loader for Flask-Login
     @login_manager.user_loader

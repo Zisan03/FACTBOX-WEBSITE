@@ -88,6 +88,7 @@ Tasks:
 - Extract design tokens and reusable components from the supplied Stitch pages and `DESIGN.md`.
 - Implement shared navigation/footer and consistent typography, palette, spacing, cards, buttons, form controls, responsive breakpoints, and motion preferences.
 - Build pages with Jinja2 using database-managed portfolio/services and approved page content.
+- Implement `HomePagePhoto` migration, the dedicated "Home Page Photos" admin management page, and the Home page 30-second auto-advancing background photo slideshow (pause-on-hover, accessible, vanilla JS).
 - Our Work remains a single page with project cards, category filters, photo galleries and validated YouTube embeds; no individual project-detail route.
 - Replace generated placeholder images and unsupported business claims with approved material before launch.
 - Implement SEO essentials and accessibility checks.

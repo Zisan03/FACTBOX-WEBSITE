@@ -62,14 +62,19 @@
       <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary);">
         Client Enquiries
       </span>
+      <a href="{{ url_for('admin.list_enquiries') }}" style="font-size: 13px; font-weight: 600; color: var(--color-primary); text-decoration: none;">View &rarr;</a>
     </div>
     <div style="font-size: 36px; font-weight: 700; color: var(--color-text-main); margin-bottom: 8px;">
       {{ total_enquiries }}
     </div>
     <div style="font-size: 13px; color: var(--color-text-muted);">
-      <span style="color: {% if new_enquiries > 0 %}#b91c1c{% else %}inherit{% endif %}; font-weight: {% if new_enquiries > 0 %}600{% else %}normal{% endif %};">{{ new_enquiries }} new enquiries</span>
-      {% if pending_notifications > 0 %}
-        &bull; <span style="color: #b45309;">{{ pending_notifications }} pending notification</span>
+      <span style="color: {% if new_enquiries > 0 %}#b91c1c{% else %}inherit{% endif %}; font-weight: {% if new_enquiries > 0 %}600{% else %}normal{% endif %};">{{ new_enquiries }} new</span>
+      {% if failed_notifications > 0 %}
+        &bull; <span style="color: #dc2626; font-weight: 600;">{{ failed_notifications }} failed delivery</span>
+      {% elif pending_notifications > 0 %}
+        &bull; <span style="color: #b45309;">{{ pending_notifications }} pending</span>
+      {% else %}
+        &bull; <span style="color: #166534;">notifications healthy</span>
       {% endif %}
     </div>
   </div>
