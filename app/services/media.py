@@ -26,12 +26,13 @@ logger = logging.getLogger(__name__)
 # Enforce 10 MB maximum upload limit matching Cloudinary Free tier allocation
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10,485,760 bytes
 
-ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 ALLOWED_MIME_TYPES = {
     "image/jpeg",
     "image/pjpeg",
     "image/png",
     "image/webp",
+    "image/gif",
 }
 
 
@@ -53,13 +54,15 @@ def detect_image_format_from_bytes(header_bytes: bytes) -> str | None:
         return "png"
     if len(header_bytes) >= 12 and header_bytes[:4] == b"RIFF" and header_bytes[8:12] == b"WEBP":
         return "webp"
+    if len(header_bytes) >= 6 and header_bytes[:6] in (b"GIF87a", b"GIF89a"):
+        return "gif"
     return None
 
 
 def validate_image_file(file_storage: FileStorage) -> str:
     """Validate uploaded image file size, extension, MIME type, and binary header.
 
-    Returns the detected format string ('jpg', 'png', or 'webp').
+    Returns the detected format string ('jpg', 'png', 'webp', or 'gif').
     Raises MediaValidationError on any validation failure.
     """
     if not file_storage or not file_storage.filename:
@@ -71,14 +74,14 @@ def validate_image_file(file_storage: FileStorage) -> str:
 
     if ext not in ALLOWED_EXTENSIONS:
         raise MediaValidationError(
-            f"Unsupported file format '{ext}'. Allowed formats: JPG, PNG, and WebP."
+            f"Unsupported file format '{ext}'. Allowed formats: JPG, PNG, WebP, and GIF."
         )
 
     # Content-type check if supplied by client
     content_type = (file_storage.content_type or "").lower().split(";")[0].strip()
     if content_type and content_type not in ALLOWED_MIME_TYPES:
         raise MediaValidationError(
-            f"Invalid file content type '{content_type}'. Must be JPEG, PNG, or WebP."
+            f"Invalid file content type '{content_type}'. Must be JPEG, PNG, WebP, or GIF."
         )
 
     # Check file size by seeking to end
@@ -104,7 +107,7 @@ def validate_image_file(file_storage: FileStorage) -> str:
     detected_format = detect_image_format_from_bytes(header)
     if not detected_format:
         raise MediaValidationError(
-            "File signature verification failed: the file content does not match a valid JPG, PNG, or WebP image."
+            "File signature verification failed: the file content does not match a valid JPG, PNG, WebP, or GIF image."
         )
 
     return detected_format
@@ -156,7 +159,7 @@ def upload_image_to_cloudinary(
             file_storage.stream,
             folder=folder,
             resource_type="image",
-            allowed_formats=["jpg", "jpeg", "png", "webp"],
+            allowed_formats=["jpg", "jpeg", "png", "webp", "gif"],
             unique_filename=True,
             overwrite=False,
         )

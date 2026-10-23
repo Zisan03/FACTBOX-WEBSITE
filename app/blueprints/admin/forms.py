@@ -404,7 +404,7 @@ class AdminResetPasswordForm(FlaskForm):
 class PartnerLogoUploadForm(FlaskForm):
     """Form to upload and register a partner or collaborating organization logo."""
     logo_file = FileField(
-        "Logo Image File (PNG, JPG, WebP)",
+        "Logo Image File (PNG, JPG, WebP, GIF)",
         validators=[
             FileRequired(message="A logo image file is required."),
         ],

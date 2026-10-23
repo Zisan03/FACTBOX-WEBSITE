@@ -146,6 +146,94 @@ def register_cli_commands(app: Flask):
         db.session.commit()
         click.echo(f"Successfully reset password for administrator: {normalized_email}")
 
+    @app.cli.command("seed-partner-logos")
+    def seed_partner_logos():
+        """Seed the 7 verified partner organizations into PostgreSQL."""
+        from app.models.content import PartnerLogo
+
+        partners_data = [
+            {
+                "name": "Mercy Corps",
+                "logo_cloudinary_public_id": "static/img/partners/mercy-corps",
+                "logo_secure_url": "/static/img/partners/mercy-corps.png",
+                "website_url": "https://www.mercycorps.org",
+                "alt_text": "Mercy Corps official emblem",
+                "display_order": 1,
+            },
+            {
+                "name": "International Alert",
+                "logo_cloudinary_public_id": "static/img/partners/international-alert",
+                "logo_secure_url": "/static/img/partners/international-alert.jpg",
+                "website_url": "https://www.international-alert.org",
+                "alt_text": "International Alert organization logo",
+                "display_order": 2,
+            },
+            {
+                "name": "Malaria Consortium",
+                "logo_cloudinary_public_id": "static/img/partners/malaria-consortium",
+                "logo_secure_url": "/static/img/partners/malaria-consortium.png",
+                "website_url": "https://www.malariaconsortium.org",
+                "alt_text": "Malaria Consortium - disease control, better health",
+                "display_order": 3,
+            },
+            {
+                "name": "GIZ",
+                "logo_cloudinary_public_id": "static/img/partners/giz",
+                "logo_secure_url": "/static/img/partners/giz.png",
+                "website_url": "https://www.giz.de",
+                "alt_text": "Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ) GmbH",
+                "display_order": 4,
+            },
+            {
+                "name": "Norwegian Refugee Council (NRC)",
+                "logo_cloudinary_public_id": "static/img/partners/nrc",
+                "logo_secure_url": "/static/img/partners/norwegian-refugee-council.gif",
+                "website_url": "https://www.nrc.no",
+                "alt_text": "Norwegian Refugee Council (NRC) official logo",
+                "display_order": 5,
+            },
+            {
+                "name": "Public Services International (PSI)",
+                "logo_cloudinary_public_id": "static/img/partners/psi",
+                "logo_secure_url": "/static/img/partners/psi.png",
+                "website_url": "https://publicservices.international",
+                "alt_text": "Public Services International (PSI) emblem",
+                "display_order": 6,
+            },
+            {
+                "name": "Capacity 4 Sustainable Development Ltd.",
+                "logo_cloudinary_public_id": "static/img/partners/capacity4dev",
+                "logo_secure_url": "/static/img/partners/capacity-4-dev.jpg",
+                "website_url": None,
+                "alt_text": "Capacity 4 Sustainable Development Ltd. logo",
+                "display_order": 7,
+            },
+        ]
+
+        count = 0
+        for p in partners_data:
+            existing = PartnerLogo.query.filter_by(name=p["name"]).first()
+            if not existing:
+                logo = PartnerLogo(
+                    name=p["name"],
+                    logo_cloudinary_public_id=p["logo_cloudinary_public_id"],
+                    logo_secure_url=p["logo_secure_url"],
+                    website_url=p["website_url"],
+                    alt_text=p["alt_text"],
+                    display_order=p["display_order"],
+                    is_published=True,
+                )
+                db.session.add(logo)
+                count += 1
+            else:
+                existing.logo_secure_url = p["logo_secure_url"]
+                existing.alt_text = p["alt_text"]
+                existing.display_order = p["display_order"]
+                existing.is_published = True
+
+        db.session.commit()
+        click.echo(f"Successfully processed partner logos ({count} new records added).")
+
 
 def create_app(config_name: str | None = None) -> Flask:
     """Application factory for Fact Box Consult web application."""
@@ -188,6 +276,13 @@ def create_app(config_name: str | None = None) -> Flask:
             "partner_logos": logos,
             "current_year": datetime.now(timezone.utc).year,
         }
+
+    # Template filters
+    @app.template_filter("org_slug")
+    def org_slug_filter(value):
+        from app.constants import get_org_slug
+        return get_org_slug(value)
+
 
     # Configure logging, error handlers, and security headers
     configure_logging(app)

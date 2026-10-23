@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Fact Box Consult — Audiovisual Media, Research & Creative Consultancy{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}Fact Box Consult (RC: 7592601) is an audiovisual media, research, and creative consultancy committed to developing fresh ideas into purposeful solutions.{% endblock %}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=3.0">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap">
   {% block extra_head %}{% endblock %}
 </head>
@@ -91,55 +91,54 @@
     {% block content %}{% endblock %}
   </main>
 
-  <!-- ==========================================================================
-       Partner & Client Organizations Ribbon (Appears Across All Public Pages)
-       ========================================================================== -->
-  {% if not request.path.startswith('/admin') %}
-  <section class="partner-ribbon" aria-label="Collaborating Organizations and Partners">
+  <footer class="site-footer">
     <div class="container">
-      <div class="partner-ribbon-inner">
-        <div class="partner-ribbon-header">
-          <span class="partner-ribbon-badge">Collaborative Impact</span>
-          <p class="partner-ribbon-caption">
-            Trusted by and collaborated with leading development partners, international institutions, and changemakers
+      {% if not request.path.startswith('/admin') %}
+      <!-- ======================================================================
+           Organizations We Have Worked With (Integrated Footer Tier)
+           ====================================================================== -->
+      <div class="footer-partners-tier">
+        <div class="footer-partners-header">
+          <span class="footer-partners-badge">Collaborative Impact</span>
+          <h2 class="footer-partners-title">Organizations We Have Worked With</h2>
+          <p class="footer-partners-caption">
+            Click on any organization below to explore the documentary productions, fieldwork, and research projects Fact Box has created with them.
           </p>
         </div>
         <div class="partner-logos-grid">
           {% if partner_logos %}
             {% for logo in partner_logos %}
-              {% if logo.website_url %}
-                <a href="{{ logo.website_url }}" target="_blank" rel="noopener noreferrer" class="partner-logo-item" title="{{ logo.name }}">
-                  <img src="{{ logo.logo_secure_url }}" alt="{{ logo.alt_text or logo.name }}" loading="lazy">
-                </a>
-              {% else %}
-                <div class="partner-logo-item" title="{{ logo.name }}">
-                  <img src="{{ logo.logo_secure_url }}" alt="{{ logo.alt_text or logo.name }}" loading="lazy">
-                </div>
-              {% endif %}
+              <a href="{{ url_for('public.work', org=(logo.name | org_slug)) }}" class="partner-logo-item" title="{{ logo.name }}">
+                <img src="{{ logo.logo_secure_url }}" alt="{{ logo.alt_text or logo.name }}" loading="lazy">
+              </a>
             {% endfor %}
           {% else %}
-            <!-- Initial Verified Partner Emblems -->
-            <div class="partner-logo-item" title="Mercy Corps">
-              <span class="partner-badge-pill">Mercy Corps</span>
-            </div>
-            <div class="partner-logo-item" title="International Alert">
-              <span class="partner-badge-pill">International Alert</span>
-            </div>
-            <div class="partner-logo-item" title="Malaria Consortium">
-              <span class="partner-badge-pill">Malaria Consortium</span>
-            </div>
-            <div class="partner-logo-item" title="Development Partners">
-              <span class="partner-badge-pill">Development Partners</span>
-            </div>
+            <a href="{{ url_for('public.work', org='mercy-corps') }}" class="partner-logo-item" title="Mercy Corps">
+              <img src="{{ url_for('static', filename='img/partners/mercy-corps.png') }}" alt="Mercy Corps" loading="lazy">
+            </a>
+            <a href="{{ url_for('public.work', org='international-alert') }}" class="partner-logo-item" title="International Alert">
+              <img src="{{ url_for('static', filename='img/partners/international-alert.jpg') }}" alt="International Alert" loading="lazy">
+            </a>
+            <a href="{{ url_for('public.work', org='malaria-consortium') }}" class="partner-logo-item" title="Malaria Consortium">
+              <img src="{{ url_for('static', filename='img/partners/malaria-consortium.png') }}" alt="Malaria Consortium" loading="lazy">
+            </a>
+            <a href="{{ url_for('public.work', org='giz') }}" class="partner-logo-item" title="Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ)">
+              <img src="{{ url_for('static', filename='img/partners/giz.png') }}" alt="Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ)" loading="lazy">
+            </a>
+            <a href="{{ url_for('public.work', org='norwegian-refugee-council') }}" class="partner-logo-item" title="Norwegian Refugee Council (NRC)">
+              <img src="{{ url_for('static', filename='img/partners/norwegian-refugee-council.gif') }}" alt="Norwegian Refugee Council (NRC)" loading="lazy">
+            </a>
+            <a href="{{ url_for('public.work', org='public-services-international') }}" class="partner-logo-item" title="Public Services International (PSI)">
+              <img src="{{ url_for('static', filename='img/partners/psi.png') }}" alt="Public Services International (PSI)" loading="lazy">
+            </a>
+            <a href="{{ url_for('public.work', org='capacity-4-dev') }}" class="partner-logo-item" title="Capacity 4 Sustainable Development Ltd.">
+              <img src="{{ url_for('static', filename='img/partners/capacity-4-dev.jpg') }}" alt="Capacity 4 Sustainable Development Ltd." loading="lazy">
+            </a>
           {% endif %}
         </div>
       </div>
-    </div>
-  </section>
-  {% endif %}
-
-  <footer class="site-footer">
-    <div class="container">
+      <div class="footer-divider"></div>
+      {% endif %}
       <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px;">
         <div style="max-width: 440px;">
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">

@@ -10,6 +10,7 @@ from app.models.service import Service
 from app.models.home_photo import HomePagePhoto
 from app.services.video import get_youtube_embed_url
 from app.services.media import get_optimized_delivery_url
+from app.constants import ORGANIZATIONS, match_client_to_org
 
 public_bp = Blueprint("public", __name__)
 
@@ -63,13 +64,19 @@ def services():
 
 @public_bp.route("/work")
 def work():
-    """Our Work single-page portfolio with category filtering (drafts excluded)."""
+    """Our Work single-page portfolio with category and organization filtering (drafts excluded)."""
     # Strict draft isolation: query only status == 'published'
     published_projects = (
         PortfolioProject.query.filter_by(status="published")
         .order_by(PortfolioProject.display_order.asc(), PortfolioProject.published_at.desc())
         .all()
     )
+
+    # Annotate projects with matched organization metadata
+    for p in published_projects:
+        matched = match_client_to_org(p.client_name)
+        p.matched_org = matched
+        p.org_slug = matched["slug"] if matched else "other"
 
     # Categories with at least one published project
     category_ids = {p.category_id for p in published_projects}
@@ -83,6 +90,7 @@ def work():
         "public/work.html",
         projects=published_projects,
         categories=categories,
+        organizations=ORGANIZATIONS,
         get_youtube_embed_url=get_youtube_embed_url,
         get_optimized_delivery_url=get_optimized_delivery_url,
     )

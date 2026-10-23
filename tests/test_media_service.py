@@ -28,6 +28,7 @@ from app.models.portfolio import PortfolioCategory, PortfolioProject, PortfolioI
 VALID_JPEG_BYTES = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00" + b"\x00" * 100
 VALID_PNG_BYTES = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR" + b"\x00" * 100
 VALID_WEBP_BYTES = b"RIFF\x24\x00\x00\x00WEBPVP8 " + b"\x00" * 100
+VALID_GIF_BYTES = b"GIF89a\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00!\xf9\x04\x00\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;"
 
 
 def create_file_storage(data: bytes, filename: str, content_type: str = "image/jpeg") -> FileStorage:
@@ -37,10 +38,11 @@ def create_file_storage(data: bytes, filename: str, content_type: str = "image/j
 
 
 def test_magic_bytes_detection():
-    """Verify binary magic byte detection for JPG, PNG, and WebP."""
+    """Verify binary magic byte detection for JPG, PNG, WebP, and GIF."""
     assert detect_image_format_from_bytes(VALID_JPEG_BYTES) == "jpg"
     assert detect_image_format_from_bytes(VALID_PNG_BYTES) == "png"
     assert detect_image_format_from_bytes(VALID_WEBP_BYTES) == "webp"
+    assert detect_image_format_from_bytes(VALID_GIF_BYTES) == "gif"
     assert detect_image_format_from_bytes(b"MZ\x90\x00\x03\x00\x00\x00") is None  # EXE header
     assert detect_image_format_from_bytes(b"%PDF-1.5\n") is None  # PDF header
 
@@ -61,6 +63,12 @@ def test_validate_image_file_valid_webp():
     """Verify valid WebP file passes validation."""
     file = create_file_storage(VALID_WEBP_BYTES, "optimized.webp", "image/webp")
     assert validate_image_file(file) == "webp"
+
+
+def test_validate_image_file_valid_gif():
+    """Verify valid GIF file passes validation."""
+    file = create_file_storage(VALID_GIF_BYTES, "nrc_logo.gif", "image/gif")
+    assert validate_image_file(file) == "gif"
 
 
 def test_validate_image_rejects_unsupported_extension():

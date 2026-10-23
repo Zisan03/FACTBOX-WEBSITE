@@ -47,27 +47,60 @@
 </section>
 
 <!-- ==========================================================================
-     Portfolio Grid & Category Filters (Single-Page Portfolio)
+     Portfolio Grid & Category/Organization Filters (Single-Page Portfolio)
      ========================================================================== -->
-<section style="padding: 80px 0 100px; background: var(--color-surface);">
+<section style="padding: 72px 0 100px; background: var(--color-surface);" id="portfolio-section">
   <div class="container">
     
+    <!-- Organizations We Have Worked With Showcase Filter Bar -->
+    <div class="work-org-filter-section">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+        <div>
+          <span class="inline-badge" style="background: rgba(23, 122, 61, 0.08); color: var(--color-primary); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 12px; border-radius: 9999px;">
+            Client &amp; Partner Productions
+          </span>
+          <h2 style="font-family: var(--font-display); font-size: clamp(22px, 3vw, 30px); font-weight: 700; color: var(--color-text-main); margin: 8px 0 0;">
+            Organizations We Have Worked With
+          </h2>
+          <p style="font-size: 14px; color: var(--color-text-muted); margin: 6px 0 0;">
+            Select any organization to explore documentary films, fieldwork, and media produced with them.
+          </p>
+        </div>
+        <button class="org-filter-btn active" data-org="all" id="org-filter-all" type="button">
+          All Organizations ({{ projects|length }})
+        </button>
+      </div>
+
+      <div class="work-org-grid" role="tablist" aria-label="Filter by Organization Worked With">
+        {% if organizations %}
+          {% for org_key, org in organizations.items() %}
+            <button class="work-org-pill" data-org="{{ org_key }}" type="button" title="Filter work done with {{ org.name }}">
+              <span class="work-org-logo-wrap">
+                <img src="{{ url_for('static', filename=org.logo_static) }}" alt="{{ org.name }}" loading="lazy">
+              </span>
+              <span class="work-org-name">{{ org.short_name or org.name }}</span>
+            </button>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
     <!-- Category Filter Bar (Client-Side Vanilla JS) -->
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 40px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin: 36px 0 32px; padding-top: 28px; border-top: 1px solid rgba(229, 226, 225, 0.8);">
       <div class="filter-bar" role="tablist" aria-label="Portfolio Category Filter">
-        <button class="filter-btn active" data-category="all" role="tab" aria-selected="true">
-          All Work
+        <button class="filter-btn active" data-category="all" role="tab" aria-selected="true" type="button">
+          All Categories
         </button>
         {% if categories %}
           {% for cat in categories %}
-            <button class="filter-btn" data-category="{{ cat.slug }}" role="tab" aria-selected="false">
+            <button class="filter-btn" data-category="{{ cat.slug }}" role="tab" aria-selected="false" type="button">
               {{ cat.name }}
             </button>
           {% endfor %}
         {% endif %}
       </div>
       
-      <span style="font-size: 13px; font-weight: 600; color: var(--color-text-muted);">
+      <span style="font-size: 13px; font-weight: 600; color: var(--color-text-muted);" id="visible-projects-count">
         {{ projects|length }} Published Project{% if projects|length != 1 %}s{% endif %}
       </span>
     </div>
@@ -76,7 +109,7 @@
     {% if projects %}
       <div class="portfolio-grid" id="portfolio-grid">
         {% for p in projects %}
-          <article class="portfolio-card" data-category="{{ p.category.slug if p.category else 'general' }}">
+          <article class="portfolio-card" data-category="{{ p.category.slug if p.category else 'general' }}" data-org="{{ p.org_slug }}">
             <!-- Media Container: YouTube Embed or Cloudinary Image -->
             <div class="portfolio-card-media">
               {% if p.videos %}
@@ -100,6 +133,26 @@
 
             <!-- Card Body Content -->
             <div class="portfolio-card-body">
+              <!-- Organization Branding Badge (Beside Media Content) -->
+              {% if p.matched_org %}
+                <div class="project-org-badge-strip">
+                  <div class="project-org-logo-badge">
+                    <img src="{{ url_for('static', filename=p.matched_org.logo_static) }}" alt="{{ p.matched_org.name }}">
+                  </div>
+                  <div class="project-org-meta">
+                    <span class="project-org-label">Work Done With</span>
+                    <strong class="project-org-name">{{ p.client_name }}</strong>
+                  </div>
+                </div>
+              {% elif p.client_name %}
+                <div class="project-org-badge-strip">
+                  <div class="project-org-meta">
+                    <span class="project-org-label">Work Done With</span>
+                    <strong class="project-org-name">{{ p.client_name }}</strong>
+                  </div>
+                </div>
+              {% endif %}
+
               <div class="portfolio-card-meta">
                 <span class="label-caps" style="font-size: 11px;">
                   {{ p.category.name if p.category else 'Case Study' }}
@@ -111,9 +164,9 @@
                 {% endif %}
               </div>
 
-              <h2 style="font-size: 20px; font-weight: 700; color: var(--color-text-main); margin-bottom: 10px; line-height: 1.3;">
+              <h3 style="font-size: 20px; font-weight: 700; color: var(--color-text-main); margin-bottom: 10px; line-height: 1.3;">
                 {{ p.title }}
-              </h2>
+              </h3>
 
               <p style="font-size: 14px; color: var(--color-text-muted); line-height: 1.6; margin-bottom: 16px; flex: 1;">
                 {{ p.summary }}
@@ -121,12 +174,33 @@
 
               {% if p.client_name %}
                 <div style="font-size: 12px; color: var(--color-text-muted); border-top: 1px solid #f3f4f6; padding-top: 10px; margin-top: auto;">
-                  Partner: <strong>{{ p.client_name }}</strong>
+                  Organization: <strong>{{ p.client_name }}</strong>
                 </div>
               {% endif %}
             </div>
           </article>
         {% endfor %}
+      </div>
+
+      <!-- Informative Empty State When a Filtered Organization Has No Published Work Yet -->
+      <div id="org-empty-state" class="org-empty-callout" style="display: none;">
+        <div class="org-empty-logo-box">
+          <img id="org-empty-logo" src="" alt="Organization Logo">
+        </div>
+        <h3 id="org-empty-title" style="font-size: 22px; font-weight: 700; color: var(--color-text-main); margin-bottom: 8px;">
+          Work Done with this Organization
+        </h3>
+        <p id="org-empty-desc" style="font-size: 15px; color: var(--color-text-muted); line-height: 1.6; margin-bottom: 24px; max-width: 580px; margin-left: auto; margin-right: auto;">
+          Documentary films, fieldwork photography, and research productions created with this organization are currently being prepared for online showcase.
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <a href="{{ url_for('contact.index') }}" class="btn-stitch-primary" style="padding: 12px 28px; font-size: 13px; text-decoration: none;">
+            Inquire About This Collaboration &rarr;
+          </a>
+          <button class="org-filter-btn" id="org-empty-reset-btn" type="button" style="padding: 10px 22px; font-size: 13px; cursor: pointer;">
+            View All Work
+          </button>
+        </div>
       </div>
     {% else %}
       <div style="background: #ffffff; padding: 64px 32px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); text-align: center; max-width: 600px; margin: 40px auto; box-shadow: var(--shadow-subtle);">
