@@ -1,0 +1,132 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_title %}{% if photo %}Edit Hero Photo{% else %}Upload Hero Photo{% endif %}{% endblock %}
+{% block admin_heading %}{% if photo %}Edit Hero Photo{% else %}Upload Hero Photo{% endif %}{% endblock %}
+
+{% block admin_content %}
+<div style="max-width: 760px; margin: 0 auto;">
+  <div style="margin-bottom: 20px;">
+    <a href="{{ url_for('admin.list_home_photos') }}" style="color: var(--color-primary); text-decoration: none; font-size: 14px; font-weight: 600;">
+      &larr; Back to Home Page Photos
+    </a>
+  </div>
+
+  <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-subtle);">
+    <h2 style="font-size: 20px; font-weight: 700; color: var(--color-text-main); margin-bottom: 8px;">
+      {% if photo %}Edit Photo Details{% else %}Upload Hero Background Photo{% endif %}
+    </h2>
+    <p style="font-size: 14px; color: var(--color-text-muted); margin-bottom: 24px;">
+      Hero photos appear in the Home page cinematic gallery. They auto-advance every 30 seconds with pause on hover/focus (vanilla JS).
+    </p>
+
+    {% if photo %}
+      <!-- Current Photo Preview -->
+      <div style="margin-bottom: 24px; padding: 16px; background: #fbfdfc; border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); display: block; margin-bottom: 8px;">Current Image Preview</span>
+        <div style="max-width: 320px; height: 180px; border-radius: var(--radius-sm); overflow: hidden; background: #000;">
+          <img src="{{ photo.secure_url }}" alt="{{ photo.alt_text }}" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+
+      {% if not photo %}
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: var(--color-text-main);">
+            {{ form.image_file.label.text }} <span style="color: #dc2626;">*</span>
+          </label>
+          {{ form.image_file(style="display: block; width: 100%; padding: 10px; font-size: 14px; border: 1px dashed var(--color-border); border-radius: var(--radius-sm); background: #fbfdfc;") }}
+          <span style="font-size: 12px; color: var(--color-text-muted); display: block; margin-top: 4px;">
+            Supported formats: JPG, PNG, WebP. Maximum file size: 10 MB (Cloudinary Free tier limit).
+          </span>
+          {% if form.image_file.errors %}
+            {% for error in form.image_file.errors %}
+              <span style="color: #dc2626; font-size: 13px; display: block; margin-top: 4px;">{{ error }}</span>
+            {% endfor %}
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: var(--color-text-main);">
+          {{ form.title.label.text }}
+        </label>
+        {{ form.title(style="width: 100%; padding: 10px 14px; font-size: 15px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); box-sizing: border-box;", placeholder="e.g. Field Documentary Production") }}
+        <span style="font-size: 12px; color: var(--color-text-muted); display: block; margin-top: 4px;">
+          Internal label or slide title shown in admin management.
+        </span>
+        {% if form.title.errors %}
+          {% for error in form.title.errors %}
+            <span style="color: #dc2626; font-size: 13px; display: block; margin-top: 4px;">{{ error }}</span>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: var(--color-text-main);">
+          {{ form.alt_text.label.text }} <span style="color: #dc2626;">*</span>
+        </label>
+        {{ form.alt_text(style="width: 100%; padding: 10px 14px; font-size: 15px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); box-sizing: border-box;", placeholder="Descriptive image explanation for screen readers and search engines") }}
+        <span style="font-size: 12px; color: var(--color-text-muted); display: block; margin-top: 4px;">
+          Required for web accessibility (WCAG 2.1 AA) and search engine visibility.
+        </span>
+        {% if form.alt_text.errors %}
+          {% for error in form.alt_text.errors %}
+            <span style="color: #dc2626; font-size: 13px; display: block; margin-top: 4px;">{{ error }}</span>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: var(--color-text-main);">
+          {{ form.caption.label.text }}
+        </label>
+        {{ form.caption(rows=3, style="width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); box-sizing: border-box;", placeholder="Optional descriptive caption or narrative context") }}
+        {% if form.caption.errors %}
+          {% for error in form.caption.errors %}
+            <span style="color: #dc2626; font-size: 13px; display: block; margin-top: 4px;">{{ error }}</span>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+        <div>
+          <label style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: var(--color-text-main);">
+            {{ form.display_order.label.text }}
+          </label>
+          {{ form.display_order(style="width: 100%; padding: 10px 14px; font-size: 15px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); box-sizing: border-box;") }}
+          <span style="font-size: 12px; color: var(--color-text-muted); display: block; margin-top: 4px;">
+            Lower numbers display first (0, 1, 2...).
+          </span>
+          {% if form.display_order.errors %}
+            {% for error in form.display_order.errors %}
+              <span style="color: #dc2626; font-size: 13px; display: block; margin-top: 4px;">{{ error }}</span>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <div>
+          <label style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 12px; color: var(--color-text-main);">
+            Status
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; padding-top: 8px;">
+            {{ form.is_active() }}
+            <span><strong>Active</strong> (visible in hero slideshow)</span>
+          </label>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid var(--color-border);">
+        <a href="{{ url_for('admin.list_home_photos') }}" class="btn" style="padding: 10px 18px; font-size: 14px; border: 1px solid var(--color-border); background: #f0edec; color: var(--color-text-main); text-decoration: none; border-radius: var(--radius-sm);">
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 14px; color: #fff; border-radius: var(--radius-sm); font-weight: 600;">
+          {% if photo %}Save Changes{% else %}Upload Photo{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

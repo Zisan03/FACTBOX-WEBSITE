@@ -30,14 +30,23 @@ from app.models.portfolio import (
 )
 from app.models.service import Service
 from app.models.enquiry import Enquiry
+from app.models.home_photo import HomePagePhoto
+from app.models.content import PartnerLogo
 from app.blueprints.admin.forms import (
     AdminLoginForm,
+    AdminChangePasswordForm,
+    AdminForgotPasswordRequestForm,
+    AdminResetPasswordForm,
     PortfolioCategoryForm,
     PortfolioProjectForm,
     PortfolioImageUploadForm,
     PortfolioImageEditForm,
     PortfolioVideoForm,
     ServiceForm,
+    HomePagePhotoForm,
+    HomePagePhotoEditForm,
+    PartnerLogoUploadForm,
+    PartnerLogoEditForm,
     slugify,
 )
 from app.services.video import (
@@ -49,12 +58,17 @@ from app.services.video import (
 from app.services.media import (
     save_portfolio_image_safely,
     delete_portfolio_image_safely,
+    save_home_page_photo_safely,
+    delete_home_page_photo_safely,
+    save_partner_logo_safely,
+    delete_partner_logo_safely,
+    upload_image_to_cloudinary,
     delete_image_from_cloudinary,
     get_optimized_delivery_url,
     MediaValidationError,
     CloudinaryUploadError,
 )
-from app.services.email import process_enquiry_notification
+from app.services.email import process_enquiry_notification, send_password_reset_email
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -138,6 +152,76 @@ def logout():
     return redirect(url_for("admin.login"))
 
 
+@admin_bp.route("/change-password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    """Allow authenticated administrator to update their password."""
+    form = AdminChangePasswordForm()
+    if form.validate_on_submit():
+        if not current_user.check_password(form.current_password.data):
+            flash("Incorrect current password.", "error")
+            return render_template("admin/change_password.html", form=form), 400
+
+        current_user.set_password(form.new_password.data)
+        log_admin_audit("password_changed", "admin_user", current_user.id, {"ip": request.remote_addr})
+        db.session.commit()
+        flash("Your password has been successfully updated.", "success")
+        return redirect(url_for("admin.dashboard"))
+
+    return render_template("admin/change_password.html", form=form)
+
+
+@admin_bp.route("/forgot-password", methods=["GET", "POST"])
+@limiter.limit("5 per 15 minutes")
+def forgot_password():
+    """Initiate administrator password recovery via secure email link."""
+    if current_user.is_authenticated:
+        return redirect(url_for("admin.dashboard"))
+
+    form = AdminForgotPasswordRequestForm()
+    if form.validate_on_submit():
+        normalized_email = form.email.data.strip().lower()
+        user = AdminUser.query.filter_by(email=normalized_email).first()
+
+        if user and user.is_active:
+            token = user.get_reset_token()
+            reset_url = url_for("admin.reset_password", token=token, _external=True)
+            send_password_reset_email(user, reset_url)
+            log_admin_audit("password_reset_requested", "admin_user", user.id, {"ip": request.remote_addr}, user_id=user.id)
+
+        # Constant message prevents account enumeration
+        flash(
+            "If an active administrator account exists with that email address, a password reset link has been sent.",
+            "info",
+        )
+        return redirect(url_for("admin.login"))
+
+    return render_template("admin/forgot_password.html", form=form)
+
+
+@admin_bp.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    """Verify reset token and update administrator password."""
+    if current_user.is_authenticated:
+        return redirect(url_for("admin.dashboard"))
+
+    user = AdminUser.verify_reset_token(token)
+    if not user:
+        flash("The password reset link is invalid or has expired. Please request a new one.", "error")
+        return redirect(url_for("admin.forgot_password"))
+
+    form = AdminResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.new_password.data)
+        log_admin_audit("password_reset_completed", "admin_user", user.id, {"ip": request.remote_addr}, user_id=user.id)
+        db.session.commit()
+        flash("Your password has been successfully reset. You may now sign in.", "success")
+        return redirect(url_for("admin.login"))
+
+    return render_template("admin/reset_password.html", form=form)
+
+
+
 # ============================================================================
 # Dashboard Overview
 # ============================================================================
@@ -160,6 +244,12 @@ def dashboard():
     pending_notifications = Enquiry.query.filter_by(notification_status="pending").count()
     failed_notifications = Enquiry.query.filter_by(notification_status="failed").count()
 
+    total_home_photos = HomePagePhoto.query.count()
+    active_home_photos = HomePagePhoto.query.filter_by(is_active=True).count()
+
+    total_partner_logos = PartnerLogo.query.count()
+    published_partner_logos = PartnerLogo.query.filter_by(is_published=True).count()
+
     recent_events = (
         AdminAuditEvent.query.order_by(AdminAuditEvent.occurred_at.desc())
         .limit(10)
@@ -178,8 +268,13 @@ def dashboard():
         new_enquiries=new_enquiries,
         pending_notifications=pending_notifications,
         failed_notifications=failed_notifications,
+        total_home_photos=total_home_photos,
+        active_home_photos=active_home_photos,
+        total_partner_logos=total_partner_logos,
+        published_partner_logos=published_partner_logos,
         recent_events=recent_events,
     )
+
 
 
 # ============================================================================
@@ -892,3 +987,255 @@ def retry_enquiry_notification(enquiry_id):
         )
 
     return redirect(url_for("admin.view_enquiry", enquiry_id=enquiry_id))
+
+
+# ============================================================================
+# Home Page Photos Management (Hero Background Gallery - Stage 5, ADR-010)
+# ============================================================================
+
+@admin_bp.route("/home-photos")
+@login_required
+def list_home_photos():
+    """List all hero background slideshow photos."""
+    photos = HomePagePhoto.query.order_by(
+        HomePagePhoto.display_order.asc(),
+        HomePagePhoto.created_at.desc(),
+    ).all()
+    return render_template("admin/home_photos/index.html", photos=photos)
+
+
+@admin_bp.route("/home-photos/new", methods=["GET", "POST"])
+@login_required
+def create_home_photo():
+    """Upload and configure a new hero background photo."""
+    form = HomePagePhotoForm()
+    if form.validate_on_submit():
+        try:
+            photo = save_home_page_photo_safely(
+                file_storage=form.image_file.data,
+                alt_text=form.alt_text.data,
+                title=form.title.data,
+                caption=form.caption.data,
+                display_order=form.display_order.data,
+                is_active=form.is_active.data,
+            )
+            log_admin_audit(
+                "create_home_page_photo",
+                "home_page_photo",
+                photo.id,
+                {"cloudinary_public_id": photo.cloudinary_public_id, "title": photo.title},
+            )
+            flash("Hero background photo uploaded successfully.", "success")
+            return redirect(url_for("admin.list_home_photos"))
+        except (MediaValidationError, CloudinaryUploadError) as e:
+            flash(f"Upload failed: {str(e)}", "error")
+        except Exception as e:
+            current_app.logger.exception(f"Unexpected error uploading hero photo: {e}")
+            flash("An unexpected error occurred while saving the photo.", "error")
+
+    return render_template("admin/home_photos/form.html", form=form, photo=None)
+
+
+@admin_bp.route("/home-photos/<uuid:photo_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_home_photo(photo_id):
+    """Update metadata for an existing home page photo."""
+    photo = db.get_or_404(HomePagePhoto, photo_id)
+    form = HomePagePhotoEditForm(obj=photo)
+
+    if form.validate_on_submit():
+        photo.title = form.title.data.strip() if form.title.data else None
+        photo.alt_text = form.alt_text.data.strip()
+        photo.caption = form.caption.data.strip() if form.caption.data else None
+        photo.display_order = form.display_order.data
+        photo.is_active = form.is_active.data
+        photo.updated_at = datetime.now(timezone.utc)
+        db.session.commit()
+
+        log_admin_audit(
+            "update_home_page_photo",
+            "home_page_photo",
+            photo.id,
+            {"title": photo.title, "display_order": photo.display_order, "is_active": photo.is_active},
+        )
+        flash("Photo details updated successfully.", "success")
+        return redirect(url_for("admin.list_home_photos"))
+
+    return render_template("admin/home_photos/form.html", form=form, photo=photo)
+
+
+@admin_bp.route("/home-photos/<uuid:photo_id>/toggle", methods=["POST"])
+@login_required
+def toggle_home_photo(photo_id):
+    """Toggle active status of a hero background photo."""
+    photo = db.get_or_404(HomePagePhoto, photo_id)
+    photo.is_active = not photo.is_active
+    photo.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+
+    log_admin_audit(
+        "toggle_home_page_photo",
+        "home_page_photo",
+        photo.id,
+        {"is_active": photo.is_active},
+    )
+    status_str = "activated" if photo.is_active else "deactivated"
+    flash(f"Photo '{photo.title or photo.alt_text}' has been {status_str}.", "success")
+    return redirect(url_for("admin.list_home_photos"))
+
+
+@admin_bp.route("/home-photos/<uuid:photo_id>/delete", methods=["POST"])
+@login_required
+def delete_home_photo(photo_id):
+    """Delete a hero background photo and remove Cloudinary asset."""
+    photo = db.get_or_404(HomePagePhoto, photo_id)
+    photo_title = photo.title or photo.alt_text
+
+    success = delete_home_page_photo_safely(photo.id)
+    if success:
+        log_admin_audit(
+            "delete_home_page_photo",
+            "home_page_photo",
+            photo_id,
+            {"title": photo_title},
+        )
+        flash("Hero background photo deleted successfully.", "success")
+    else:
+        flash("Could not delete photo.", "error")
+
+    return redirect(url_for("admin.list_home_photos"))
+
+
+# ============================================================================
+# Partner & Client Logo Management
+# ============================================================================
+
+@admin_bp.route("/partner-logos")
+@login_required
+def list_partner_logos():
+    """List all client and partner organization logos."""
+    logos = PartnerLogo.query.order_by(
+        PartnerLogo.display_order.asc(),
+        PartnerLogo.created_at.asc(),
+    ).all()
+    return render_template("admin/partner_logos/index.html", logos=logos)
+
+
+@admin_bp.route("/partner-logos/upload", methods=["GET", "POST"])
+@login_required
+def upload_partner_logo():
+    """Upload a new client/partner logo image to Cloudinary and register in DB."""
+    form = PartnerLogoUploadForm()
+    if form.validate_on_submit():
+        try:
+            logo = save_partner_logo_safely(
+                file_storage=form.logo_file.data,
+                name=form.name.data.strip(),
+                alt_text=form.alt_text.data.strip(),
+                website_url=form.website_url.data.strip() if form.website_url.data else None,
+                display_order=form.display_order.data,
+                is_published=form.is_published.data,
+            )
+            log_admin_audit(
+                "upload_partner_logo",
+                "partner_logo",
+                logo.id,
+                {"name": logo.name, "display_order": logo.display_order, "is_published": logo.is_published},
+            )
+            flash(f"Partner logo for '{logo.name}' uploaded successfully.", "success")
+            return redirect(url_for("admin.list_partner_logos"))
+        except MediaValidationError as e:
+            flash(str(e), "error")
+        except CloudinaryUploadError as e:
+            flash(f"Media storage service error: {e}", "error")
+        except Exception as e:
+            flash(f"An unexpected error occurred while saving the logo: {e}", "error")
+
+    return render_template("admin/partner_logos/form.html", form=form, logo=None)
+
+
+@admin_bp.route("/partner-logos/<uuid:logo_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_partner_logo(logo_id):
+    """Edit metadata or optionally replace image of an existing partner logo."""
+    logo = db.get_or_404(PartnerLogo, logo_id)
+    form = PartnerLogoEditForm(obj=logo)
+
+    if form.validate_on_submit():
+        try:
+            if form.logo_file.data:
+                old_public_id = logo.logo_cloudinary_public_id
+                upload_meta = upload_image_to_cloudinary(form.logo_file.data, folder="factbox/partner_logos")
+                logo.logo_cloudinary_public_id = upload_meta["public_id"]
+                logo.logo_secure_url = upload_meta["secure_url"]
+                if old_public_id:
+                    delete_image_from_cloudinary(old_public_id)
+
+            logo.name = form.name.data.strip()
+            logo.website_url = form.website_url.data.strip() if form.website_url.data else None
+            logo.alt_text = form.alt_text.data.strip()
+            logo.display_order = form.display_order.data
+            logo.is_published = form.is_published.data
+            logo.updated_at = datetime.now(timezone.utc)
+            db.session.commit()
+
+            log_admin_audit(
+                "update_partner_logo",
+                "partner_logo",
+                logo.id,
+                {"name": logo.name, "display_order": logo.display_order, "is_published": logo.is_published},
+            )
+            flash(f"Partner logo '{logo.name}' updated successfully.", "success")
+            return redirect(url_for("admin.list_partner_logos"))
+        except MediaValidationError as e:
+            flash(str(e), "error")
+        except CloudinaryUploadError as e:
+            flash(f"Media storage service error: {e}", "error")
+        except Exception as e:
+            flash(f"An unexpected error occurred: {e}", "error")
+
+    return render_template("admin/partner_logos/form.html", form=form, logo=logo)
+
+
+@admin_bp.route("/partner-logos/<uuid:logo_id>/toggle", methods=["POST"])
+@login_required
+def toggle_partner_logo(logo_id):
+    """Toggle visibility status of a partner logo."""
+    logo = db.get_or_404(PartnerLogo, logo_id)
+    logo.is_published = not logo.is_published
+    logo.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+
+    log_admin_audit(
+        "toggle_partner_logo",
+        "partner_logo",
+        logo.id,
+        {"is_published": logo.is_published},
+    )
+    status_str = "published in footer" if logo.is_published else "hidden from footer"
+    flash(f"Logo '{logo.name}' is now {status_str}.", "success")
+    return redirect(url_for("admin.list_partner_logos"))
+
+
+@admin_bp.route("/partner-logos/<uuid:logo_id>/delete", methods=["POST"])
+@login_required
+def delete_partner_logo(logo_id):
+    """Delete a partner logo and remove Cloudinary asset."""
+    logo = db.get_or_404(PartnerLogo, logo_id)
+    logo_name = logo.name
+
+    success = delete_partner_logo_safely(logo.id)
+    if success:
+        log_admin_audit(
+            "delete_partner_logo",
+            "partner_logo",
+            logo_id,
+            {"name": logo_name},
+        )
+        flash(f"Partner logo '{logo_name}' deleted successfully.", "success")
+    else:
+        flash("Could not delete logo.", "error")
+
+    return redirect(url_for("admin.list_partner_logos"))
+
+

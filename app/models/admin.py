@@ -63,6 +63,48 @@ class AdminUser(UserMixin, db.Model):
         """Flask-Login user identifier."""
         return str(self.id)
 
+    def get_reset_token(self, expires_sec: int = 1800) -> str:
+        """Generate a signed timed token for password reset containing user ID and password hash fingerprint."""
+        from flask import current_app
+        from itsdangerous import URLSafeTimedSerializer
+
+        s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+        fingerprint = self.password_hash[-12:] if self.password_hash else ""
+        return s.dumps({"user_id": str(self.id), "fp": fingerprint}, salt="admin-password-reset")
+
+    @classmethod
+    def verify_reset_token(cls, token: str, expires_sec: int = 1800):
+        """Verify the reset token. Returns AdminUser instance if valid, or None if expired/tampered/invalidated."""
+        from flask import current_app
+        from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+
+        s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+        try:
+            data = s.loads(token, salt="admin-password-reset", max_age=expires_sec)
+        except (SignatureExpired, BadSignature, Exception):
+            return None
+
+        user_id = data.get("user_id")
+        fingerprint = data.get("fp")
+        if not user_id:
+            return None
+
+        try:
+            user_uuid = uuid.UUID(str(user_id))
+            user = db.session.get(cls, user_uuid)
+        except (ValueError, TypeError):
+            return None
+
+        if not user or not user.is_active:
+            return None
+
+        # Verify password hasn't been changed since token was issued
+        current_fp = user.password_hash[-12:] if user.password_hash else ""
+        if current_fp != fingerprint:
+            return None
+
+        return user
+
     def __repr__(self) -> str:
         return f"<AdminUser {self.email}>"
 

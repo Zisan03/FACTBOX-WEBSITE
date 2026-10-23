@@ -1,0 +1,126 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_title %}{% if logo %}Edit Partner Logo{% else %}Upload Partner Logo{% endif %}{% endblock %}
+{% block admin_heading %}Partner &amp; Client Organizations{% endblock %}
+
+{% block admin_content %}
+<div style="max-width: 680px; margin: 0 auto;">
+  <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 36px 32px; box-shadow: var(--shadow-subtle);">
+    <div style="margin-bottom: 24px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px;">
+      <h2 style="font-size: 20px; font-weight: 700; color: var(--color-text-main); margin: 0 0 6px;">
+        {% if logo %}Edit Partner Logo — {{ logo.name }}{% else %}Upload New Partner Logo{% endif %}
+      </h2>
+      <p style="font-size: 13px; color: var(--color-text-muted); margin: 0;">
+        Uploaded partner logos are validated (PNG, JPG, WebP), stored securely on Cloudinary, and displayed in the global footer.
+      </p>
+    </div>
+
+    {% if logo %}
+      <div style="margin-bottom: 24px; padding: 16px; background: #fbfdfc; border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; align-items: center; gap: 16px;">
+        <div style="width: 120px; height: 60px; background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; padding: 4px;">
+          <img src="{{ logo.logo_secure_url }}" alt="{{ logo.alt_text }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+        </div>
+        <div>
+          <div style="font-size: 14px; font-weight: 700; color: var(--color-text-main);">Current Logo Image</div>
+          <div style="font-size: 12px; color: var(--color-text-muted);">Leave the file input below empty to keep this current image.</div>
+        </div>
+      </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" novalidate>
+      {{ form.csrf_token }}
+
+      <div style="margin-bottom: 20px;">
+        <label for="name" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--color-text-main);">
+          Organization Name *
+        </label>
+        {{ form.name(id="name", class="form-control", style="width: 100%; padding: 12px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 14px;", placeholder="e.g. Mercy Corps, International Alert, Malaria Consortium") }}
+        {% if form.name.errors %}
+          <div style="color: #dc2626; font-size: 13px; margin-top: 6px;">
+            {% for error in form.name.errors %}
+              <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label for="logo_file" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--color-text-main);">
+          Logo File {% if not logo %}*{% else %}(Optional replacement){% endif %}
+        </label>
+        {{ form.logo_file(id="logo_file", class="form-control", style="width: 100%; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 14px;") }}
+        <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 4px;">
+          Transparent PNG or clean SVG/WebP/JPG recommended. Maximum 10MB.
+        </div>
+        {% if form.logo_file.errors %}
+          <div style="color: #dc2626; font-size: 13px; margin-top: 6px;">
+            {% for error in form.logo_file.errors %}
+              <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label for="website_url" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--color-text-main);">
+          Official Website URL (Optional)
+        </label>
+        {{ form.website_url(id="website_url", class="form-control", style="width: 100%; padding: 12px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 14px;", placeholder="https://example.org") }}
+        {% if form.website_url.errors %}
+          <div style="color: #dc2626; font-size: 13px; margin-top: 6px;">
+            {% for error in form.website_url.errors %}
+              <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label for="alt_text" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--color-text-main);">
+          Alternative Text (SEO &amp; Accessibility) *
+        </label>
+        {{ form.alt_text(id="alt_text", class="form-control", style="width: 100%; padding: 12px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 14px;", placeholder="e.g. Mercy Corps organization logo") }}
+        {% if form.alt_text.errors %}
+          <div style="color: #dc2626; font-size: 13px; margin-top: 6px;">
+            {% for error in form.alt_text.errors %}
+              <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px;">
+        <div>
+          <label for="display_order" style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--color-text-main);">
+            Display Order
+          </label>
+          {{ form.display_order(id="display_order", class="form-control", style="width: 100%; padding: 12px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: 14px;", type="number", min="0") }}
+          {% if form.display_order.errors %}
+            <div style="color: #dc2626; font-size: 13px; margin-top: 6px;">
+              {% for error in form.display_order.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div style="display: flex; align-items: center; padding-top: 24px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--color-text-main);">
+            {{ form.is_published() }}
+            <span>Published on Website Footer</span>
+          </label>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <button type="submit" class="btn btn-primary" style="padding: 12px 24px; font-weight: 600; font-size: 14px;">
+          {% if logo %}Save Changes{% else %}Upload &amp; Register Logo{% endif %}
+        </button>
+        <a href="{{ url_for('admin.list_partner_logos') }}" class="btn" style="padding: 12px 20px; font-size: 14px; background: #f0edec; color: var(--color-text-main); border: 1px solid var(--color-border); text-decoration: none; border-radius: var(--radius-md);">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

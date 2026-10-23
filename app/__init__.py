@@ -6,6 +6,7 @@ Enforces ADR-001, ADR-009, and Stage 2 requirements.
 import logging
 import sys
 import uuid
+from datetime import datetime, timezone
 from flask import Flask, render_template, jsonify, request
 from app.config import get_config
 from app.extensions import db, migrate, csrf, login_manager, limiter, mail
@@ -116,6 +117,35 @@ def register_cli_commands(app: Flask):
         db.session.commit()
         click.echo(f"Successfully provisioned administrator: {normalized_email}")
 
+    @app.cli.command("reset-admin-password")
+    @click.option("--email", prompt="Admin Email", help="Administrator email address")
+    @click.password_option(help="New administrator password (minimum 8 characters)")
+    def reset_admin_password(email, password):
+        """Emergency reset of an administrator's password via CLI."""
+        normalized_email = email.strip().lower()
+        if not normalized_email or "@" not in normalized_email:
+            click.echo("Error: Please provide a valid email address.")
+            sys.exit(1)
+
+        if len(password) < 8:
+            click.echo("Error: Password must be at least 8 characters long.")
+            sys.exit(1)
+
+        admin = AdminUser.query.filter_by(email=normalized_email).first()
+        if not admin:
+            click.echo(f"Error: Admin user with email '{normalized_email}' not found.")
+            sys.exit(1)
+
+        admin.set_password(password)
+        audit = AdminAuditEvent(
+            admin_user_id=admin.id,
+            event_type="admin_password_reset_cli",
+            safe_metadata={"email": normalized_email},
+        )
+        db.session.add(audit)
+        db.session.commit()
+        click.echo(f"Successfully reset password for administrator: {normalized_email}")
+
 
 def create_app(config_name: str | None = None) -> Flask:
     """Application factory for Fact Box Consult web application."""
@@ -141,6 +171,23 @@ def create_app(config_name: str | None = None) -> Flask:
             return db.session.get(AdminUser, uuid.UUID(user_id))
         except (ValueError, TypeError):
             return None
+
+    # Global context processor for site-wide template variables
+    @app.context_processor
+    def inject_global_data():
+        try:
+            from app.models.content import PartnerLogo
+            logos = (
+                PartnerLogo.query.filter_by(is_published=True)
+                .order_by(PartnerLogo.display_order.asc(), PartnerLogo.created_at.asc())
+                .all()
+            )
+        except Exception:
+            logos = []
+        return {
+            "partner_logos": logos,
+            "current_year": datetime.now(timezone.utc).year,
+        }
 
     # Configure logging, error handlers, and security headers
     configure_logging(app)

@@ -21,6 +21,7 @@ from wtforms.validators import (
     Optional,
     NumberRange,
     ValidationError,
+    EqualTo,
 )
 
 EMAIL_REGEX = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
@@ -268,3 +269,209 @@ class ServiceForm(FlaskForm):
         default=0,
     )
     is_published = BooleanField("Published (Visible on public Services page)", default=False)
+
+
+class HomePagePhotoForm(FlaskForm):
+    """Form to upload a new home page hero background photo."""
+    image_file = FileField(
+        "Image File (JPG, PNG, WebP up to 10 MB)",
+        validators=[
+            FileRequired(message="Please select an image file to upload."),
+        ],
+    )
+    title = StringField(
+        "Photo Title / Label (Optional)",
+        validators=[
+            Optional(),
+            Length(max=255),
+        ],
+    )
+    alt_text = StringField(
+        "Alternative Text (SEO & Accessibility)",
+        validators=[
+            DataRequired(message="Alternative text is required for accessibility."),
+            Length(max=255),
+        ],
+    )
+    caption = TextAreaField(
+        "Caption (Optional)",
+        validators=[
+            Optional(),
+            Length(max=500),
+        ],
+    )
+    display_order = IntegerField(
+        "Display Order",
+        validators=[NumberRange(min=0, message="Display order must be 0 or greater.")],
+        default=0,
+    )
+    is_active = BooleanField("Active in Hero Slideshow", default=True)
+
+
+class HomePagePhotoEditForm(FlaskForm):
+    """Form to edit metadata of an existing home page photo."""
+    title = StringField(
+        "Photo Title / Label (Optional)",
+        validators=[
+            Optional(),
+            Length(max=255),
+        ],
+    )
+    alt_text = StringField(
+        "Alternative Text (SEO & Accessibility)",
+        validators=[
+            DataRequired(message="Alternative text is required for accessibility."),
+            Length(max=255),
+        ],
+    )
+    caption = TextAreaField(
+        "Caption (Optional)",
+        validators=[
+            Optional(),
+            Length(max=500),
+        ],
+    )
+    display_order = IntegerField(
+        "Display Order",
+        validators=[NumberRange(min=0, message="Display order must be 0 or greater.")],
+        default=0,
+    )
+    is_active = BooleanField("Active in Hero Slideshow", default=True)
+
+
+# ============================================================================
+# Admin Password Management & Recovery Forms
+# ============================================================================
+
+class AdminChangePasswordForm(FlaskForm):
+    """Form for authenticated administrator to update their password."""
+    current_password = PasswordField(
+        "Current Password",
+        validators=[
+            DataRequired(message="Your current password is required."),
+        ],
+    )
+    new_password = PasswordField(
+        "New Password",
+        validators=[
+            DataRequired(message="New password is required."),
+            Length(min=8, message="New password must be at least 8 characters long."),
+        ],
+    )
+    confirm_password = PasswordField(
+        "Confirm New Password",
+        validators=[
+            DataRequired(message="Please confirm your new password."),
+            EqualTo("new_password", message="New passwords must match."),
+        ],
+    )
+
+
+class AdminForgotPasswordRequestForm(FlaskForm):
+    """Form to initiate a password recovery email."""
+    email = StringField(
+        "Administrator Email Address",
+        validators=[
+            DataRequired(message="Email address is required."),
+            Regexp(EMAIL_REGEX, message="Please provide a valid email address."),
+            Length(max=255),
+        ],
+    )
+
+
+class AdminResetPasswordForm(FlaskForm):
+    """Form to submit a new password via timed reset token."""
+    new_password = PasswordField(
+        "New Password",
+        validators=[
+            DataRequired(message="New password is required."),
+            Length(min=8, message="New password must be at least 8 characters long."),
+        ],
+    )
+    confirm_password = PasswordField(
+        "Confirm New Password",
+        validators=[
+            DataRequired(message="Please confirm your new password."),
+            EqualTo("new_password", message="Passwords must match."),
+        ],
+    )
+
+
+# ============================================================================
+# Partner & Organization Logo Management Forms
+# ============================================================================
+
+class PartnerLogoUploadForm(FlaskForm):
+    """Form to upload and register a partner or collaborating organization logo."""
+    logo_file = FileField(
+        "Logo Image File (PNG, JPG, WebP)",
+        validators=[
+            FileRequired(message="A logo image file is required."),
+        ],
+    )
+    name = StringField(
+        "Organization / Partner Name",
+        validators=[
+            DataRequired(message="Organization name is required."),
+            Length(max=150, message="Organization name must be 150 characters or less."),
+        ],
+    )
+    website_url = StringField(
+        "Organization Website URL (Optional)",
+        validators=[
+            Optional(),
+            Length(max=500),
+        ],
+    )
+    alt_text = StringField(
+        "Alternative Text (SEO & Accessibility)",
+        validators=[
+            DataRequired(message="Alternative text is required for accessibility."),
+            Length(max=255),
+        ],
+    )
+    display_order = IntegerField(
+        "Display Order",
+        validators=[NumberRange(min=0, message="Display order must be 0 or greater.")],
+        default=0,
+    )
+    is_published = BooleanField("Visible on Website Footer", default=True)
+
+
+class PartnerLogoEditForm(FlaskForm):
+    """Form to edit metadata or optionally replace an existing partner logo."""
+    logo_file = FileField(
+        "Replace Logo Image File (Optional)",
+        validators=[
+            Optional(),
+        ],
+    )
+    name = StringField(
+        "Organization / Partner Name",
+        validators=[
+            DataRequired(message="Organization name is required."),
+            Length(max=150, message="Organization name must be 150 characters or less."),
+        ],
+    )
+    website_url = StringField(
+        "Organization Website URL (Optional)",
+        validators=[
+            Optional(),
+            Length(max=500),
+        ],
+    )
+    alt_text = StringField(
+        "Alternative Text (SEO & Accessibility)",
+        validators=[
+            DataRequired(message="Alternative text is required for accessibility."),
+            Length(max=255),
+        ],
+    )
+    display_order = IntegerField(
+        "Display Order",
+        validators=[NumberRange(min=0, message="Display order must be 0 or greater.")],
+        default=0,
+    )
+    is_published = BooleanField("Visible on Website Footer", default=True)
+
+

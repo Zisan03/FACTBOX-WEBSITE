@@ -158,3 +158,41 @@ def process_enquiry_notification(enquiry: Enquiry, is_retry: bool = False) -> tu
         )
 
     return success, error_code
+
+
+def send_password_reset_email(admin_user, reset_url: str) -> bool:
+    """Send a secure password reset link to an administrator.
+
+    Returns True if sent successfully, False otherwise.
+    Safe: Logs only the admin ID without exposing reset token or server credentials.
+    """
+    sender = current_app.config.get("MAIL_DEFAULT_SENDER") or "noreply@factboxconsult.com"
+    subject = "[Fact Box Consult] Administrator Password Reset Request"
+    body = (
+        f"Hello,\n\n"
+        f"A password reset request was submitted for your Fact Box Consult administrator account ({admin_user.email}).\n\n"
+        f"To reset your password, visit the following secure link:\n"
+        f"{reset_url}\n\n"
+        f"This link will expire in 30 minutes. If you did not request a password reset, you can safely ignore this email; your account remains secure and your password unchanged.\n\n"
+        f"— Fact Box Consult Security System\n"
+    )
+
+    msg = Message(
+        subject=subject,
+        recipients=[admin_user.email],
+        sender=sender,
+        body=body,
+    )
+
+    try:
+        mail.send(msg)
+        logger.info("Password reset email dispatched successfully to admin %s", admin_user.id)
+        return True
+    except Exception as exc:
+        logger.warning(
+            "Failed to dispatch password reset email to admin %s: %s",
+            admin_user.id,
+            exc.__class__.__name__,
+        )
+        return False
+

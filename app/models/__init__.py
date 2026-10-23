@@ -12,6 +12,7 @@ from app.models.portfolio import (
 from app.models.service import Service
 from app.models.enquiry import Enquiry
 from app.models.content import PageContent, PartnerLogo
+from app.models.home_photo import HomePagePhoto
 
 __all__ = [
     "AdminUser",
@@ -24,4 +25,6 @@ __all__ = [
     "Enquiry",
     "PageContent",
     "PartnerLogo",
+    "HomePagePhoto",
 ]
+

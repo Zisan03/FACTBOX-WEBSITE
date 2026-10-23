@@ -4,22 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Fact Box Consult — Audiovisual Media, Research & Creative Consultancy{% endblock %}</title>
-  <meta name="description" content="{% block meta_description %}Fact Box Consult is an audiovisual media, research, and creative consultancy committed to developing fresh ideas into purposeful solutions.{% endblock %}">
+  <meta name="description" content="{% block meta_description %}Fact Box Consult (RC: 7592601) is an audiovisual media, research, and creative consultancy committed to developing fresh ideas into purposeful solutions.{% endblock %}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap">
   {% block extra_head %}{% endblock %}
 </head>
 <body>
+  <!-- Accessible Skip Navigation -->
+  <a href="#main-content" style="position: absolute; left: -9999px; top: 0; z-index: 9999; padding: 12px 20px; background: #000000; color: #ffffff; text-decoration: none; font-weight: 700; border-bottom: 2px solid var(--color-accent);" onfocus="this.style.left='16px'; this.style.top='16px';" onblur="this.style.left='-9999px';">
+    Skip to main content
+  </a>
+
   {% if current_user.is_authenticated %}
-    <div style="background: #18221c; color: #ffffff; padding: 8px 0; font-size: 13px; border-bottom: 2px solid var(--color-primary);">
+    <div style="background: #18221c; color: #ffffff; padding: 8px 0; font-size: 13px; border-bottom: 2px solid var(--color-primary); position: relative; z-index: 1001;">
       <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4ade80;"></span>
           <span style="color: var(--color-accent); font-weight: 700;">Admin Mode:</span>
           <span style="color: rgba(255,255,255,0.85);">{{ current_user.email }}</span>
         </div>
-        <div style="display: flex; gap: 14px; align-items: center;">
+        <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
           <a href="{{ url_for('admin.dashboard') }}" style="color: #ffffff; font-weight: 600; text-decoration: none;">&larr; Admin Dashboard</a>
           <a href="{{ url_for('admin.list_projects') }}" style="color: rgba(255,255,255,0.8); text-decoration: none;">Projects</a>
+          <a href="{{ url_for('admin.list_home_photos') }}" style="color: rgba(255,255,255,0.8); text-decoration: none;">Hero Photos</a>
           <a href="{{ url_for('admin.list_categories') }}" style="color: rgba(255,255,255,0.8); text-decoration: none;">Categories</a>
           <a href="{{ url_for('admin.list_services') }}" style="color: rgba(255,255,255,0.8); text-decoration: none;">Services</a>
           <a href="{{ url_for('admin.logout') }}" style="color: #fca5a5; text-decoration: none; font-weight: 600;">Sign Out</a>
@@ -28,52 +35,148 @@
     </div>
   {% endif %}
 
-  <header class="site-header">
+  <!-- Stitch Floating Transparent Header -->
+  <header class="site-header" id="site-header" style="{% if current_user.is_authenticated %}top: 37px;{% endif %}">
     <div class="container nav-wrap">
-      <a href="{{ url_for('public.home') }}" class="brand-logo">
+      <a href="{{ url_for('public.home') }}" class="brand-logo" aria-label="Fact Box Consult Home">
         <img src="{{ url_for('static', filename='img/factbox_logo.jpg') }}" alt="Fact Box Consult Logo" class="brand-logo-img">
-        <span>FACT BOX CONSULT</span>
+        <span class="brand-logo-text">FACT BOX CONSULT</span>
       </a>
-      <nav aria-label="Main Navigation">
-        <ul class="nav-links">
-          <li><a href="{{ url_for('public.home') }}">Home</a></li>
-          <li><a href="{{ url_for('public.about') }}">About Us</a></li>
-          <li><a href="{{ url_for('public.services') }}">Services</a></li>
-          <li><a href="{{ url_for('public.work') }}">Our Work</a></li>
-          <li><a href="{{ url_for('contact.index') }}" class="btn btn-primary" style="padding: 8px 16px; color: white;">Contact Us</a></li>
+
+      <!-- Stitch Centered Floating Pill Navigation Menu -->
+      <nav class="nav-pill-wrapper" aria-label="Main Navigation">
+        <ul class="nav-pill-links">
+          <li><a href="{{ url_for('public.home') }}" class="{% if request.endpoint == 'public.home' %}active{% endif %}">Home</a></li>
+          <li><a href="{{ url_for('public.about') }}" class="{% if request.endpoint == 'public.about' %}active{% endif %}">About Us</a></li>
+          <li><a href="{{ url_for('public.work') }}" class="{% if request.endpoint == 'public.work' %}active{% endif %}">Our Work</a></li>
+          <li><a href="{{ url_for('public.services') }}" class="{% if request.endpoint == 'public.services' %}active{% endif %}">Services</a></li>
         </ul>
       </nav>
+
+      <!-- Stitch Pill CTA Button -->
+      <div class="nav-cta-wrapper">
+        <a href="{{ url_for('contact.index') }}" class="btn-pill-cta">
+          Partner With Us
+        </a>
+      </div>
+
+      <!-- Mobile Hamburger Button -->
+      <button id="nav-toggle" class="mobile-nav-toggle" aria-label="Open mobile menu" aria-expanded="false" aria-controls="mobile-drawer">
+        <span class="material-symbols-outlined" style="font-size: 28px; line-height: 1;">menu</span>
+      </button>
     </div>
   </header>
+
+  <!-- Mobile Off-Canvas Drawer -->
+  <div id="mobile-overlay" class="mobile-drawer-overlay"></div>
+  <aside id="mobile-drawer" class="mobile-drawer" aria-label="Mobile Navigation Drawer">
+    <button id="nav-close" class="mobile-drawer-close" aria-label="Close mobile menu">&times;</button>
+    <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
+      <img src="{{ url_for('static', filename='img/factbox_logo.jpg') }}" alt="Fact Box Consult Logo" style="height: 36px; width: 36px; border-radius: 4px; object-fit: contain; background: #000; padding: 2px;">
+      <span style="font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--color-primary-dark);">FACT BOX</span>
+    </div>
+    <ul class="mobile-nav-links">
+      <li><a href="{{ url_for('public.home') }}" class="{% if request.endpoint == 'public.home' %}active{% endif %}">Home</a></li>
+      <li><a href="{{ url_for('public.about') }}" class="{% if request.endpoint == 'public.about' %}active{% endif %}">About Us</a></li>
+      <li><a href="{{ url_for('public.work') }}" class="{% if request.endpoint == 'public.work' %}active{% endif %}">Our Work</a></li>
+      <li><a href="{{ url_for('public.services') }}" class="{% if request.endpoint == 'public.services' %}active{% endif %}">Services</a></li>
+      <li><a href="{{ url_for('contact.index') }}" class="{% if request.endpoint == 'contact.index' %}active{% endif %}">Contact Us</a></li>
+    </ul>
+    <div style="margin-top: auto; padding-top: 24px; border-top: 1px solid #f0edec;">
+      <a href="{{ url_for('contact.index') }}" class="btn btn-primary" style="width: 100%; text-align: center; color: #fff;">Get in Touch</a>
+    </div>
+  </aside>
 
   <main id="main-content">
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="site-footer">
+  <!-- ==========================================================================
+       Partner & Client Organizations Ribbon (Appears Across All Public Pages)
+       ========================================================================== -->
+  {% if not request.path.startswith('/admin') %}
+  <section class="partner-ribbon" aria-label="Collaborating Organizations and Partners">
     <div class="container">
-      <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 32px;">
-        <div style="max-width: 400px;">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-            <img src="{{ url_for('static', filename='img/factbox_logo.jpg') }}" alt="Fact Box Consult Logo" style="height: 38px; width: 38px; border-radius: 4px; object-fit: contain; background: #000; padding: 2px;">
-            <h3 style="color: #ffffff; margin: 0; font-size: 18px;">FACT BOX CONSULT</h3>
-          </div>
-          <p style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">
-            Audiovisual media, research, and creative consultancy. RC: 7592601.
+      <div class="partner-ribbon-inner">
+        <div class="partner-ribbon-header">
+          <span class="partner-ribbon-badge">Collaborative Impact</span>
+          <p class="partner-ribbon-caption">
+            Trusted by and collaborated with leading development partners, international institutions, and changemakers
           </p>
         </div>
+        <div class="partner-logos-grid">
+          {% if partner_logos %}
+            {% for logo in partner_logos %}
+              {% if logo.website_url %}
+                <a href="{{ logo.website_url }}" target="_blank" rel="noopener noreferrer" class="partner-logo-item" title="{{ logo.name }}">
+                  <img src="{{ logo.logo_secure_url }}" alt="{{ logo.alt_text or logo.name }}" loading="lazy">
+                </a>
+              {% else %}
+                <div class="partner-logo-item" title="{{ logo.name }}">
+                  <img src="{{ logo.logo_secure_url }}" alt="{{ logo.alt_text or logo.name }}" loading="lazy">
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <!-- Initial Verified Partner Emblems -->
+            <div class="partner-logo-item" title="Mercy Corps">
+              <span class="partner-badge-pill">Mercy Corps</span>
+            </div>
+            <div class="partner-logo-item" title="International Alert">
+              <span class="partner-badge-pill">International Alert</span>
+            </div>
+            <div class="partner-logo-item" title="Malaria Consortium">
+              <span class="partner-badge-pill">Malaria Consortium</span>
+            </div>
+            <div class="partner-logo-item" title="Development Partners">
+              <span class="partner-badge-pill">Development Partners</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <footer class="site-footer">
+    <div class="container">
+      <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px;">
+        <div style="max-width: 440px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <img src="{{ url_for('static', filename='img/factbox_logo.jpg') }}" alt="Fact Box Consult Logo" style="height: 42px; width: 42px; border-radius: 4px; object-fit: contain; background: #000; padding: 2px;">
+            <h3 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 700;">FACT BOX CONSULT</h3>
+          </div>
+          <p style="color: rgba(255, 255, 255, 0.75); font-size: 14px; line-height: 1.6; margin-bottom: 12px;">
+            Audiovisual media, research, and creative consultancy committed to developing fresh ideas and transforming them into meaningful content and solutions.
+          </p>
+          <div style="font-size: 13px; color: var(--color-accent); font-weight: 600;">
+            RC: 7592601 &bull; Jos, Plateau State, Nigeria
+          </div>
+        </div>
+
         <div>
-          <h4 style="color: #ffffff; margin-bottom: 12px; font-size: 16px;">Navigation</h4>
-          <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px;">
-            <li><a href="{{ url_for('public.home') }}" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">Home</a></li>
-            <li><a href="{{ url_for('public.about') }}" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">About Us</a></li>
-            <li><a href="{{ url_for('public.services') }}" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">Services</a></li>
-            <li><a href="{{ url_for('public.work') }}" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">Our Work</a></li>
-            <li><a href="{{ url_for('contact.index') }}" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">Contact Us</a></li>
+          <h4 style="color: #ffffff; margin-bottom: 16px; font-size: 16px; font-weight: 700;">Navigation</h4>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
+            <li><a href="{{ url_for('public.home') }}" style="color: rgba(255, 255, 255, 0.75); text-decoration: none; transition: color 0.2s;">Home</a></li>
+            <li><a href="{{ url_for('public.about') }}" style="color: rgba(255, 255, 255, 0.75); text-decoration: none; transition: color 0.2s;">About Us</a></li>
+            <li><a href="{{ url_for('public.work') }}" style="color: rgba(255, 255, 255, 0.75); text-decoration: none; transition: color 0.2s;">Our Work</a></li>
+            <li><a href="{{ url_for('public.services') }}" style="color: rgba(255, 255, 255, 0.75); text-decoration: none; transition: color 0.2s;">Services</a></li>
+            <li><a href="{{ url_for('contact.index') }}" style="color: rgba(255, 255, 255, 0.75); text-decoration: none; transition: color 0.2s;">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 style="color: #ffffff; margin-bottom: 16px; font-size: 16px; font-weight: 700;">Core Capabilities</h4>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: rgba(255, 255, 255, 0.75);">
+            <li>Audiovisual Media Production</li>
+            <li>Media Consultancy</li>
+            <li>Research & Planning</li>
+            <li>Digital & New Media</li>
           </ul>
         </div>
       </div>
-      <div class="footer-bottom" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+
+      <div class="footer-bottom">
         <div>
           &copy; {{ current_year or 2026 }} Fact Box Consult. All rights reserved.
         </div>

@@ -78,6 +78,38 @@
       {% endif %}
     </div>
   </div>
+
+  <!-- Hero Photos Card -->
+  <div style="background: #ffffff; padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary);">
+        Hero Slideshow Photos
+      </span>
+      <a href="{{ url_for('admin.list_home_photos') }}" style="font-size: 13px; font-weight: 600; color: var(--color-primary); text-decoration: none;">View &rarr;</a>
+    </div>
+    <div style="font-size: 36px; font-weight: 700; color: var(--color-text-main); margin-bottom: 8px;">
+      {{ total_home_photos }}
+    </div>
+    <div style="font-size: 13px; color: var(--color-text-muted);">
+      <span style="color: #166534; font-weight: 600;">{{ active_home_photos }} active in gallery</span>
+    </div>
+  </div>
+
+  <!-- Partner Logos Card -->
+  <div style="background: #ffffff; padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary);">
+        Partner Logos
+      </span>
+      <a href="{{ url_for('admin.list_partner_logos') }}" style="font-size: 13px; font-weight: 600; color: var(--color-primary); text-decoration: none;">View &rarr;</a>
+    </div>
+    <div style="font-size: 36px; font-weight: 700; color: var(--color-text-main); margin-bottom: 8px;">
+      {{ total_partner_logos }}
+    </div>
+    <div style="font-size: 13px; color: var(--color-text-muted);">
+      <span style="color: #166534; font-weight: 600;">{{ published_partner_logos }} published in footer</span>
+    </div>
+  </div>
 </div>
 
 <!-- Quick Action Shortcuts -->
@@ -86,6 +118,12 @@
   <div style="display: flex; gap: 12px; flex-wrap: wrap;">
     <a href="{{ url_for('admin.new_project') }}" class="btn btn-primary" style="padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: var(--radius-sm); color: #fff;">
       + Add Portfolio Project
+    </a>
+    <a href="{{ url_for('admin.create_home_photo') }}" class="btn btn-primary" style="padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: var(--radius-sm); color: #fff; background: var(--color-secondary);">
+      + Add Home Hero Photo
+    </a>
+    <a href="{{ url_for('admin.upload_partner_logo') }}" class="btn btn-primary" style="padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: var(--radius-sm); color: #fff; background: #047857;">
+      + Upload Partner Logo
     </a>
     <a href="{{ url_for('admin.new_category') }}" class="btn" style="padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: var(--radius-sm); background: #f0edec; color: var(--color-text-main); border: 1px solid var(--color-border);">
       + Add Category

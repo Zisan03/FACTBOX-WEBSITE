@@ -246,3 +246,51 @@ def test_page_content_unique_key_constraint(db_session):
     with pytest.raises(IntegrityError):
         db_session.commit()
     db_session.rollback()
+
+
+def test_home_page_photo_model_creation_and_constraints(db_session):
+    """HomePagePhoto enforces unique cloudinary_public_id and display_order >= 0."""
+    from app.models.home_photo import HomePagePhoto
+
+    photo1 = HomePagePhoto(
+        title="Field Documentary Unit",
+        caption="Filming in rural community",
+        cloudinary_public_id="home_hero/photo_01",
+        secure_url="https://res.cloudinary.com/factbox/image/upload/v1/home_hero/photo_01.jpg",
+        alt_text="Documentary film director on location",
+        display_order=0,
+        is_active=True,
+    )
+    db_session.add(photo1)
+    db_session.commit()
+
+    assert photo1.id is not None
+    assert photo1.is_active is True
+    assert photo1.display_order == 0
+
+    # Duplicate cloudinary_public_id must violate unique constraint
+    photo_duplicate = HomePagePhoto(
+        title="Duplicate Photo",
+        cloudinary_public_id="home_hero/photo_01",
+        secure_url="https://res.cloudinary.com/factbox/image/upload/v1/home_hero/photo_01.jpg",
+        alt_text="Duplicate alt text",
+        display_order=1,
+    )
+    db_session.add(photo_duplicate)
+    with pytest.raises(IntegrityError):
+        db_session.commit()
+    db_session.rollback()
+
+    # Negative display_order must violate check constraint
+    photo_negative = HomePagePhoto(
+        title="Negative Order Photo",
+        cloudinary_public_id="home_hero/photo_negative",
+        secure_url="https://res.cloudinary.com/factbox/image/upload/v1/home_hero/photo_negative.jpg",
+        alt_text="Negative order photo",
+        display_order=-1,
+    )
+    db_session.add(photo_negative)
+    with pytest.raises(IntegrityError):
+        db_session.commit()
+    db_session.rollback()
+

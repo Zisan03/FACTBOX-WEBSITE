@@ -18,6 +18,8 @@ from werkzeug.datastructures import FileStorage
 
 from app.extensions import db
 from app.models.portfolio import PortfolioImage
+from app.models.home_photo import HomePagePhoto
+from app.models.content import PartnerLogo
 
 logger = logging.getLogger(__name__)
 
@@ -289,3 +291,127 @@ def delete_portfolio_image_safely(image_id: Any) -> bool:
         delete_image_from_cloudinary(public_id)
 
     return True
+
+
+def save_home_page_photo_safely(
+    file_storage: FileStorage,
+    alt_text: str,
+    title: str | None = None,
+    caption: str | None = None,
+    display_order: int = 0,
+    is_active: bool = True,
+) -> HomePagePhoto:
+    """Upload hero photo to Cloudinary and commit HomePagePhoto record to PostgreSQL.
+
+    Orphan Prevention:
+    If the PostgreSQL commit fails after Cloudinary upload succeeds,
+    the newly created Cloudinary asset is automatically destroyed to prevent orphan storage leaks.
+    """
+    if not alt_text or not alt_text.strip():
+        raise MediaValidationError("Alt text is required for accessibility and SEO.")
+
+    upload_meta = upload_image_to_cloudinary(file_storage, folder="factbox/home_hero")
+    public_id = upload_meta["public_id"]
+
+    photo = HomePagePhoto(
+        title=title.strip() if title else None,
+        caption=caption.strip() if caption else None,
+        cloudinary_public_id=public_id,
+        secure_url=upload_meta["secure_url"],
+        alt_text=alt_text.strip(),
+        display_order=max(0, display_order),
+        is_active=is_active,
+    )
+
+    db.session.add(photo)
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        logger.error(
+            f"Database commit failed for HomePagePhoto. Rolling back and removing orphan Cloudinary asset {public_id}: {e}"
+        )
+        delete_image_from_cloudinary(public_id)
+        raise e
+
+    return photo
+
+
+def delete_home_page_photo_safely(photo_id: Any) -> bool:
+    """Delete a HomePagePhoto and remove its Cloudinary asset."""
+    photo = db.session.get(HomePagePhoto, photo_id)
+    if not photo:
+        return False
+
+    public_id = photo.cloudinary_public_id
+    db.session.delete(photo)
+    db.session.commit()
+
+    if public_id:
+        delete_image_from_cloudinary(public_id)
+
+    return True
+
+
+def save_partner_logo_safely(
+    file_storage: FileStorage,
+    name: str,
+    alt_text: str,
+    website_url: str | None = None,
+    display_order: int = 0,
+    is_published: bool = True,
+) -> PartnerLogo:
+    """Upload partner logo to Cloudinary and commit PartnerLogo record to PostgreSQL.
+
+    Orphan Prevention:
+    If the PostgreSQL commit fails after Cloudinary upload succeeds,
+    the newly created Cloudinary asset is automatically destroyed to prevent orphan storage leaks.
+    """
+    if not name or not name.strip():
+        raise MediaValidationError("Organization name is required.")
+    if not alt_text or not alt_text.strip():
+        raise MediaValidationError("Alt text is required for accessibility and SEO.")
+
+    upload_meta = upload_image_to_cloudinary(file_storage, folder="factbox/partner_logos")
+    public_id = upload_meta["public_id"]
+
+    logo = PartnerLogo(
+        name=name.strip(),
+        logo_cloudinary_public_id=public_id,
+        logo_secure_url=upload_meta["secure_url"],
+        website_url=website_url.strip() if website_url else None,
+        alt_text=alt_text.strip(),
+        display_order=max(0, display_order),
+        is_published=is_published,
+    )
+
+    db.session.add(logo)
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        logger.error(
+            f"Database commit failed for PartnerLogo. Rolling back and removing orphan Cloudinary asset {public_id}: {e}"
+        )
+        delete_image_from_cloudinary(public_id)
+        raise e
+
+    return logo
+
+
+def delete_partner_logo_safely(logo_id: Any) -> bool:
+    """Delete a PartnerLogo and remove its Cloudinary asset."""
+    logo = db.session.get(PartnerLogo, logo_id)
+    if not logo:
+        return False
+
+    public_id = logo.logo_cloudinary_public_id
+    db.session.delete(logo)
+    db.session.commit()
+
+    if public_id:
+        delete_image_from_cloudinary(public_id)
+
+    return True
+
+

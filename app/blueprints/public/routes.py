@@ -7,6 +7,7 @@ are queried and displayed to public visitors.
 from flask import Blueprint, render_template
 from app.models.portfolio import PortfolioProject, PortfolioCategory
 from app.models.service import Service
+from app.models.home_photo import HomePagePhoto
 from app.services.video import get_youtube_embed_url
 from app.services.media import get_optimized_delivery_url
 
@@ -15,7 +16,12 @@ public_bp = Blueprint("public", __name__)
 
 @public_bp.route("/")
 def home():
-    """Home page displaying published featured work and active services."""
+    """Home page displaying hero photo slideshow, featured work, and active services."""
+    home_photos = (
+        HomePagePhoto.query.filter_by(is_active=True)
+        .order_by(HomePagePhoto.display_order.asc(), HomePagePhoto.created_at.desc())
+        .all()
+    )
     featured_projects = (
         PortfolioProject.query.filter_by(status="published", is_featured=True)
         .order_by(PortfolioProject.display_order.asc(), PortfolioProject.published_at.desc())
@@ -25,15 +31,17 @@ def home():
     services = (
         Service.query.filter_by(is_published=True)
         .order_by(Service.display_order.asc())
-        .limit(3)
+        .limit(4)
         .all()
     )
     return render_template(
         "public/home.html",
+        home_photos=home_photos,
         featured_projects=featured_projects,
         services=services,
         get_optimized_delivery_url=get_optimized_delivery_url,
     )
+
 
 
 @public_bp.route("/about")

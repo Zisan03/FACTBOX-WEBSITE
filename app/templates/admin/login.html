@@ -54,11 +54,16 @@
           {% endif %}
         </div>
 
-        <div style="margin-bottom: 24px; display: flex; align-items: center; gap: 8px;">
-          {{ form.remember(id="remember") }}
-          <label for="remember" style="font-size: 14px; color: var(--color-text-muted); cursor: pointer;">
-            Keep me signed in
-          </label>
+        <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            {{ form.remember(id="remember") }}
+            <label for="remember" style="font-size: 14px; color: var(--color-text-muted); cursor: pointer;">
+              Keep me signed in
+            </label>
+          </div>
+          <a href="{{ url_for('admin.forgot_password') }}" style="font-size: 13px; color: var(--color-primary); text-decoration: none; font-weight: 600;">
+            Forgot Password?
+          </a>
         </div>
 
         <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-weight: 600; font-size: 15px;">
