@@ -1,13 +1,13 @@
 # Coding Agent Contract — Fact Box Consult
 
-Read `README_PROJECT_DOCS.md`, `PRD.md`, `ARCHITECTURE.md`, `ARCHITECTURE_DECISIONS.md`, `DATABASE_SCHEMA.md`, and `ROADMAP.md` before making changes. These documents are the project contract.
+Read `docs/README_PROJECT_DOCS.md`, `docs/PRD.md`, `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_DECISIONS.md`, `docs/DATABASE_SCHEMA.md`, and `docs/ROADMAP.md` before making changes. These documents are the project contract.
 
 ## Authority and scope
-1. `PRD.md` governs what the product must and must not do.
-2. `ARCHITECTURE.md` governs system boundaries and technical structure.
-3. `ARCHITECTURE_DECISIONS.md` records binding decisions and approved exceptions.
-4. `DATABASE_SCHEMA.md` is the starting data model specification; migrations and tests must match it.
-5. `ROADMAP.md` governs sequencing and stage acceptance criteria.
+1. `docs/PRD.md` governs what the product must and must not do.
+2. `docs/ARCHITECTURE.md` governs system boundaries and technical structure.
+3. `docs/ARCHITECTURE_DECISIONS.md` records binding decisions and approved exceptions.
+4. `docs/DATABASE_SCHEMA.md` is the starting data model specification; migrations and tests must match it.
+5. `docs/ROADMAP.md` governs sequencing and stage acceptance criteria.
 6. If documents conflict, stop and report the conflict. Do not choose silently. Ask for an explicit decision or update the documents consistently before coding.
 
 ## Non-negotiable rules

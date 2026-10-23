@@ -3,13 +3,13 @@
 This file is a short entry point. `AGENTS.md` is the general coding-agent contract and must be followed.
 
 Before coding, read:
-- `README_PROJECT_DOCS.md`
+- `docs/README_PROJECT_DOCS.md`
 - `AGENTS.md`
-- `PRD.md`
-- `ARCHITECTURE.md`
-- `ARCHITECTURE_DECISIONS.md`
-- `DATABASE_SCHEMA.md`
-- `ROADMAP.md`
+- `docs/PRD.md`
+- `docs/ARCHITECTURE.md`
+- `docs/ARCHITECTURE_DECISIONS.md`
+- `docs/DATABASE_SCHEMA.md`
+- `docs/ROADMAP.md`
 
 Use these as the project source of truth. Do not invent missing business requirements or override a decision silently. If two documents conflict, stop and report the conflict before implementing.
 

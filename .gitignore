@@ -39,3 +39,8 @@ desktop.ini
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Local sub-environments and bulky demonstration media
+factbox-consult/
+*.webp
+
