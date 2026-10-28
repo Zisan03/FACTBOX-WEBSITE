@@ -54,12 +54,21 @@ def about():
 @public_bp.route("/services")
 def services():
     """Services page displaying all published consulting services."""
+    home_photos = (
+        HomePagePhoto.query.filter_by(is_active=True)
+        .order_by(HomePagePhoto.display_order.asc(), HomePagePhoto.created_at.desc())
+        .all()
+    )
     services_list = (
         Service.query.filter_by(is_published=True)
         .order_by(Service.display_order.asc())
         .all()
     )
-    return render_template("public/services.html", services=services_list)
+    return render_template(
+        "public/services.html", 
+        services=services_list,
+        home_photos=home_photos,
+    )
 
 
 @public_bp.route("/work")

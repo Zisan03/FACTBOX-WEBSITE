@@ -18,7 +18,7 @@
         </div>
       {% endfor %}
     {% else %}
-      <!-- Authentic Documentary Photography Hero Rotation -->
+      <!-- Authentic Documentary Photography Hero Rotation (14 High-Impact Slides) -->
       <div class="slideshow-slide active" 
            style="background-image: url('{{ url_for('static', filename='img/photos/photo_25.jpg') }}');" 
            role="img" 
@@ -38,6 +38,56 @@
            style="background-image: url('{{ url_for('static', filename='img/photos/photo_21.jpg') }}');" 
            role="img" 
            aria-label="Documentary camera operations and production still">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_07.jpg') }}');" 
+           role="img" 
+           aria-label="Documentary fieldwork and community storytelling">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_08.jpg') }}');" 
+           role="img" 
+           aria-label="On-location documentary cinematography and lighting">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_10.jpg') }}');" 
+           role="img" 
+           aria-label="Audiovisual media production unit and field recording">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_23.jpg') }}');" 
+           role="img" 
+           aria-label="Fact Box Consult documentary investigation on location">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_11.jpg') }}');" 
+           role="img" 
+           aria-label="Documentary field camera operations and lighting crew">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_12.jpg') }}');" 
+           role="img" 
+           aria-label="Field directing and high-definition video monitoring">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_15.jpg') }}');" 
+           role="img" 
+           aria-label="Cinematography and on-location sound recording in action">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_17.jpg') }}');" 
+           role="img" 
+           aria-label="Empirical research and investigative fieldwork on site">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_18.jpg') }}');" 
+           role="img" 
+           aria-label="Digital media and community dialogue session">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_22.jpg') }}');" 
+           role="img" 
+           aria-label="Visual documentation and cultural heritage filming">
       </div>
     {% endif %}
   </div>
@@ -86,10 +136,9 @@
           </button>
         {% endfor %}
       {% else %}
-        <button class="slide-dot active" role="tab" aria-selected="true" aria-label="Slide 1"></button>
-        <button class="slide-dot" role="tab" aria-selected="false" aria-label="Slide 2"></button>
-        <button class="slide-dot" role="tab" aria-selected="false" aria-label="Slide 3"></button>
-        <button class="slide-dot" role="tab" aria-selected="false" aria-label="Slide 4"></button>
+        {% for i in range(1, 15) %}
+          <button class="slide-dot {% if loop.first %}active{% endif %}" role="tab" aria-selected="{% if loop.first %}true{% else %}false{% endif %}" aria-label="Slide {{ i }}"></button>
+        {% endfor %}
       {% endif %}
     </div>
   </div>

@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: factbox-consult
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: flask db upgrade && gunicorn wsgi:app
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: FLASK_CONFIG
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: factbox-db
+          property: connectionString
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: MAIL_SERVER
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USE_TLS
+        value: "true"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: ENQUIRY_RECIPIENT
+        sync: false
+
+databases:
+  - name: factbox-db
+    plan: free
+    databaseName: factbox_consult
+    user: factbox_user

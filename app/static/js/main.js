@@ -83,76 +83,77 @@ function initMobileNavigation() {
  * - Respects prefers-reduced-motion
  */
 function initHeroSlideshow() {
-  const container = document.getElementById('hero-slideshow');
-  if (!container) return;
-
-  const slides = container.querySelectorAll('.slideshow-slide');
-  const dots = container.querySelectorAll('.slide-dot');
-  if (slides.length <= 1) return;
-
-  let currentIndex = 0;
-  let timerId = null;
-  let isPaused = false;
-  const INTERVAL_MS = 30000; // 30 seconds as specified in FR-04a and ROADMAP
+  const containers = document.querySelectorAll('.hero-slideshow-container');
+  if (!containers || containers.length === 0) return;
 
   // Respect system reduced-motion preference
   const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (mediaQuery.matches) {
-    console.info('Hero slideshow auto-advance disabled due to prefers-reduced-motion.');
-    return;
-  }
+  const isReducedMotion = mediaQuery.matches;
 
-  function goToSlide(index) {
-    slides[currentIndex].classList.remove('active');
-    if (dots[currentIndex]) {
-      dots[currentIndex].classList.remove('active');
-      dots[currentIndex].setAttribute('aria-selected', 'false');
+  containers.forEach((container) => {
+    const slides = container.querySelectorAll('.slideshow-slide');
+    const dots = container.querySelectorAll('.slide-dot');
+    if (slides.length <= 1) return;
+
+    let currentIndex = 0;
+    let timerId = null;
+    let isPaused = false;
+    // 5-second automatic rotation for dynamic TVSense-inspired cinematic experience
+    const INTERVAL_MS = 5000;
+
+    if (isReducedMotion) {
+      console.info('Hero slideshow auto-advance disabled due to prefers-reduced-motion.');
+      return;
     }
 
-    currentIndex = (index + slides.length) % slides.length;
-
-    slides[currentIndex].classList.add('active');
-    if (dots[currentIndex]) {
-      dots[currentIndex].classList.add('active');
-      dots[currentIndex].setAttribute('aria-selected', 'true');
-    }
-  }
-
-  function startTimer() {
-    if (timerId) clearInterval(timerId);
-    timerId = setInterval(() => {
-      if (!isPaused) {
-        goToSlide(currentIndex + 1);
+    function goToSlide(index) {
+      slides[currentIndex].classList.remove('active');
+      if (dots[currentIndex]) {
+        dots[currentIndex].classList.remove('active');
+        dots[currentIndex].setAttribute('aria-selected', 'false');
       }
-    }, INTERVAL_MS);
-  }
 
-  // Pause on mouse hover
-  container.addEventListener('mouseenter', () => {
-    isPaused = true;
-  });
-  container.addEventListener('mouseleave', () => {
-    isPaused = false;
-  });
+      currentIndex = (index + slides.length) % slides.length;
 
-  // Pause on keyboard focus inside hero container
-  container.addEventListener('focusin', () => {
-    isPaused = true;
-  });
-  container.addEventListener('focusout', () => {
-    isPaused = false;
-  });
+      slides[currentIndex].classList.add('active');
+      if (dots[currentIndex]) {
+        dots[currentIndex].classList.add('active');
+        dots[currentIndex].setAttribute('aria-selected', 'true');
+      }
+    }
 
-  // Clickable slide dots
-  dots.forEach((dot, idx) => {
-    dot.addEventListener('click', () => {
-      goToSlide(idx);
-      startTimer(); // Reset timer upon manual interaction
+    function startTimer() {
+      if (timerId) clearInterval(timerId);
+      timerId = setInterval(() => {
+        if (!isPaused) {
+          goToSlide(currentIndex + 1);
+        }
+      }, INTERVAL_MS);
+    }
+
+    // Only pause when actively hovering over manual controls
+    const controls = container.querySelector('.slideshow-controls');
+    if (controls) {
+      controls.addEventListener('mouseenter', () => {
+        isPaused = true;
+      });
+      controls.addEventListener('mouseleave', () => {
+        isPaused = false;
+      });
+    }
+
+    // Clickable slide dots
+    dots.forEach((dot, idx) => {
+      dot.addEventListener('click', (e) => {
+        e.preventDefault();
+        goToSlide(idx);
+        startTimer(); // Reset timer upon manual interaction
+      });
     });
-  });
 
-  // Start slideshow
-  startTimer();
+    // Start slideshow
+    startTimer();
+  });
 }
 
 /**

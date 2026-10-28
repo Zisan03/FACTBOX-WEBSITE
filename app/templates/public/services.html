@@ -5,18 +5,160 @@
 
 {% block content %}
 <!-- ==========================================================================
-     Services Stitch Cinematic Hero Banner
+     Services Cinematic Rotating Hero Banner (Ken Burns Auto-Rotation)
      ========================================================================== -->
-<section class="page-hero-banner" style="background-image: url('{{ url_for('static', filename='img/hero_fallback.jpg') }}');">
-  <div class="page-hero-overlay"></div>
-  <div class="page-hero-content">
-    <span class="inline-badge" style="background: rgba(255, 255, 255, 0.12); color: var(--color-accent); font-family: var(--font-body); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 6px 14px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 20px; border: 1px solid rgba(166, 255, 77, 0.3);">
-      Capabilities &amp; Solutions
+<section id="services-hero-slideshow" class="hero-slideshow-container" aria-label="Services Showcase Gallery" style="height: 72vh; min-height: 560px; max-height: 760px;">
+  <div class="slideshow-track">
+    {% if home_photos %}
+      {% for p in home_photos %}
+        <div class="slideshow-slide {% if loop.first %}active{% endif %}" 
+             style="background-image: url('{{ p.secure_url }}'); background-position: center 35%;" 
+             role="img" 
+             aria-label="{{ p.alt_text }}">
+        </div>
+      {% endfor %}
+    {% else %}
+      <!-- Exact Match with Home Hero Showcase (14 High-Impact Slides) -->
+      <div class="slideshow-slide active" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_25.jpg') }}'); background-position: center 35%;" 
+           role="img" 
+           aria-label="Fact Box Consult documentary director and field production unit on location">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_26.jpg') }}'); background-position: center 35%;" 
+           role="img" 
+           aria-label="High-impact documentary filming and audiovisual storytelling">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_20.jpg') }}'); background-position: center 30%;" 
+           role="img" 
+           aria-label="Community engagement and evidence-based field research">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_21.jpg') }}'); background-position: center 30%;" 
+           role="img" 
+           aria-label="Documentary camera operations and production still">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_07.jpg') }}'); background-position: center 30%;" 
+           role="img" 
+           aria-label="Documentary fieldwork and community storytelling">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_08.jpg') }}'); background-position: center 35%;" 
+           role="img" 
+           aria-label="On-location documentary cinematography and lighting">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_10.jpg') }}'); background-position: center 35%;" 
+           role="img" 
+           aria-label="Audiovisual media production unit and field recording">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_23.jpg') }}'); background-position: center 35%;" 
+           role="img" 
+           aria-label="Fact Box Consult documentary investigation on location">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_11.jpg') }}'); background-position: center 30%;" 
+           role="img" 
+           aria-label="Documentary field camera operations and lighting crew">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_12.jpg') }}'); background-position: center 35%;" 
+           role="img" 
+           aria-label="Field directing and high-definition video monitoring">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_15.jpg') }}'); background-position: center 40%;" 
+           role="img" 
+           aria-label="Cinematography and on-location sound recording in action">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_17.jpg') }}'); background-position: center 35%;" 
+           role="img" 
+           aria-label="Empirical research and investigative fieldwork on site">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_18.jpg') }}'); background-position: center 35%;" 
+           role="img" 
+           aria-label="Digital media and community dialogue session">
+      </div>
+      <div class="slideshow-slide" 
+           style="background-image: url('{{ url_for('static', filename='img/photos/photo_22.jpg') }}'); background-position: center 35%;" 
+           role="img" 
+           aria-label="Visual documentation and cultural heritage filming">
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Readability Dark Gradient Scrim -->
+  <div class="slideshow-overlay" style="background: linear-gradient(180deg, rgba(12,20,15,0.50) 0%, rgba(12,20,15,0.72) 60%, rgba(12,20,15,0.94) 100%);"></div>
+
+  <!-- Hero Content — Vertically Balanced & Centered -->
+  <div class="container hero-content" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; height: 100%; padding-top: 100px; padding-bottom: 80px;">
+    <span class="inline-badge" style="background: rgba(255, 255, 255, 0.12); color: var(--color-accent); font-family: var(--font-body); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 6px 14px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 18px; border: 1px solid rgba(166, 255, 77, 0.35);">
+      Capabilities &amp; Solutions &bull; RC: 7592601
     </span>
-    <h1 class="page-hero-title">Our Services</h1>
-    <p class="page-hero-subtitle">
-      We create impactful media solutions that inform, inspire, and drive meaningful change.
+    <h1 class="hero-title" style="color: #ffffff; font-family: var(--font-display); font-size: clamp(38px, 5vw, 64px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 8px;">
+      Our Services<span style="color: var(--color-accent);">.</span>
+    </h1>
+    <div style="width: 72px; height: 4px; background: var(--color-accent); border-radius: 2px; margin-bottom: 16px;"></div>
+    <p class="hero-subtitle" style="color: rgba(240, 237, 236, 0.94); font-size: clamp(16px, 1.6vw, 19px); line-height: 1.65; max-width: 660px; margin: 0;">
+      We create impactful media solutions that inform, inspire, and drive meaningful change through audiovisual storytelling, rigorous research, and strategic communication.
     </p>
+  </div>
+
+  <!-- Slideshow Dots -->
+  <div class="slideshow-controls" role="tablist" aria-label="Services Slideshow Controls">
+    <div class="slide-dots">
+      {% if home_photos and home_photos|length > 1 %}
+        {% for p in home_photos %}
+          <button class="slide-dot {% if loop.first %}active{% endif %}" 
+                  role="tab" 
+                  aria-selected="{% if loop.first %}true{% else %}false{% endif %}" 
+                  aria-label="Slide {{ loop.index }}: {{ p.title or p.alt_text }}">
+          </button>
+        {% endfor %}
+      {% else %}
+        {% for i in range(1, 15) %}
+          <button class="slide-dot {% if loop.first %}active{% endif %}" role="tab" aria-selected="{% if loop.first %}true{% else %}false{% endif %}" aria-label="Slide {{ i }}"></button>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     Stat Highlights Under Hero (10 Years & 50+ Documentaries)
+     ========================================================================== -->
+<section style="background: #ffffff; border-bottom: 1px solid rgba(229, 226, 225, 0.8); padding: 56px 0;">
+  <div class="container">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 36px; text-align: left;">
+      <div style="border-left: 4px solid var(--color-accent); padding-left: 28px;">
+        <div style="font-size: clamp(40px, 5vw, 52px); font-weight: 700; color: var(--color-primary-dark); font-family: var(--font-display); line-height: 1; margin-bottom: 8px;">
+          10+ Years
+        </div>
+        <div style="font-size: 15px; font-weight: 700; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">
+          Professional Experience
+        </div>
+        <div style="font-size: 14px; color: var(--color-text-muted); line-height: 1.6;">
+          A decade of excellence across digital media, research, radio, television production, and strategic advisory.
+        </div>
+      </div>
+
+      <div style="border-left: 4px solid var(--color-accent); padding-left: 28px;">
+        <div style="font-size: clamp(40px, 5vw, 52px); font-weight: 700; color: var(--color-primary-dark); font-family: var(--font-display); line-height: 1; margin-bottom: 8px;">
+          50+
+        </div>
+        <div style="font-size: 15px; font-weight: 700; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">
+          Documentaries Produced
+        </div>
+        <div style="font-size: 14px; color: var(--color-text-muted); line-height: 1.6;">
+          High-impact documentary productions delivered for local and international development organizations.
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
