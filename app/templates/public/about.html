@@ -1,72 +1,94 @@
 {% extends "base.html" %}
 
 {% block title %}About Us — Fact Box Consult{% endblock %}
-{% block meta_description %}Learn about Fact Box Consult (RC: 7592601), an audiovisual media, research, and creative consultancy creating credible, timely, and impactful documentary content.{% endblock %}
+{% block meta_description %}Learn about Fact Box Consult (RC: 7592601) — an audiovisual media, research, and creative consultancy with 10+ years of professional experience and 40+ documentaries for local and international organizations.{% endblock %}
 
 {% block content %}
 <!-- ==========================================================================
-     About Us Stitch Cinematic Hero Banner
+     1. Hero / Banner Section (TVSense-Inspired Editorial Header)
      ========================================================================== -->
-<section class="page-hero-banner" style="background-image: url('{{ url_for('static', filename='img/hero_fallback.jpg') }}');">
-  <div class="page-hero-overlay"></div>
-  <div class="page-hero-content">
-    <span class="inline-badge" style="background: rgba(255, 255, 255, 0.12); color: var(--color-accent); font-family: var(--font-body); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 6px 14px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 20px; border: 1px solid rgba(166, 255, 77, 0.3);">
-      Who We Are &bull; RC: 7592601
-    </span>
-    <h1 class="page-hero-title">About Fact Box Consult</h1>
-    <p class="page-hero-subtitle">
-      We tell stories that inspire action, amplify impact, and drive meaningful change.
-    </p>
+<section style="background: linear-gradient(135deg, #0d2c18 0%, #177a3d 50%, #092011 100%); color: #ffffff; padding: 110px 0 84px; position: relative; overflow: hidden;">
+  <!-- Subtle decorative ambient radial glow -->
+  <div style="position: absolute; top: -20%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(166, 255, 77, 0.16) 0%, transparent 70%); pointer-events: none;"></div>
+  <div style="position: absolute; bottom: -20%; left: -10%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(0, 0, 0, 0.3) 0%, transparent 70%); pointer-events: none;"></div>
+
+  <div class="container" style="position: relative; z-index: 2;">
+    <div style="display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center;">
+      <div style="display: grid; grid-template-columns: 1fr; gap: 32px;" class="about-hero-grid">
+        
+        <!-- Left Column: Title & Identity -->
+        <div>
+          <span class="inline-badge" style="background: rgba(255, 255, 255, 0.12); color: var(--color-accent); font-family: var(--font-body); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 6px 14px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 24px; border: 1px solid rgba(166, 255, 77, 0.35);">
+            Who We Are &bull; RC: 7592601
+          </span>
+          <h1 style="font-family: var(--font-display); font-size: clamp(40px, 5.5vw, 68px); font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 12px; color: #ffffff;">
+            About Us<span style="color: var(--color-accent);">.</span>
+          </h1>
+          <div style="width: 80px; height: 4px; background: var(--color-accent); border-radius: 2px; margin-bottom: 28px;"></div>
+        </div>
+
+        <!-- Right Column: Subtitle & Mission Statement -->
+        <div>
+          <h2 style="font-family: var(--font-display); font-size: clamp(22px, 2.6vw, 32px); font-weight: 600; line-height: 1.35; color: #f0fdf4; margin-bottom: 20px;">
+            Stories That Connect. Messages That Matter. Grounded in Truth &amp; Research.
+          </h2>
+          <p style="font-size: 17px; line-height: 1.8; color: rgba(255, 255, 255, 0.92); margin-bottom: 16px;">
+            <strong>Fact Box Consult (RC: 7592601)</strong> is an audiovisual media, research, and creative consultancy committed to developing fresh ideas and transforming them into meaningful content and solutions.
+          </p>
+          <p style="font-size: 16px; line-height: 1.8; color: rgba(255, 255, 255, 0.8); margin: 0;">
+            Operating within a multicultural environment, we bring diverse perspectives to our work, enabling us to create content that connects with different audiences and reflects authentic human experiences.
+          </p>
+        </div>
+
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- ==========================================================================
-     Main Narrative & Company Profile (Authorized Copy from Company Profile)
+     2. Vision & Philosophy Section (TVSense Split Layout with Authentic Photo)
      ========================================================================== -->
 <section style="padding: 96px 0; background: var(--color-surface);">
-  <div class="container" style="max-width: 1080px;">
-    <div style="display: grid; grid-template-columns: 1fr; gap: 48px;">
+  <div class="container">
+    <div class="about-split">
       
-      <div style="font-size: 17px; line-height: 1.85; color: var(--color-text-main); display: flex; flex-direction: column; gap: 24px;">
-        <p style="font-size: 20px; font-weight: 500; color: var(--color-primary-dark); line-height: 1.6;">
-          <strong>Fact Box Consult (RC: 7592601)</strong> is an audiovisual media, research, and creative consultancy committed to developing fresh ideas and transforming them into meaningful content and solutions.
+      <!-- Left Column: Vision Statement & Core Philosophy -->
+      <div>
+        <span class="label-caps" style="color: var(--color-primary); margin-bottom: 12px;">Vision Statement</span>
+        <h2 style="font-family: var(--font-display); font-size: clamp(28px, 3.2vw, 40px); font-weight: 700; color: var(--color-primary-dark); line-height: 1.25; margin-bottom: 24px;">
+          To create credible, timely, and impactful content grounded in accurate information, strong research, creativity, and real-world relevance.
+        </h2>
+
+        <p style="font-size: 17px; color: var(--color-text-main); line-height: 1.8; margin-bottom: 20px;">
+          We envision a media and research organization recognised for producing content that people can trust, use, and connect with.
         </p>
 
-        <p>
+        <p style="font-size: 16px; color: var(--color-text-muted); line-height: 1.8; margin-bottom: 28px;">
           Our passion for excellence drives every project we undertake. We combine creativity, research, and strategic thinking to deliver content and services that are relevant, engaging, accurate, and purposeful.
         </p>
 
-        <p>
-          Operating within a multicultural environment, we bring diverse perspectives to our work, enabling us to create content that connects with different audiences and reflects real experiences. Our strength lies in our ability to combine audiovisual storytelling, research, digital media, and strategic communication to meet the evolving needs of individuals, organizations, development partners, and businesses.
-        </p>
-
-        <!-- Vision Statement Fact Card (Stitch Token) -->
-        <div class="fact-card" style="margin: 20px 0; border-left-width: 5px; background: #ffffff; padding: 40px 36px; border: 1px solid var(--color-border); border-left: 5px solid var(--color-accent); box-shadow: var(--shadow-ambient);">
-          <span class="label-caps" style="margin-bottom: 12px; color: var(--color-primary);">Vision Statement</span>
-          <h2 style="font-size: 24px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 12px; line-height: 1.3;">
-            To create credible, timely, and impactful content grounded in accurate information, strong research, creativity, and real-world relevance.
-          </h2>
-          <p style="font-size: 16px; color: var(--color-text-muted); line-height: 1.7; margin: 0;">
-            We envision a media and research organization recognised for producing content that people can trust, use, and connect with.
+        <div style="background: var(--color-surface-container-low); border-left: 4px solid var(--color-primary); padding: 22px 26px; border-radius: 0 var(--radius-md) var(--radius-md) 0;">
+          <p style="font-size: 15px; color: var(--color-text-main); line-height: 1.7; margin: 0; font-style: italic;">
+            &ldquo;Our strength lies in our ability to combine audiovisual storytelling, research, digital media, and strategic communication to meet the evolving needs of individuals, organizations, development partners, and businesses.&rdquo;
           </p>
         </div>
+      </div>
 
-        <p>
-          Over the years, our team has developed experience across digital and new media, research, radio, television production, media consultancy, and strategic communication. Our professionals have worked both independently and collaboratively with local and international organizations, giving Fact Box Consult the capacity to manage projects professionally from concept development through production and final delivery.
-        </p>
-
-        <p>
-          We are committed to building Fact Box Consult as a leading integrated content and research hub, creating work that informs, inspires, and delivers measurable value to our clients and audiences.
-        </p>
-
-        <!-- Our Approach Card -->
-        <div style="background: var(--color-surface-container-low); padding: 36px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); margin-top: 12px;">
-          <h3 style="font-size: 22px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 12px;">
-            Our Approach
-          </h3>
-          <p style="font-size: 16px; color: var(--color-text-main); line-height: 1.7; margin: 0;">
-            At Fact Box Consult, we believe that good content should do more than look professional—it should tell a story, communicate a clear message, and create value. We therefore combine creativity with research and strategic thinking to ensure that every project is purposeful, audience-focused, and delivered to a high professional standard.
-          </p>
+      <!-- Right Column: Authentic Documentary Photography Visual Element -->
+      <div style="position: relative;">
+        <div style="border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-ambient); border: 1px solid var(--color-border); position: relative; background: #1c1b1b;">
+          <img src="{{ url_for('static', filename='img/photos/photo_06.jpg') }}" 
+               alt="Fact Box Consult documentary fieldwork on location" 
+               style="width: 100%; height: 500px; object-fit: cover; display: block; filter: contrast(1.05);">
+          
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, rgba(12, 28, 17, 0.94) 0%, rgba(0, 0, 0, 0.5) 60%, transparent 100%); padding: 28px 24px 20px; color: #ffffff;">
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-accent); font-weight: 700; display: block; margin-bottom: 4px;">
+              Fieldwork &amp; Research
+            </span>
+            <p style="font-size: 14px; margin: 0; color: rgba(255, 255, 255, 0.9); line-height: 1.5;">
+              From concept development through production and broadcast delivery across diverse communities.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -75,20 +97,295 @@
 </section>
 
 <!-- ==========================================================================
-     Bottom CTA Callout
+     3. TVSense-Inspired Professional Experience Stats Section
+     REQUIRED: 10 Years Professional Experience & 40+ Documentaries
      ========================================================================== -->
-<section style="padding: 72px 0; background: var(--color-surface-container); text-align: center;">
-  <div class="container" style="max-width: 720px;">
-    <h2 style="font-size: 28px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 16px;">
-      Explore Completed Documentaries & Media
-    </h2>
-    <p style="font-size: 16px; color: var(--color-text-muted); margin-bottom: 28px; line-height: 1.6;">
-      See how our research and audiovisual productions translate into high-fidelity documentaries and impact communication.
-    </p>
-    <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-      <a href="{{ url_for('public.work') }}" class="btn btn-primary">View Our Work</a>
-      <a href="{{ url_for('contact.index') }}" class="btn btn-outline">Contact Our Team</a>
+<section class="stats-counter-section" aria-label="Professional Experience and Track Record">
+  <div class="container">
+    <div style="text-align: center; max-width: 720px; margin: 0 auto 56px;">
+      <span class="label-caps" style="color: var(--color-accent); margin-bottom: 12px; letter-spacing: 0.16em;">Proven Track Record</span>
+      <h2 style="font-family: var(--font-display); font-size: clamp(30px, 3.8vw, 46px); font-weight: 700; color: #ffffff; line-height: 1.2; margin-bottom: 16px;">
+        A Decade of High-Impact Storytelling
+      </h2>
+      <p style="font-size: 16px; color: rgba(255, 255, 255, 0.78); line-height: 1.6; margin: 0;">
+        Our multidisciplinary team has worked both independently and collaboratively with local and international organizations, building capacity to manage projects from initial concept to broadcast-grade delivery.
+      </p>
+    </div>
+
+    <!-- The 2 Required Stats: 10 Years Experience & 40+ Documentaries -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; max-width: 960px; margin: 0 auto;">
+      
+      <!-- Stat 1: 10+ Years Professional Experience -->
+      <div class="stat-card" style="padding: 48px 36px; text-align: left; position: relative;">
+        <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px;">
+          <span class="stat-number" style="font-size: clamp(56px, 7vw, 76px); color: var(--color-accent);">10+</span>
+          <span style="font-family: var(--font-display); font-size: 24px; font-weight: 700; color: rgba(255, 255, 255, 0.9);">Years</span>
+        </div>
+        <h3 class="stat-label" style="font-size: 20px; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; margin-bottom: 12px;">
+          Professional Experience
+        </h3>
+        <p class="stat-description" style="font-size: 15px; color: rgba(255, 255, 255, 0.78); line-height: 1.6; margin: 0;">
+          Over a decade of multidisciplinary experience across digital and new media, research, radio, television production, media consultancy, and strategic communication.
+        </p>
+      </div>
+
+      <!-- Stat 2: 40+ Documentaries (Local & International Organizations) -->
+      <div class="stat-card" style="padding: 48px 36px; text-align: left; position: relative;">
+        <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px;">
+          <span class="stat-number" style="font-size: clamp(56px, 7vw, 76px); color: var(--color-accent);">40+</span>
+          <span style="font-family: var(--font-display); font-size: 24px; font-weight: 700; color: rgba(255, 255, 255, 0.9);">Projects</span>
+        </div>
+        <h3 class="stat-label" style="font-size: 20px; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; margin-bottom: 12px;">
+          Original Documentaries
+        </h3>
+        <p class="stat-description" style="font-size: 15px; color: rgba(255, 255, 255, 0.78); line-height: 1.6; margin: 0;">
+          Credible, impactful documentary films, video investigations, and multimedia productions produced for both local and international organizations.
+        </p>
+      </div>
+
     </div>
   </div>
 </section>
+
+<!-- ==========================================================================
+     4. Strategic Objectives Section (All 5 Official Objectives from New Doc)
+     ========================================================================== -->
+<section style="padding: 96px 0; background: var(--color-surface-container-low);">
+  <div class="container">
+    <div class="about-split" style="align-items: flex-start;">
+      
+      <!-- Left Column: High-Impact Visual / Photo Showcase -->
+      <div style="position: sticky; top: 100px;">
+        <div style="border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-ambient); border: 1px solid var(--color-border); position: relative; background: #1c1b1b;">
+          <img src="{{ url_for('static', filename='img/photos/photo_28.jpg') }}" 
+               alt="Fact Box Consult documentary research and storytelling unit" 
+               style="width: 100%; height: 560px; object-fit: cover; filter: contrast(1.05);">
+          
+          <div style="position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(12, 28, 17, 0.92) 100%);"></div>
+          
+          <div style="position: absolute; bottom: 32px; left: 32px; right: 32px; color: #ffffff;">
+            <span class="inline-badge" style="background: var(--color-accent); color: var(--color-primary-dark); font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em; display: inline-block; margin-bottom: 12px;">
+              Mission Mandate
+            </span>
+            <h3 style="font-family: var(--font-display); font-size: 22px; font-weight: 700; line-height: 1.3; margin: 0; color: #ffffff;">
+              Making communication simple, stories meaningful, and information accessible to all.
+            </h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: The 5 Official Strategic Objectives -->
+      <div>
+        <span class="label-caps" style="color: var(--color-primary); margin-bottom: 12px;">Our Strategic Purpose</span>
+        <h2 style="font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 44px); font-weight: 700; color: var(--color-primary-dark); line-height: 1.2; margin-bottom: 16px;">
+          Strategic Objectives
+        </h2>
+        <p style="font-size: 16px; color: var(--color-text-muted); line-height: 1.7; margin-bottom: 36px;">
+          Drawn directly from our corporate charter to guide how we deliver excellence across media, research, and consultancy:
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          
+          <!-- Objective 1 -->
+          <div class="objective-card" style="padding: 24px 22px;">
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+              <div class="objective-icon" style="margin-bottom: 0; flex-shrink: 0; width: 44px; height: 44px; font-size: 20px;">
+                <span class="material-symbols-outlined">analytics</span>
+              </div>
+              <div>
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 6px;">
+                  1. Deliver Quality Research and Planning
+                </h3>
+                <p style="font-size: 14.5px; color: var(--color-text-main); line-height: 1.6; margin: 0;">
+                  Provide evidence-based research, documentation, and planning services that support informed decisions and effective project implementation.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Objective 2 -->
+          <div class="objective-card" style="padding: 24px 22px;">
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+              <div class="objective-icon" style="margin-bottom: 0; flex-shrink: 0; width: 44px; height: 44px; font-size: 20px;">
+                <span class="material-symbols-outlined">campaign</span>
+              </div>
+              <div>
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 6px;">
+                  2. Strengthen Strategic Communication
+                </h3>
+                <p style="font-size: 14.5px; color: var(--color-text-main); line-height: 1.6; margin: 0;">
+                  Develop clear, audience-focused communication strategies and compelling audiovisual and digital content that inform, engage, and inspire action.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Objective 3 -->
+          <div class="objective-card" style="padding: 24px 22px;">
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+              <div class="objective-icon" style="margin-bottom: 0; flex-shrink: 0; width: 44px; height: 44px; font-size: 20px;">
+                <span class="material-symbols-outlined">diversity_3</span>
+              </div>
+              <div>
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 6px;">
+                  3. Promote Credible and Inclusive Storytelling
+                </h3>
+                <p style="font-size: 14.5px; color: var(--color-text-main); line-height: 1.6; margin: 0;">
+                  Produce accurate, ethical, and accessible content that communicates complex ideas in ways diverse audiences can easily understand.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Objective 4 -->
+          <div class="objective-card" style="padding: 24px 22px;">
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+              <div class="objective-icon" style="margin-bottom: 0; flex-shrink: 0; width: 44px; height: 44px; font-size: 20px;">
+                <span class="material-symbols-outlined">handshake</span>
+              </div>
+              <div>
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 6px;">
+                  4. Build Partnerships and Professional Capacity
+                </h3>
+                <p style="font-size: 14.5px; color: var(--color-text-main); line-height: 1.6; margin: 0;">
+                  Establish strong relationships with local and international organisations while developing a skilled, multidisciplinary team that delivers to high professional standards.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Objective 5 -->
+          <div class="objective-card" style="padding: 24px 22px;">
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+              <div class="objective-icon" style="margin-bottom: 0; flex-shrink: 0; width: 44px; height: 44px; font-size: 20px;">
+                <span class="material-symbols-outlined">rocket_launch</span>
+              </div>
+              <div>
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 6px;">
+                  5. Drive Innovation and Sustainable Growth
+                </h3>
+                <p style="font-size: 14.5px; color: var(--color-text-main); line-height: 1.6; margin: 0;">
+                  Integrate creativity, research, and technology to deliver innovative solutions, expand service offerings, and position Fact Box Consult as a trusted media, research, and creative consultancy.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     5. The 5 Principles of Communication (Verbatim from Official Document)
+     ========================================================================== -->
+<section style="padding: 96px 0; background: var(--color-surface);">
+  <div class="container">
+    <div style="text-align: center; max-width: 780px; margin: 0 auto 56px;">
+      <span class="label-caps" style="color: var(--color-primary); margin-bottom: 12px;">Core Principles</span>
+      <h2 class="section-title" style="margin-bottom: 16px;">Communicating With People, Not Talking At Them</h2>
+      <p style="font-size: 16px; color: var(--color-text-muted); line-height: 1.7; margin: 0;">
+        It is about creating messages that are clear, relatable, inclusive, and meaningful, regardless of a person&rsquo;s educational level, language, culture, or social background:
+      </p>
+      <div style="width: 80px; height: 3px; background: var(--color-primary); border-radius: 2px; margin: 20px auto 0;"></div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 56px;">
+      
+      <div style="background: var(--color-surface-container-low); padding: 32px 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); border-top: 4px solid var(--color-primary);">
+        <h3 style="font-size: 18px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 10px;">Empathy</h3>
+        <p style="font-size: 14px; color: var(--color-text-muted); line-height: 1.65; margin: 0;">
+          Understanding the people receiving the message and considering their experiences.
+        </p>
+      </div>
+
+      <div style="background: var(--color-surface-container-low); padding: 32px 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); border-top: 4px solid var(--color-primary);">
+        <h3 style="font-size: 18px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 10px;">Clarity</h3>
+        <p style="font-size: 14px; color: var(--color-text-muted); line-height: 1.65; margin: 0;">
+          Using simple, familiar language that people can easily understand.
+        </p>
+      </div>
+
+      <div style="background: var(--color-surface-container-low); padding: 32px 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); border-top: 4px solid var(--color-primary);">
+        <h3 style="font-size: 18px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 10px;">Inclusivity</h3>
+        <p style="font-size: 14px; color: var(--color-text-muted); line-height: 1.65; margin: 0;">
+          Communicating in ways that respect different backgrounds, perspectives, and abilities.
+        </p>
+      </div>
+
+      <div style="background: var(--color-surface-container-low); padding: 32px 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); border-top: 4px solid var(--color-primary);">
+        <h3 style="font-size: 18px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 10px;">Respect</h3>
+        <p style="font-size: 14px; color: var(--color-text-muted); line-height: 1.65; margin: 0;">
+          Sharing information without demeaning, misleading, or unnecessarily excluding anyone.
+        </p>
+      </div>
+
+      <div style="background: var(--color-surface-container-low); padding: 32px 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); border-top: 4px solid var(--color-primary);">
+        <h3 style="font-size: 18px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 10px;">Impact</h3>
+        <p style="font-size: 14px; color: var(--color-text-muted); line-height: 1.65; margin: 0;">
+          Ensuring communication builds understanding, strengthens relationships, and encourages positive action.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Our Approach Callout Box (Verbatim from Fact Box Document) -->
+    <div style="background: linear-gradient(135deg, #f8fbf9 0%, #eef7f2 100%); border: 1px solid rgba(23, 122, 61, 0.2); border-left: 6px solid var(--color-primary); padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);">
+      <div style="display: flex; gap: 20px; align-items: flex-start;">
+        <span class="material-symbols-outlined" style="font-size: 40px; color: var(--color-primary); flex-shrink: 0;">lightbulb</span>
+        <div>
+          <h3 style="font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 12px;">
+            Our Approach
+          </h3>
+          <p style="font-size: 16px; color: var(--color-text-main); line-height: 1.8; margin: 0;">
+            At Fact Box Consult, we believe that good content should do more than look professional&mdash;it should tell a story, communicate a clear message, and create value. We therefore combine creativity with research and strategic thinking to ensure that every project is purposeful, audience-focused, and delivered to a high professional standard.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==========================================================================
+     6. TVSense-Style Split CTA Banner (With Authentic Production Photo)
+     ========================================================================== -->
+<section style="background: #0d1611; color: #ffffff; padding: 0; overflow: hidden;">
+  <div style="display: grid; grid-template-columns: 1fr; min-height: 420px;" class="cta-split-grid">
+    
+    <div class="cta-split-container" style="display: grid; grid-template-columns: 1.2fr 0.8fr; width: 100%;">
+      <!-- Left side: Text & Actions -->
+      <div style="padding: 72px 56px; display: flex; flex-direction: column; justify-content: center;">
+        <span class="label-caps" style="color: var(--color-accent); margin-bottom: 16px; letter-spacing: 0.14em;">Get In Touch</span>
+        <h2 style="font-family: var(--font-display); font-size: clamp(32px, 3.8vw, 48px); font-weight: 700; line-height: 1.15; color: #ffffff; margin-bottom: 16px;">
+          Let's Create Something Great Together<span style="color: var(--color-accent);">.</span>
+        </h2>
+        <p style="font-size: 16px; color: rgba(255, 255, 255, 0.8); line-height: 1.7; margin-bottom: 32px; max-width: 560px;">
+          Whether you are an international development organization, a civil society group, or an enterprise looking to document your impact, our team is ready to collaborate.
+        </p>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+          <a href="{{ url_for('contact.index') }}" class="btn-stitch-primary" style="padding: 14px 28px; font-size: 14px;">
+            Partner With Us
+            <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
+          </a>
+          <a href="{{ url_for('public.work') }}" class="btn-stitch-ghost" style="padding: 14px 28px; font-size: 14px;">
+            Explore Our Work
+          </a>
+        </div>
+      </div>
+
+      <!-- Right side: Authentic documentary photography still -->
+      <div style="position: relative; min-height: 360px; overflow: hidden; background: #000000;">
+        <img src="{{ url_for('static', filename='img/photos/photo_30.jpg') }}" 
+             alt="Documentary video production crew in action" 
+             style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85; filter: contrast(1.1);">
+        <div style="position: absolute; inset: 0; background: linear-gradient(90deg, #0d1611 0%, transparent 60%);"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
 {% endblock %}
