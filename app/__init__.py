@@ -149,62 +149,56 @@ def register_cli_commands(app: Flask):
 
     @app.cli.command("seed-partner-logos")
     def seed_partner_logos():
-        """Seed the 7 verified partner organizations into PostgreSQL."""
+        """Seed the 7 verified partner organizations into PostgreSQL with Cloudinary CDN assets."""
         from app.models.content import PartnerLogo
+        from app.services.media import get_optimized_delivery_url
 
         partners_data = [
             {
                 "name": "Mercy Corps",
-                "logo_cloudinary_public_id": "static/img/partners/mercy-corps",
-                "logo_secure_url": "/static/img/partners/mercy-corps.png",
+                "logo_cloudinary_public_id": "factbox/partner_logos/gsjax2legfdz502bt23d",
                 "website_url": "https://www.mercycorps.org",
                 "alt_text": "Mercy Corps official emblem",
                 "display_order": 1,
             },
             {
                 "name": "International Alert",
-                "logo_cloudinary_public_id": "static/img/partners/international-alert",
-                "logo_secure_url": "/static/img/partners/international-alert.jpg",
+                "logo_cloudinary_public_id": "factbox/partner_logos/g725yqqj331tkqwrr2yn",
                 "website_url": "https://www.international-alert.org",
                 "alt_text": "International Alert organization logo",
                 "display_order": 2,
             },
             {
                 "name": "Malaria Consortium",
-                "logo_cloudinary_public_id": "static/img/partners/malaria-consortium",
-                "logo_secure_url": "/static/img/partners/malaria-consortium.png",
+                "logo_cloudinary_public_id": "factbox/partner_logos/wxxsdt6cjltdr0sua0v7",
                 "website_url": "https://www.malariaconsortium.org",
                 "alt_text": "Malaria Consortium - disease control, better health",
                 "display_order": 3,
             },
             {
                 "name": "GIZ",
-                "logo_cloudinary_public_id": "static/img/partners/giz",
-                "logo_secure_url": "/static/img/partners/giz.png",
+                "logo_cloudinary_public_id": "factbox/partner_logos/gdxqtejvs8qkswywzvax",
                 "website_url": "https://www.giz.de",
                 "alt_text": "Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ) GmbH",
                 "display_order": 4,
             },
             {
                 "name": "Norwegian Refugee Council (NRC)",
-                "logo_cloudinary_public_id": "static/img/partners/nrc",
-                "logo_secure_url": "/static/img/partners/norwegian-refugee-council.gif",
+                "logo_cloudinary_public_id": "factbox/partner_logos/pwf156ifhqoe6ckfedim",
                 "website_url": "https://www.nrc.no",
                 "alt_text": "Norwegian Refugee Council (NRC) official logo",
                 "display_order": 5,
             },
             {
                 "name": "Public Services International (PSI)",
-                "logo_cloudinary_public_id": "static/img/partners/psi",
-                "logo_secure_url": "/static/img/partners/psi.png",
+                "logo_cloudinary_public_id": "factbox/partner_logos/ort5r7yhkpguiy9gpve5",
                 "website_url": "https://publicservices.international",
                 "alt_text": "Public Services International (PSI) emblem",
                 "display_order": 6,
             },
             {
                 "name": "Capacity 4 Sustainable Development Ltd.",
-                "logo_cloudinary_public_id": "static/img/partners/capacity4dev",
-                "logo_secure_url": "/static/img/partners/capacity-4-dev.jpg",
+                "logo_cloudinary_public_id": "factbox/partner_logos/mluqwd4yhmbkdfso5zrr",
                 "website_url": None,
                 "alt_text": "Capacity 4 Sustainable Development Ltd. logo",
                 "display_order": 7,
@@ -214,11 +208,12 @@ def register_cli_commands(app: Flask):
         count = 0
         for p in partners_data:
             existing = PartnerLogo.query.filter_by(name=p["name"]).first()
+            secure_url = get_optimized_delivery_url(p["logo_cloudinary_public_id"])
             if not existing:
                 logo = PartnerLogo(
                     name=p["name"],
                     logo_cloudinary_public_id=p["logo_cloudinary_public_id"],
-                    logo_secure_url=p["logo_secure_url"],
+                    logo_secure_url=secure_url,
                     website_url=p["website_url"],
                     alt_text=p["alt_text"],
                     display_order=p["display_order"],
@@ -227,13 +222,148 @@ def register_cli_commands(app: Flask):
                 db.session.add(logo)
                 count += 1
             else:
-                existing.logo_secure_url = p["logo_secure_url"]
+                existing.logo_cloudinary_public_id = p["logo_cloudinary_public_id"]
+                existing.logo_secure_url = secure_url
                 existing.alt_text = p["alt_text"]
                 existing.display_order = p["display_order"]
                 existing.is_published = True
 
         db.session.commit()
         click.echo(f"Successfully processed partner logos ({count} new records added).")
+
+    @app.cli.command("seed-home-photos")
+    def seed_home_photos():
+        """Seed verified Cloudinary showcase photos into PostgreSQL for hero background showcase."""
+        from app.models.home_photo import HomePagePhoto
+        from app.services.media import get_optimized_delivery_url
+
+        photos_data = [
+            {
+                "title": "Documentary Field Unit",
+                "cloudinary_public_id": "factbox/home_hero/vobloojextsk2ucwsmsi",
+                "alt_text": "Fact Box Consult documentary director and field production unit on location",
+                "caption": "On-location investigative filming across West African rural communities.",
+                "display_order": 1,
+            },
+            {
+                "title": "Audiovisual Storytelling",
+                "cloudinary_public_id": "factbox/home_hero/emwghkdazvbdt153sfpp",
+                "alt_text": "High-impact documentary filming and audiovisual storytelling",
+                "caption": "Cinematic visual documentation capturing authentic community narratives.",
+                "display_order": 2,
+            },
+            {
+                "title": "Field Research & Evidence",
+                "cloudinary_public_id": "factbox/home_hero/i53doietpynralczswjz",
+                "alt_text": "Community engagement and evidence-based field research",
+                "caption": "Empirical field research and structured stakeholder interviews.",
+                "display_order": 3,
+            },
+            {
+                "title": "Camera Operations & Lighting",
+                "cloudinary_public_id": "factbox/home_hero/xfx85kgr4mjtucwdim4b",
+                "alt_text": "Documentary camera operations and production still",
+                "caption": "Broadcast-grade camera equipment and specialized production units.",
+                "display_order": 4,
+            },
+            {
+                "title": "Community Dialogue",
+                "cloudinary_public_id": "factbox/home_hero/lj9nzuu4v4arvvugst1t",
+                "alt_text": "Documentary fieldwork and community storytelling",
+                "caption": "Participatory community media sessions documenting civic perspectives.",
+                "display_order": 5,
+            },
+            {
+                "title": "On-Location Cinematography",
+                "cloudinary_public_id": "factbox/home_hero/cdouvflfzmyzjp6nknfn",
+                "alt_text": "On-location documentary cinematography and lighting",
+                "caption": "Cinematography capturing real-world social impact and resilience.",
+                "display_order": 6,
+            },
+            {
+                "title": "Field Production Team",
+                "cloudinary_public_id": "factbox/home_hero/o6mgonjjkggcthkaqnkc",
+                "alt_text": "Audiovisual media production unit and field recording",
+                "caption": "Multidisciplinary production team executing field communication campaigns.",
+                "display_order": 7,
+            },
+            {
+                "title": "Investigative Research",
+                "cloudinary_public_id": "factbox/home_hero/ksgxefammqhfcylffoks",
+                "alt_text": "Fact Box Consult documentary investigation on location",
+                "caption": "Deep-dive documentary research informing policy and advocacy.",
+                "display_order": 8,
+            },
+            {
+                "title": "Field Directing",
+                "cloudinary_public_id": "factbox/home_hero/yiqhjp6bjrdqq6g6fbz2",
+                "alt_text": "Documentary field camera operations and lighting crew",
+                "caption": "Directing complex field productions in challenging environments.",
+                "display_order": 9,
+            },
+            {
+                "title": "High-Definition Monitoring",
+                "cloudinary_public_id": "factbox/home_hero/uys8oulusdarerrqxxe9",
+                "alt_text": "Field directing and high-definition video monitoring",
+                "caption": "Quality control and precise visual framing during field shoots.",
+                "display_order": 10,
+            },
+            {
+                "title": "On-Location Audio & Video",
+                "cloudinary_public_id": "factbox/home_hero/smgb4jqqcx8wyafbhcwh",
+                "alt_text": "Cinematography and on-location sound recording in action",
+                "caption": "Crystal-clear field audio capture paired with 4K cinematography.",
+                "display_order": 11,
+            },
+            {
+                "title": "Empirical Fieldwork",
+                "cloudinary_public_id": "factbox/home_hero/hb8e8lltox5qgkw41uj0",
+                "alt_text": "Empirical research and investigative fieldwork on site",
+                "caption": "Evidence collection, survey facilitation, and documentary interviews.",
+                "display_order": 12,
+            },
+            {
+                "title": "Civic Engagement Sessions",
+                "cloudinary_public_id": "factbox/home_hero/lsh4rvjzg62kntvjqw7x",
+                "alt_text": "Digital media and community dialogue session",
+                "caption": "Empowering local voices through participatory visual workshops.",
+                "display_order": 13,
+            },
+            {
+                "title": "Visual Documentation & Heritage",
+                "cloudinary_public_id": "factbox/home_hero/oax73qwkxjsqzplsqdim",
+                "alt_text": "Visual documentation and cultural heritage filming",
+                "caption": "Archiving institutional memory and cultural stories with precision.",
+                "display_order": 14,
+            },
+        ]
+
+        count = 0
+        for p in photos_data:
+            existing = HomePagePhoto.query.filter_by(cloudinary_public_id=p["cloudinary_public_id"]).first()
+            secure_url = get_optimized_delivery_url(p["cloudinary_public_id"])
+            if not existing:
+                photo = HomePagePhoto(
+                    title=p["title"],
+                    caption=p["caption"],
+                    cloudinary_public_id=p["cloudinary_public_id"],
+                    secure_url=secure_url,
+                    alt_text=p["alt_text"],
+                    display_order=p["display_order"],
+                    is_active=True,
+                )
+                db.session.add(photo)
+                count += 1
+            else:
+                existing.secure_url = secure_url
+                existing.title = p["title"]
+                existing.caption = p["caption"]
+                existing.alt_text = p["alt_text"]
+                existing.display_order = p["display_order"]
+                existing.is_active = True
+
+        db.session.commit()
+        click.echo(f"Successfully processed showcase photos ({count} new records added).")
 
     @app.cli.command("upload-showcase-to-cloudinary")
     @click.option(
