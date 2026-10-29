@@ -4,6 +4,7 @@ Constructs and configures the Flask application instance according to project sp
 Enforces ADR-001, ADR-009, and Stage 2 requirements.
 """
 import logging
+import os
 import sys
 import uuid
 from datetime import datetime, timezone
@@ -233,6 +234,240 @@ def register_cli_commands(app: Flask):
 
         db.session.commit()
         click.echo(f"Successfully processed partner logos ({count} new records added).")
+
+    @app.cli.command("upload-showcase-to-cloudinary")
+    @click.option(
+        "--photos-dir",
+        default=None,
+        help="Custom directory containing showcase photos (defaults to app/static/img/photos)",
+    )
+    @click.option(
+        "--upload-partners/--no-upload-partners",
+        default=True,
+        help="Also upload partner logos to Cloudinary",
+    )
+    def upload_showcase_to_cloudinary(photos_dir, upload_partners):
+        """Upload local showcase photos and partner logos directly to Cloudinary and register in PostgreSQL.
+
+        This keeps the Git repository clean while ensuring full media availability on Cloudinary.
+        """
+        import io
+        from werkzeug.datastructures import FileStorage
+        from app.models.home_photo import HomePagePhoto
+        from app.models.content import PartnerLogo
+        from app.services.media import (
+            save_home_page_photo_safely,
+            save_partner_logo_safely,
+            upload_image_to_cloudinary,
+        )
+
+        cloud_name = app.config.get("CLOUDINARY_CLOUD_NAME") or os.getenv("CLOUDINARY_CLOUD_NAME")
+        api_key = app.config.get("CLOUDINARY_API_KEY") or os.getenv("CLOUDINARY_API_KEY")
+        api_secret = app.config.get("CLOUDINARY_API_SECRET") or os.getenv("CLOUDINARY_API_SECRET")
+
+        if not (cloud_name and api_key and api_secret) or cloud_name == "your_cloudinary_cloud_name":
+            click.echo(
+                "Error: Cloudinary credentials (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET) "
+                "are required to upload media to Cloudinary. Please set them in your .env or environment.",
+                err=True,
+            )
+            sys.exit(1)
+
+        target_dir = photos_dir or os.path.join(app.root_path, "static", "img", "photos")
+        if not os.path.exists(target_dir):
+            click.echo(f"Warning: Photos directory '{target_dir}' does not exist on disk.", err=True)
+            target_dir = None
+
+        showcase_items = [
+            {
+                "filename": "photo_25.jpg",
+                "title": "Documentary Field Unit",
+                "alt_text": "Fact Box Consult documentary director and field production unit on location",
+                "caption": "On-location investigative filming across West African rural communities.",
+                "order": 1,
+            },
+            {
+                "filename": "photo_26.jpg",
+                "title": "Audiovisual Storytelling",
+                "alt_text": "High-impact documentary filming and audiovisual storytelling",
+                "caption": "Cinematic visual documentation capturing authentic community narratives.",
+                "order": 2,
+            },
+            {
+                "filename": "photo_20.jpg",
+                "title": "Field Research & Evidence",
+                "alt_text": "Community engagement and evidence-based field research",
+                "caption": "Empirical field research and structured stakeholder interviews.",
+                "order": 3,
+            },
+            {
+                "filename": "photo_21.jpg",
+                "title": "Camera Operations & Lighting",
+                "alt_text": "Documentary camera operations and production still",
+                "caption": "Broadcast-grade camera equipment and specialized production units.",
+                "order": 4,
+            },
+            {
+                "filename": "photo_07.jpg",
+                "title": "Community Dialogue",
+                "alt_text": "Documentary fieldwork and community storytelling",
+                "caption": "Participatory community media sessions documenting civic perspectives.",
+                "order": 5,
+            },
+            {
+                "filename": "photo_08.jpg",
+                "title": "On-Location Cinematography",
+                "alt_text": "On-location documentary cinematography and lighting",
+                "caption": "Cinematography capturing real-world social impact and resilience.",
+                "order": 6,
+            },
+            {
+                "filename": "photo_10.jpg",
+                "title": "Field Production Team",
+                "alt_text": "Audiovisual media production unit and field recording",
+                "caption": "Multidisciplinary production team executing field communication campaigns.",
+                "order": 7,
+            },
+            {
+                "filename": "photo_23.jpg",
+                "title": "Investigative Research",
+                "alt_text": "Fact Box Consult documentary investigation on location",
+                "caption": "Deep-dive documentary research informing policy and advocacy.",
+                "order": 8,
+            },
+            {
+                "filename": "photo_11.jpg",
+                "title": "Field Directing",
+                "alt_text": "Documentary field camera operations and lighting crew",
+                "caption": "Directing complex field productions in challenging environments.",
+                "order": 9,
+            },
+            {
+                "filename": "photo_12.jpg",
+                "title": "High-Definition Monitoring",
+                "alt_text": "Field directing and high-definition video monitoring",
+                "caption": "Quality control and precise visual framing during field shoots.",
+                "order": 10,
+            },
+            {
+                "filename": "photo_15.jpg",
+                "title": "On-Location Audio & Video",
+                "alt_text": "Cinematography and on-location sound recording in action",
+                "caption": "Crystal-clear field audio capture paired with 4K cinematography.",
+                "order": 11,
+            },
+            {
+                "filename": "photo_17.jpg",
+                "title": "Empirical Fieldwork",
+                "alt_text": "Empirical research and investigative fieldwork on site",
+                "caption": "Evidence collection, survey facilitation, and documentary interviews.",
+                "order": 12,
+            },
+            {
+                "filename": "photo_18.jpg",
+                "title": "Civic Engagement Sessions",
+                "alt_text": "Digital media and community dialogue session",
+                "caption": "Empowering local voices through participatory visual workshops.",
+                "order": 13,
+            },
+            {
+                "filename": "photo_22.jpg",
+                "title": "Visual Documentation & Heritage",
+                "alt_text": "Visual documentation and cultural heritage filming",
+                "caption": "Archiving institutional memory and cultural stories with precision.",
+                "order": 14,
+            },
+        ]
+
+        uploaded_photos = 0
+        if target_dir:
+            click.echo(f"Starting showcase photo upload from: {target_dir}")
+            for item in showcase_items:
+                filepath = os.path.join(target_dir, item["filename"])
+                if not os.path.exists(filepath):
+                    click.echo(f"  [Skip] {item['filename']} not found.")
+                    continue
+
+                existing = HomePagePhoto.query.filter_by(title=item["title"]).first()
+                if existing:
+                    click.echo(f"  [Exists] '{item['title']}' already registered in database.")
+                    continue
+
+                try:
+                    with open(filepath, "rb") as f:
+                        file_storage = FileStorage(
+                            stream=io.BytesIO(f.read()),
+                            filename=item["filename"],
+                            content_type="image/jpeg",
+                        )
+                    photo = save_home_page_photo_safely(
+                        file_storage=file_storage,
+                        alt_text=item["alt_text"],
+                        title=item["title"],
+                        caption=item["caption"],
+                        display_order=item["order"],
+                        is_active=True,
+                    )
+                    uploaded_photos += 1
+                    click.echo(f"  [Uploaded] '{item['title']}' -> Cloudinary ID: {photo.cloudinary_public_id}")
+                except Exception as e:
+                    click.echo(f"  [Error] Failed to upload {item['filename']}: {e}", err=True)
+
+        uploaded_partners = 0
+        if upload_partners:
+            partners_dir = os.path.join(app.root_path, "static", "img", "partners")
+            partner_files = [
+                ("Mercy Corps", "mercy-corps.png", "https://www.mercycorps.org", "Mercy Corps official emblem", 1),
+                ("International Alert", "international-alert.jpg", "https://www.international-alert.org", "International Alert organization logo", 2),
+                ("Malaria Consortium", "malaria-consortium.png", "https://www.malariaconsortium.org", "Malaria Consortium - disease control, better health", 3),
+                ("GIZ", "giz.png", "https://www.giz.de", "Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ) GmbH", 4),
+                ("Norwegian Refugee Council (NRC)", "norwegian-refugee-council.gif", "https://www.nrc.no", "Norwegian Refugee Council (NRC) official logo", 5),
+                ("Public Services International (PSI)", "psi.png", "https://publicservices.international", "Public Services International (PSI) emblem", 6),
+                ("Capacity 4 Sustainable Development Ltd.", "capacity-4-dev.jpg", None, "Capacity 4 Sustainable Development Ltd. logo", 7),
+            ]
+            if os.path.exists(partners_dir):
+                click.echo(f"\nStarting partner logo upload to Cloudinary from: {partners_dir}")
+                for name, filename, website, alt, order in partner_files:
+                    filepath = os.path.join(partners_dir, filename)
+                    if not os.path.exists(filepath):
+                        continue
+
+                    existing = PartnerLogo.query.filter_by(name=name).first()
+                    if existing and existing.logo_cloudinary_public_id and existing.logo_cloudinary_public_id.startswith("factbox/"):
+                        click.echo(f"  [Exists] Partner logo '{name}' already uploaded to Cloudinary.")
+                        continue
+
+                    try:
+                        content_type = "image/png" if filename.endswith(".png") else "image/jpeg"
+                        if filename.endswith(".gif"):
+                            content_type = "image/gif"
+                        with open(filepath, "rb") as f:
+                            file_storage = FileStorage(
+                                stream=io.BytesIO(f.read()),
+                                filename=filename,
+                                content_type=content_type,
+                            )
+                        if existing:
+                            upload_meta = upload_image_to_cloudinary(file_storage, folder="factbox/partner_logos")
+                            existing.logo_cloudinary_public_id = upload_meta["public_id"]
+                            existing.logo_secure_url = upload_meta["secure_url"]
+                            db.session.commit()
+                            click.echo(f"  [Updated] Partner logo '{name}' -> Cloudinary URL: {existing.logo_secure_url}")
+                        else:
+                            logo = save_partner_logo_safely(
+                                file_storage=file_storage,
+                                name=name,
+                                alt_text=alt,
+                                website_url=website,
+                                display_order=order,
+                                is_published=True,
+                            )
+                            click.echo(f"  [Uploaded] Partner logo '{name}' -> Cloudinary URL: {logo.logo_secure_url}")
+                        uploaded_partners += 1
+                    except Exception as e:
+                        click.echo(f"  [Error] Failed to upload partner logo {filename}: {e}", err=True)
+
+        click.echo(f"\nCompleted: {uploaded_photos} showcase photos and {uploaded_partners} partner logos processed on Cloudinary.")
 
 
 def create_app(config_name: str | None = None) -> Flask:

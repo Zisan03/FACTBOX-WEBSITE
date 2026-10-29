@@ -46,3 +46,57 @@ def test_cli_create_admin_short_password_rejected(runner, db_session):
     )
     assert result.exit_code != 0
     assert "at least 8 characters" in result.output
+
+
+def test_cli_upload_showcase_requires_cloudinary_credentials(runner, app, monkeypatch):
+    """upload-showcase-to-cloudinary rejects execution if Cloudinary credentials are missing."""
+    monkeypatch.setitem(app.config, "CLOUDINARY_CLOUD_NAME", None)
+    monkeypatch.setitem(app.config, "CLOUDINARY_API_KEY", None)
+    monkeypatch.setitem(app.config, "CLOUDINARY_API_SECRET", None)
+    monkeypatch.delenv("CLOUDINARY_CLOUD_NAME", raising=False)
+    monkeypatch.delenv("CLOUDINARY_API_KEY", raising=False)
+    monkeypatch.delenv("CLOUDINARY_API_SECRET", raising=False)
+
+    result = runner.invoke(args=["upload-showcase-to-cloudinary"])
+    assert result.exit_code != 0
+    assert "Cloudinary credentials" in result.output
+
+
+def test_cli_upload_showcase_success(runner, app, db_session, monkeypatch, tmp_path):
+    """upload-showcase-to-cloudinary uploads photos and saves records when configured."""
+    from unittest.mock import patch
+
+    monkeypatch.setitem(app.config, "CLOUDINARY_CLOUD_NAME", "factbox-cloud")
+    monkeypatch.setitem(app.config, "CLOUDINARY_API_KEY", "valid_key")
+    monkeypatch.setitem(app.config, "CLOUDINARY_API_SECRET", "valid_secret")
+
+    # Create dummy photo in tmp_path
+    valid_jpeg = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00" + b"\x00" * 100
+    test_photo = tmp_path / "photo_25.jpg"
+    test_photo.write_bytes(valid_jpeg)
+
+    mock_upload = {
+        "public_id": "factbox/home_hero/mock_hero_25",
+        "secure_url": "https://res.cloudinary.com/factbox-cloud/image/upload/mock_hero_25.jpg",
+        "width": 1920,
+        "height": 1080,
+        "format": "jpg",
+        "bytes": 50000,
+    }
+
+    with patch("cloudinary.uploader.upload", return_value=mock_upload):
+        result = runner.invoke(args=[
+            "upload-showcase-to-cloudinary",
+            "--photos-dir", str(tmp_path),
+            "--no-upload-partners",
+        ])
+        assert result.exit_code == 0
+        assert "Completed:" in result.output
+        assert "1 showcase photos" in result.output
+
+    from app.models.home_photo import HomePagePhoto
+    photo = HomePagePhoto.query.filter_by(cloudinary_public_id="factbox/home_hero/mock_hero_25").first()
+    assert photo is not None
+    assert photo.title == "Documentary Field Unit"
+
+
