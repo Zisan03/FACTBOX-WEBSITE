@@ -118,6 +118,31 @@ def register_cli_commands(app: Flask):
         db.session.commit()
         click.echo(f"Successfully provisioned administrator: {normalized_email}")
 
+    @app.cli.command("init-admin")
+    def init_admin():
+        """Ensure initial administrator exists (safe for automated deployment)."""
+        email = os.environ.get("INITIAL_ADMIN_EMAIL", "admin@factboxconsult.com").strip().lower()
+        password = os.environ.get("INITIAL_ADMIN_PASSWORD", "FactBox2026!")
+
+        existing = AdminUser.query.filter_by(email=email).first()
+        if existing:
+            click.echo(f"Administrator '{email}' already exists. No action needed.")
+            return
+
+        admin = AdminUser(email=email, is_active=True)
+        admin.set_password(password)
+        db.session.add(admin)
+        db.session.flush()
+
+        audit = AdminAuditEvent(
+            admin_user_id=admin.id,
+            event_type="admin_provisioned_cli",
+            safe_metadata={"email": email, "automated_init": True},
+        )
+        db.session.add(audit)
+        db.session.commit()
+        click.echo(f"Successfully provisioned initial administrator: {email}")
+
     @app.cli.command("reset-admin-password")
     @click.option("--email", prompt="Admin Email", help="Administrator email address")
     @click.password_option(help="New administrator password (minimum 8 characters)")

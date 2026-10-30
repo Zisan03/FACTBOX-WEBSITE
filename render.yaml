@@ -3,7 +3,7 @@ services:
     name: factbox-consult
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: flask db upgrade && gunicorn wsgi:app
+    startCommand: flask db upgrade && flask seed-home-photos && flask seed-partner-logos && flask init-admin && gunicorn wsgi:app
     plan: free
     healthCheckPath: /health
     envVars:
