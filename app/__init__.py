@@ -293,21 +293,21 @@ def register_cli_commands(app: Flask):
             },
             {
                 "title": "Community Dialogue",
-                "cloudinary_public_id": "factbox/home_hero/lj9nzuu4v4arvvugst1t",
+                "cloudinary_public_id": "factbox/home_hero/zswgxxhygc4unwibalsy",
                 "alt_text": "Documentary fieldwork and community storytelling",
                 "caption": "Participatory community media sessions documenting civic perspectives.",
                 "display_order": 5,
             },
             {
                 "title": "On-Location Cinematography",
-                "cloudinary_public_id": "factbox/home_hero/cdouvflfzmyzjp6nknfn",
+                "cloudinary_public_id": "factbox/home_hero/qp8xbacdin1nyzua3ity",
                 "alt_text": "On-location documentary cinematography and lighting",
                 "caption": "Cinematography capturing real-world social impact and resilience.",
                 "display_order": 6,
             },
             {
                 "title": "Field Production Team",
-                "cloudinary_public_id": "factbox/home_hero/o6mgonjjkggcthkaqnkc",
+                "cloudinary_public_id": "factbox/home_hero/ei804zdxlbrymogcbyxm",
                 "alt_text": "Audiovisual media production unit and field recording",
                 "caption": "Multidisciplinary production team executing field communication campaigns.",
                 "display_order": 7,
@@ -321,14 +321,14 @@ def register_cli_commands(app: Flask):
             },
             {
                 "title": "Field Directing",
-                "cloudinary_public_id": "factbox/home_hero/yiqhjp6bjrdqq6g6fbz2",
+                "cloudinary_public_id": "factbox/home_hero/ltjoie8ua6cvwwzjsfi2",
                 "alt_text": "Documentary field camera operations and lighting crew",
                 "caption": "Directing complex field productions in challenging environments.",
                 "display_order": 9,
             },
             {
                 "title": "High-Definition Monitoring",
-                "cloudinary_public_id": "factbox/home_hero/uys8oulusdarerrqxxe9",
+                "cloudinary_public_id": "factbox/home_hero/qn4cknhojqhqrtogicjq",
                 "alt_text": "Field directing and high-definition video monitoring",
                 "caption": "Quality control and precise visual framing during field shoots.",
                 "display_order": 10,
@@ -365,7 +365,7 @@ def register_cli_commands(app: Flask):
             # --- Standby Reserve Pool (Slots 15 - 31) ---
             {
                 "title": "Investigative Field Documentation",
-                "cloudinary_public_id": "factbox/home_hero/ilumutz6z4phyb2vmleh",
+                "cloudinary_public_id": "factbox/home_hero/idzaqfvsccnvstyfrwmi",
                 "alt_text": "Fact Box Consult documentary researchers collecting field observations",
                 "caption": "Structured observational research in local development hubs.",
                 "display_order": 15,
@@ -405,7 +405,7 @@ def register_cli_commands(app: Flask):
             },
             {
                 "title": "Media Strategy & Dialogue",
-                "cloudinary_public_id": "factbox/home_hero/a4j9fex45ramnrwumi80",
+                "cloudinary_public_id": "factbox/home_hero/no82qe6s8q6vd0uj2zfm",
                 "alt_text": "Facilitating communication and storytelling workshops",
                 "caption": "Strategic media workshops designed to amplify community impact.",
                 "display_order": 20,
@@ -413,7 +413,7 @@ def register_cli_commands(app: Flask):
             },
             {
                 "title": "In-Depth Field Interviews",
-                "cloudinary_public_id": "factbox/home_hero/g7cupb5auuy6n6sqskkt",
+                "cloudinary_public_id": "factbox/home_hero/j5wmdstsaca2hgd2gei1",
                 "alt_text": "Conducting in-depth stakeholder and documentary interviews",
                 "caption": "Documenting authentic testimonies and empirical evidence.",
                 "display_order": 21,
