@@ -503,7 +503,10 @@ def register_cli_commands(app: Flask):
 
         count = 0
         for p in photos_data:
-            existing = HomePagePhoto.query.filter_by(cloudinary_public_id=p["cloudinary_public_id"]).first()
+            existing = (
+                HomePagePhoto.query.filter_by(title=p["title"]).first()
+                or HomePagePhoto.query.filter_by(cloudinary_public_id=p["cloudinary_public_id"]).first()
+            )
             secure_url = get_optimized_delivery_url(p["cloudinary_public_id"])
             is_active_val = p.get("is_active", True)
             if not existing:
@@ -519,12 +522,30 @@ def register_cli_commands(app: Flask):
                 db.session.add(photo)
                 count += 1
             else:
+                existing.cloudinary_public_id = p["cloudinary_public_id"]
                 existing.secure_url = secure_url
                 existing.title = p["title"]
                 existing.caption = p["caption"]
                 existing.alt_text = p["alt_text"]
                 existing.display_order = p["display_order"]
                 existing.is_active = is_active_val
+
+        # Deduplicate any duplicate records by title keeping only the most recently updated one
+        from sqlalchemy import func
+        duplicate_titles = [
+            t[0] for t in db.session.query(HomePagePhoto.title)
+            .group_by(HomePagePhoto.title)
+            .having(func.count(HomePagePhoto.id) > 1)
+            .all()
+        ]
+        for dt in duplicate_titles:
+            dupes = (
+                HomePagePhoto.query.filter_by(title=dt)
+                .order_by(HomePagePhoto.updated_at.desc(), HomePagePhoto.created_at.desc())
+                .all()
+            )
+            for extra in dupes[1:]:
+                db.session.delete(extra)
 
         db.session.commit()
         click.echo(f"Successfully processed showcase photos ({count} new records added).")
