@@ -5,6 +5,7 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: flask db upgrade && flask seed-home-photos && flask seed-partner-logos && flask init-admin && gunicorn wsgi:app
     plan: free
+    autoDeploy: true
     healthCheckPath: /health
     envVars:
       - key: FLASK_CONFIG
