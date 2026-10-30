@@ -47,8 +47,17 @@ def home():
 
 @public_bp.route("/about")
 def about():
-    """About Us page."""
-    return render_template("public/about.html")
+    """About Us page featuring dedicated documentary showcase photos."""
+    strategy_photo = HomePagePhoto.query.filter_by(title="Media Strategy & Dialogue").first()
+    logistics_photo = HomePagePhoto.query.filter_by(title="Production Field Logistics").first()
+    environmental_photo = HomePagePhoto.query.filter_by(title="Environmental Field Cinematography").first()
+
+    return render_template(
+        "public/about.html",
+        photo_strategy=strategy_photo,
+        photo_logistics=logistics_photo,
+        photo_environmental=environmental_photo,
+    )
 
 
 @public_bp.route("/services")

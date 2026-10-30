@@ -77,8 +77,8 @@
       <!-- Right Column: Authentic Documentary Photography Visual Element -->
       <div style="position: relative;">
         <div style="border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-ambient); border: 1px solid var(--color-border); position: relative; background: #1c1b1b;">
-          <img src="{{ get_showcase_photo(1).secure_url }}" 
-               alt="{{ get_showcase_photo(1).alt_text }}" 
+          <img src="{{ photo_strategy.secure_url if photo_strategy else get_showcase_photo(1).secure_url }}" 
+               alt="{{ photo_strategy.alt_text if photo_strategy else get_showcase_photo(1).alt_text }}" 
                style="width: 100%; height: 500px; object-fit: cover; display: block; filter: contrast(1.05);">
           
           <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, rgba(12, 28, 17, 0.94) 0%, rgba(0, 0, 0, 0.5) 60%, transparent 100%); padding: 28px 24px 20px; color: #ffffff;">
@@ -157,8 +157,8 @@
       <!-- Left Column: High-Impact Visual / Photo Showcase -->
       <div style="position: sticky; top: 100px;">
         <div style="border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-ambient); border: 1px solid var(--color-border); position: relative; background: #1c1b1b;">
-          <img src="{{ get_showcase_photo(2).secure_url }}" 
-               alt="{{ get_showcase_photo(2).alt_text }}" 
+          <img src="{{ photo_logistics.secure_url if photo_logistics else get_showcase_photo(2).secure_url }}" 
+               alt="{{ photo_logistics.alt_text if photo_logistics else get_showcase_photo(2).alt_text }}" 
                style="width: 100%; height: 560px; object-fit: cover; filter: contrast(1.05);">
           
           <div style="position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(12, 28, 17, 0.92) 100%);"></div>
@@ -378,8 +378,8 @@
 
       <!-- Right side: Authentic documentary photography still -->
       <div style="position: relative; min-height: 360px; overflow: hidden; background: #000000;">
-        <img src="{{ get_showcase_photo(3).secure_url }}" 
-             alt="{{ get_showcase_photo(3).alt_text }}" 
+        <img src="{{ photo_environmental.secure_url if photo_environmental else get_showcase_photo(3).secure_url }}" 
+             alt="{{ photo_environmental.alt_text if photo_environmental else get_showcase_photo(3).alt_text }}" 
              style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85; filter: contrast(1.1);">
         <div style="position: absolute; inset: 0; background: linear-gradient(90deg, #0d1611 0%, transparent 60%);"></div>
       </div>
