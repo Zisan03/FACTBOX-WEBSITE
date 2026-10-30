@@ -70,7 +70,10 @@
           {% for org_key, org in organizations.items() %}
             <button class="work-org-pill" data-org="{{ org_key }}" type="button" title="Filter work done with {{ org.name }}">
               <span class="work-org-logo-wrap">
-                <img src="{{ url_for('static', filename=org.logo_static) }}" alt="{{ org.name }}" loading="lazy">
+                <img src="{{ org.logo_url if org.logo_url else url_for('static', filename=org.logo_static) }}" 
+                     alt="{{ org.name }}" 
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='/static/img/factbox_logo.jpg';">
               </span>
               <span class="work-org-name">{{ org.short_name or org.name }}</span>
             </button>
@@ -117,7 +120,8 @@
               {% elif p.images %}
                 <img src="{{ p.images[0].secure_url }}" 
                      alt="{{ p.images[0].alt_text }}" 
-                     loading="lazy">
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='/static/img/hero_fallback.jpg';">
               {% else %}
                 <div style="position: absolute; inset: 0; background: #1c1b1b; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); font-size: 14px;">
                   Fact Box Documentary
@@ -131,7 +135,9 @@
               {% if p.matched_org %}
                 <div class="project-org-badge-strip">
                   <div class="project-org-logo-badge">
-                    <img src="{{ url_for('static', filename=p.matched_org.logo_static) }}" alt="{{ p.matched_org.name }}">
+                    <img src="{{ p.matched_org.logo_url if p.matched_org.logo_url else url_for('static', filename=p.matched_org.logo_static) }}" 
+                         alt="{{ p.matched_org.name }}"
+                         onerror="this.onerror=null; this.src='/static/img/factbox_logo.jpg';">
                   </div>
                   <div class="project-org-meta">
                     <span class="project-org-label">Work Done With</span>

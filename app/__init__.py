@@ -968,7 +968,7 @@ def create_app(config_name: str | None = None) -> Flask:
 
         class PhotoProxy:
             def __init__(self, p):
-                self.secure_url = p.secure_url if p else ""
+                self.secure_url = (p.secure_url if (p and p.secure_url) else "/static/img/hero_fallback.jpg")
                 self.alt_text = (
                     p.alt_text if (p and p.alt_text) else "Fact Box Consult documentary fieldwork"
                 )

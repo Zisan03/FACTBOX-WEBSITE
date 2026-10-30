@@ -109,30 +109,33 @@
           {% if partner_logos %}
             {% for logo in partner_logos %}
               <a href="{{ url_for('public.work', org=(logo.name | org_slug)) }}" class="partner-logo-item" title="{{ logo.name }}">
-                <img src="{{ logo.logo_secure_url }}" alt="{{ logo.alt_text or logo.name }}" loading="lazy">
+                <img src="{{ logo.logo_secure_url }}" 
+                     alt="{{ logo.alt_text or logo.name }}" 
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='/static/img/factbox_logo.jpg';">
               </a>
             {% endfor %}
           {% else %}
             <a href="{{ url_for('public.work', org='mercy-corps') }}" class="partner-logo-item" title="Mercy Corps">
-              <img src="{{ url_for('static', filename='img/partners/mercy-corps.png') }}" alt="Mercy Corps" loading="lazy">
+              <img src="https://res.cloudinary.com/qvv0ipup/image/upload/f_auto,q_auto/v1/factbox/partner_logos/gsjax2legfdz502bt23d.png" alt="Mercy Corps" loading="lazy" onerror="this.onerror=null; this.src='/static/img/factbox_logo.jpg';">
             </a>
             <a href="{{ url_for('public.work', org='international-alert') }}" class="partner-logo-item" title="International Alert">
-              <img src="{{ url_for('static', filename='img/partners/international-alert.jpg') }}" alt="International Alert" loading="lazy">
+              <img src="https://res.cloudinary.com/qvv0ipup/image/upload/f_auto,q_auto/v1/factbox/partner_logos/g725yqqj331tkqwrr2yn.jpg" alt="International Alert" loading="lazy" onerror="this.onerror=null; this.src='/static/img/factbox_logo.jpg';">
             </a>
             <a href="{{ url_for('public.work', org='malaria-consortium') }}" class="partner-logo-item" title="Malaria Consortium">
-              <img src="{{ url_for('static', filename='img/partners/malaria-consortium.png') }}" alt="Malaria Consortium" loading="lazy">
+              <img src="https://res.cloudinary.com/qvv0ipup/image/upload/f_auto,q_auto/v1/factbox/partner_logos/wxxsdt6cjltdr0sua0v7.png" alt="Malaria Consortium" loading="lazy" onerror="this.onerror=null; this.src='/static/img/factbox_logo.jpg';">
             </a>
             <a href="{{ url_for('public.work', org='giz') }}" class="partner-logo-item" title="Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ)">
-              <img src="{{ url_for('static', filename='img/partners/giz.png') }}" alt="Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ)" loading="lazy">
+              <img src="https://res.cloudinary.com/qvv0ipup/image/upload/f_auto,q_auto/v1/factbox/partner_logos/gdxqtejvs8qkswywzvax.png" alt="Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ)" loading="lazy" onerror="this.onerror=null; this.src='/static/img/factbox_logo.jpg';">
             </a>
             <a href="{{ url_for('public.work', org='norwegian-refugee-council') }}" class="partner-logo-item" title="Norwegian Refugee Council (NRC)">
-              <img src="{{ url_for('static', filename='img/partners/norwegian-refugee-council.gif') }}" alt="Norwegian Refugee Council (NRC)" loading="lazy">
+              <img src="https://res.cloudinary.com/qvv0ipup/image/upload/f_auto,q_auto/v1/factbox/partner_logos/pwf156ifhqoe6ckfedim.gif" alt="Norwegian Refugee Council (NRC)" loading="lazy" onerror="this.onerror=null; this.src='/static/img/factbox_logo.jpg';">
             </a>
             <a href="{{ url_for('public.work', org='public-services-international') }}" class="partner-logo-item" title="Public Services International (PSI)">
-              <img src="{{ url_for('static', filename='img/partners/psi.png') }}" alt="Public Services International (PSI)" loading="lazy">
+              <img src="https://res.cloudinary.com/qvv0ipup/image/upload/f_auto,q_auto/v1/factbox/partner_logos/ort5r7yhkpguiy9gpve5.png" alt="Public Services International (PSI)" loading="lazy" onerror="this.onerror=null; this.src='/static/img/factbox_logo.jpg';">
             </a>
             <a href="{{ url_for('public.work', org='capacity-4-dev') }}" class="partner-logo-item" title="Capacity 4 Sustainable Development Ltd.">
-              <img src="{{ url_for('static', filename='img/partners/capacity-4-dev.jpg') }}" alt="Capacity 4 Sustainable Development Ltd." loading="lazy">
+              <img src="https://res.cloudinary.com/qvv0ipup/image/upload/f_auto,q_auto/v1/factbox/partner_logos/mluqwd4yhmbkdfso5zrr.jpg" alt="Capacity 4 Sustainable Development Ltd." loading="lazy" onerror="this.onerror=null; this.src='/static/img/factbox_logo.jpg';">
             </a>
           {% endif %}
         </div>

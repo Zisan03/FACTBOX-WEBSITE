@@ -44,9 +44,8 @@ htmlcov/
 factbox-consult/
 *.webp
 
-# Uploaded temporary media and local partner logos
+# Uploaded temporary media and bulky local photo pools
 images*.*
 norwegian_refugee_council_eng_logo.gif
-app/static/img/partners/
 app/static/img/FACTBOX PICTURES/
 app/static/img/photos/
