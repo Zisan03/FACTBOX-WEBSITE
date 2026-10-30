@@ -335,6 +335,144 @@ def register_cli_commands(app: Flask):
                 "alt_text": "Visual documentation and cultural heritage filming",
                 "caption": "Archiving institutional memory and cultural stories with precision.",
                 "display_order": 14,
+                "is_active": True,
+            },
+            # --- Standby Reserve Pool (Slots 15 - 31) ---
+            {
+                "title": "Investigative Field Documentation",
+                "cloudinary_public_id": "factbox/home_hero/ilumutz6z4phyb2vmleh",
+                "alt_text": "Fact Box Consult documentary researchers collecting field observations",
+                "caption": "Structured observational research in local development hubs.",
+                "display_order": 15,
+                "is_active": False,
+            },
+            {
+                "title": "Community Consultation Forum",
+                "cloudinary_public_id": "factbox/home_hero/hcdz2x3fxtztfhkuvet9",
+                "alt_text": "Documentary dialogue session with local community stakeholders",
+                "caption": "Grassroots stakeholder forums capturing institutional feedback.",
+                "display_order": 16,
+                "is_active": False,
+            },
+            {
+                "title": "Participatory Field Research",
+                "cloudinary_public_id": "factbox/home_hero/z6nidpkdiso8ygxxpuec",
+                "alt_text": "Field researchers conducting structured community interviews",
+                "caption": "Evidence-based qualitative research informing development programs.",
+                "display_order": 17,
+                "is_active": False,
+            },
+            {
+                "title": "Audiovisual Production Setup",
+                "cloudinary_public_id": "factbox/home_hero/ttktjsyf7j5dbnvqdyys",
+                "alt_text": "Field camera unit preparing on-location visual recording",
+                "caption": "Deploying broadcast rigs and audio gear in challenging terrain.",
+                "display_order": 18,
+                "is_active": False,
+            },
+            {
+                "title": "Documentary Cinematography",
+                "cloudinary_public_id": "factbox/home_hero/scpemyioaskwmoo7nlfg",
+                "alt_text": "Cinematography capturing community development initiatives",
+                "caption": "Visual storytelling highlighting social resilience across West Africa.",
+                "display_order": 19,
+                "is_active": False,
+            },
+            {
+                "title": "Media Strategy & Dialogue",
+                "cloudinary_public_id": "factbox/home_hero/a4j9fex45ramnrwumi80",
+                "alt_text": "Facilitating communication and storytelling workshops",
+                "caption": "Strategic media workshops designed to amplify community impact.",
+                "display_order": 20,
+                "is_active": False,
+            },
+            {
+                "title": "In-Depth Field Interviews",
+                "cloudinary_public_id": "factbox/home_hero/g7cupb5auuy6n6sqskkt",
+                "alt_text": "Conducting in-depth stakeholder and documentary interviews",
+                "caption": "Documenting authentic testimonies and empirical evidence.",
+                "display_order": 21,
+                "is_active": False,
+            },
+            {
+                "title": "Visual Storytelling Unit",
+                "cloudinary_public_id": "factbox/home_hero/ztowroteennxanfaz77q",
+                "alt_text": "Capturing documentary photography and field stories",
+                "caption": "Documenting the human impact behind institutional development initiatives.",
+                "display_order": 22,
+                "is_active": False,
+            },
+            {
+                "title": "Stakeholder Consultation",
+                "cloudinary_public_id": "factbox/home_hero/mwgwkyvyjkvd7ykpmd6c",
+                "alt_text": "Community research gathering firsthand narratives",
+                "caption": "Engaging local leaders and civic organizations in development research.",
+                "display_order": 23,
+                "is_active": False,
+            },
+            {
+                "title": "Documentary Field Lighting",
+                "cloudinary_public_id": "factbox/home_hero/ubxt7mjvtt2earl8hltp",
+                "alt_text": "Professional location lighting and visual framing",
+                "caption": "Precision cinematography lighting for high-impact documentary scenes.",
+                "display_order": 24,
+                "is_active": False,
+            },
+            {
+                "title": "Institutional Research Protocol",
+                "cloudinary_public_id": "factbox/home_hero/tqybvwohve0sn6pfnkf7",
+                "alt_text": "Fact Box Consult researchers recording empirical development data",
+                "caption": "Rigorous field documentation for international development partners.",
+                "display_order": 25,
+                "is_active": False,
+            },
+            {
+                "title": "Grassroots Storytelling",
+                "cloudinary_public_id": "factbox/home_hero/ugbot3wtqah57evrqal5",
+                "alt_text": "Documenting community resilience and grassroots innovation",
+                "caption": "Highlighting sustainable local solutions through compelling visual media.",
+                "display_order": 26,
+                "is_active": False,
+            },
+            {
+                "title": "Community Field Observation",
+                "cloudinary_public_id": "factbox/home_hero/ihlk1nigc6mpz6xi7uwy",
+                "alt_text": "Documentary team observing institutional program impact",
+                "caption": "Field monitoring capturing the tangible progress of humanitarian projects.",
+                "display_order": 27,
+                "is_active": False,
+            },
+            {
+                "title": "Production Field Logistics",
+                "cloudinary_public_id": "factbox/home_hero/xzi4oy5yyicj72zkkyuz",
+                "alt_text": "Coordinating mobile production crews in remote locations",
+                "caption": "Operational excellence supporting rapid audiovisual deployment.",
+                "display_order": 28,
+                "is_active": False,
+            },
+            {
+                "title": "Development Communications",
+                "cloudinary_public_id": "factbox/home_hero/np4nnhd9fgskvtopvhrh",
+                "alt_text": "Translating complex social research into accessible visual media",
+                "caption": "Strategic communications turning field findings into action.",
+                "display_order": 29,
+                "is_active": False,
+            },
+            {
+                "title": "Environmental Field Cinematography",
+                "cloudinary_public_id": "factbox/home_hero/ypl01q1pytvw4uvzmgal",
+                "alt_text": "Cinematographer capturing authentic environmental documentation",
+                "caption": "Capturing ecological and community challenges with journalistic rigor.",
+                "display_order": 30,
+                "is_active": False,
+            },
+            {
+                "title": "Archival & Documentary Heritage",
+                "cloudinary_public_id": "factbox/home_hero/l0cwq2erjuufwrjruf0w",
+                "alt_text": "Comprehensive visual archiving for development partners",
+                "caption": "Building enduring institutional media archives for partner organisations.",
+                "display_order": 31,
+                "is_active": False,
             },
         ]
 
@@ -342,6 +480,7 @@ def register_cli_commands(app: Flask):
         for p in photos_data:
             existing = HomePagePhoto.query.filter_by(cloudinary_public_id=p["cloudinary_public_id"]).first()
             secure_url = get_optimized_delivery_url(p["cloudinary_public_id"])
+            is_active_val = p.get("is_active", True)
             if not existing:
                 photo = HomePagePhoto(
                     title=p["title"],
@@ -350,7 +489,7 @@ def register_cli_commands(app: Flask):
                     secure_url=secure_url,
                     alt_text=p["alt_text"],
                     display_order=p["display_order"],
-                    is_active=True,
+                    is_active=is_active_val,
                 )
                 db.session.add(photo)
                 count += 1
@@ -360,7 +499,7 @@ def register_cli_commands(app: Flask):
                 existing.caption = p["caption"]
                 existing.alt_text = p["alt_text"]
                 existing.display_order = p["display_order"]
-                existing.is_active = True
+                existing.is_active = is_active_val
 
         db.session.commit()
         click.echo(f"Successfully processed showcase photos ({count} new records added).")
@@ -409,12 +548,14 @@ def register_cli_commands(app: Flask):
             target_dir = None
 
         showcase_items = [
+            # --- Active Hero Showcase (Slots 1 - 14) ---
             {
                 "filename": "photo_25.jpg",
                 "title": "Documentary Field Unit",
                 "alt_text": "Fact Box Consult documentary director and field production unit on location",
                 "caption": "On-location investigative filming across West African rural communities.",
                 "order": 1,
+                "is_active": True,
             },
             {
                 "filename": "photo_26.jpg",
@@ -422,6 +563,7 @@ def register_cli_commands(app: Flask):
                 "alt_text": "High-impact documentary filming and audiovisual storytelling",
                 "caption": "Cinematic visual documentation capturing authentic community narratives.",
                 "order": 2,
+                "is_active": True,
             },
             {
                 "filename": "photo_20.jpg",
@@ -429,6 +571,7 @@ def register_cli_commands(app: Flask):
                 "alt_text": "Community engagement and evidence-based field research",
                 "caption": "Empirical field research and structured stakeholder interviews.",
                 "order": 3,
+                "is_active": True,
             },
             {
                 "filename": "photo_21.jpg",
@@ -436,6 +579,7 @@ def register_cli_commands(app: Flask):
                 "alt_text": "Documentary camera operations and production still",
                 "caption": "Broadcast-grade camera equipment and specialized production units.",
                 "order": 4,
+                "is_active": True,
             },
             {
                 "filename": "photo_07.jpg",
@@ -443,6 +587,7 @@ def register_cli_commands(app: Flask):
                 "alt_text": "Documentary fieldwork and community storytelling",
                 "caption": "Participatory community media sessions documenting civic perspectives.",
                 "order": 5,
+                "is_active": True,
             },
             {
                 "filename": "photo_08.jpg",
@@ -450,6 +595,7 @@ def register_cli_commands(app: Flask):
                 "alt_text": "On-location documentary cinematography and lighting",
                 "caption": "Cinematography capturing real-world social impact and resilience.",
                 "order": 6,
+                "is_active": True,
             },
             {
                 "filename": "photo_10.jpg",
@@ -457,6 +603,7 @@ def register_cli_commands(app: Flask):
                 "alt_text": "Audiovisual media production unit and field recording",
                 "caption": "Multidisciplinary production team executing field communication campaigns.",
                 "order": 7,
+                "is_active": True,
             },
             {
                 "filename": "photo_23.jpg",
@@ -464,6 +611,7 @@ def register_cli_commands(app: Flask):
                 "alt_text": "Fact Box Consult documentary investigation on location",
                 "caption": "Deep-dive documentary research informing policy and advocacy.",
                 "order": 8,
+                "is_active": True,
             },
             {
                 "filename": "photo_11.jpg",
@@ -471,6 +619,7 @@ def register_cli_commands(app: Flask):
                 "alt_text": "Documentary field camera operations and lighting crew",
                 "caption": "Directing complex field productions in challenging environments.",
                 "order": 9,
+                "is_active": True,
             },
             {
                 "filename": "photo_12.jpg",
@@ -478,6 +627,7 @@ def register_cli_commands(app: Flask):
                 "alt_text": "Field directing and high-definition video monitoring",
                 "caption": "Quality control and precise visual framing during field shoots.",
                 "order": 10,
+                "is_active": True,
             },
             {
                 "filename": "photo_15.jpg",
@@ -485,6 +635,7 @@ def register_cli_commands(app: Flask):
                 "alt_text": "Cinematography and on-location sound recording in action",
                 "caption": "Crystal-clear field audio capture paired with 4K cinematography.",
                 "order": 11,
+                "is_active": True,
             },
             {
                 "filename": "photo_17.jpg",
@@ -492,6 +643,7 @@ def register_cli_commands(app: Flask):
                 "alt_text": "Empirical research and investigative fieldwork on site",
                 "caption": "Evidence collection, survey facilitation, and documentary interviews.",
                 "order": 12,
+                "is_active": True,
             },
             {
                 "filename": "photo_18.jpg",
@@ -499,6 +651,7 @@ def register_cli_commands(app: Flask):
                 "alt_text": "Digital media and community dialogue session",
                 "caption": "Empowering local voices through participatory visual workshops.",
                 "order": 13,
+                "is_active": True,
             },
             {
                 "filename": "photo_22.jpg",
@@ -506,8 +659,152 @@ def register_cli_commands(app: Flask):
                 "alt_text": "Visual documentation and cultural heritage filming",
                 "caption": "Archiving institutional memory and cultural stories with precision.",
                 "order": 14,
+                "is_active": True,
+            },
+            # --- Standby Reserve Pool (Slots 15 - 31: Auto-Promoted on Deletion) ---
+            {
+                "filename": "photo_01.jpg",
+                "title": "Investigative Field Documentation",
+                "alt_text": "Fact Box Consult documentary researchers collecting field observations",
+                "caption": "Structured observational research in local development hubs.",
+                "order": 15,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_02.jpg",
+                "title": "Community Consultation Forum",
+                "alt_text": "Documentary dialogue session with local community stakeholders",
+                "caption": "Grassroots stakeholder forums capturing institutional feedback.",
+                "order": 16,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_03.jpg",
+                "title": "Participatory Field Research",
+                "alt_text": "Field researchers conducting structured community interviews",
+                "caption": "Evidence-based qualitative research informing development programs.",
+                "order": 17,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_04.jpg",
+                "title": "Audiovisual Production Setup",
+                "alt_text": "Field camera unit preparing on-location visual recording",
+                "caption": "Deploying broadcast rigs and audio gear in challenging terrain.",
+                "order": 18,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_05.jpg",
+                "title": "Documentary Cinematography",
+                "alt_text": "Cinematography capturing community development initiatives",
+                "caption": "Visual storytelling highlighting social resilience across West Africa.",
+                "order": 19,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_06.jpg",
+                "title": "Media Strategy & Dialogue",
+                "alt_text": "Facilitating communication and storytelling workshops",
+                "caption": "Strategic media workshops designed to amplify community impact.",
+                "order": 20,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_09.jpg",
+                "title": "In-Depth Field Interviews",
+                "alt_text": "Conducting in-depth stakeholder and documentary interviews",
+                "caption": "Documenting authentic testimonies and empirical evidence.",
+                "order": 21,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_13.jpg",
+                "title": "Visual Storytelling Unit",
+                "alt_text": "Capturing documentary photography and field stories",
+                "caption": "Documenting the human impact behind institutional development initiatives.",
+                "order": 22,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_14.jpg",
+                "title": "Stakeholder Consultation",
+                "alt_text": "Community research gathering firsthand narratives",
+                "caption": "Engaging local leaders and civic organizations in development research.",
+                "order": 23,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_16.jpg",
+                "title": "Documentary Field Lighting",
+                "alt_text": "Professional location lighting and visual framing",
+                "caption": "Precision cinematography lighting for high-impact documentary scenes.",
+                "order": 24,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_19.jpg",
+                "title": "Institutional Research Protocol",
+                "alt_text": "Fact Box Consult researchers recording empirical development data",
+                "caption": "Rigorous field documentation for international development partners.",
+                "order": 25,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_24.jpg",
+                "title": "Grassroots Storytelling",
+                "alt_text": "Documenting community resilience and grassroots innovation",
+                "caption": "Highlighting sustainable local solutions through compelling visual media.",
+                "order": 26,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_27.jpg",
+                "title": "Community Field Observation",
+                "alt_text": "Documentary team observing institutional program impact",
+                "caption": "Field monitoring capturing the tangible progress of humanitarian projects.",
+                "order": 27,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_28.jpg",
+                "title": "Production Field Logistics",
+                "alt_text": "Coordinating mobile production crews in remote locations",
+                "caption": "Operational excellence supporting rapid audiovisual deployment.",
+                "order": 28,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_29.jpg",
+                "title": "Development Communications",
+                "alt_text": "Translating complex social research into accessible visual media",
+                "caption": "Strategic communications turning field findings into action.",
+                "order": 29,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_30.jpg",
+                "title": "Environmental Field Cinematography",
+                "alt_text": "Cinematographer capturing authentic environmental documentation",
+                "caption": "Capturing ecological and community challenges with journalistic rigor.",
+                "order": 30,
+                "is_active": False,
+            },
+            {
+                "filename": "photo_31.jpg",
+                "title": "Archival & Documentary Heritage",
+                "alt_text": "Comprehensive visual archiving for development partners",
+                "caption": "Building enduring institutional media archives for partner organisations.",
+                "order": 31,
+                "is_active": False,
             },
         ]
+
+        # Clean up any legacy non-Cloudinary placeholder records
+        legacy_deleted = HomePagePhoto.query.filter(HomePagePhoto.secure_url.like('/static%')).delete()
+        if legacy_deleted:
+            db.session.commit()
+            click.echo(f"Cleaned up {legacy_deleted} legacy local placeholder records from database.")
 
         uploaded_photos = 0
         if target_dir:
@@ -520,7 +817,11 @@ def register_cli_commands(app: Flask):
 
                 existing = HomePagePhoto.query.filter_by(title=item["title"]).first()
                 if existing:
-                    click.echo(f"  [Exists] '{item['title']}' already registered in database.")
+                    # Update status and display order if needed
+                    existing.display_order = item["order"]
+                    existing.is_active = item["is_active"]
+                    db.session.commit()
+                    click.echo(f"  [Exists] '{item['title']}' active={existing.is_active} order={existing.display_order}.")
                     continue
 
                 try:
@@ -536,12 +837,14 @@ def register_cli_commands(app: Flask):
                         title=item["title"],
                         caption=item["caption"],
                         display_order=item["order"],
-                        is_active=True,
+                        is_active=item["is_active"],
                     )
                     uploaded_photos += 1
-                    click.echo(f"  [Uploaded] '{item['title']}' -> Cloudinary ID: {photo.cloudinary_public_id}")
+                    status_str = "ACTIVE (Hero)" if item["is_active"] else "RESERVE (Standby)"
+                    click.echo(f"  [Uploaded] '{item['title']}' [{status_str}] -> Cloudinary ID: {photo.cloudinary_public_id}")
                 except Exception as e:
                     click.echo(f"  [Error] Failed to upload {item['filename']}: {e}", err=True)
+
 
         uploaded_partners = 0
         if upload_partners:

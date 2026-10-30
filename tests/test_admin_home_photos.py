@@ -191,3 +191,49 @@ def test_home_photo_delete_cleans_cloudinary(client, sample_admin, db_session):
         mock_destroy.assert_called_once_with("home_hero/to_delete_01")
 
     assert db_session.get(HomePagePhoto, photo_id) is None
+
+
+def test_home_photo_delete_auto_replenishes_from_reserve_pool(client, sample_admin, db_session):
+    """Deleting an active hero photo automatically promotes a photo from the reserve pool."""
+    login_admin(client, sample_admin)
+
+    # Active photo to delete
+    active_photo = HomePagePhoto(
+        title="Active Hero Shot",
+        cloudinary_public_id="home_hero/active_01",
+        secure_url="https://res.cloudinary.com/factbox/image/upload/v1/active_01.jpg",
+        alt_text="Active hero shot",
+        display_order=1,
+        is_active=True,
+    )
+    # Standby reserve photo
+    reserve_photo = HomePagePhoto(
+        title="Standby Reserve Shot",
+        cloudinary_public_id="home_hero/reserve_01",
+        secure_url="https://res.cloudinary.com/factbox/image/upload/v1/reserve_01.jpg",
+        alt_text="Standby reserve shot",
+        display_order=15,
+        is_active=False,
+    )
+    db_session.add_all([active_photo, reserve_photo])
+    db_session.commit()
+
+    active_id = active_photo.id
+    reserve_id = reserve_photo.id
+
+    with patch("app.services.media.delete_image_from_cloudinary", return_value=True):
+        res = client.post(f"/admin/home-photos/{active_id}/delete", follow_redirects=True)
+        assert res.status_code == 200
+        html = res.get_data(as_text=True)
+        assert "promoted from the standby reserve pool" in html
+        assert "Standby Reserve Shot" in html
+
+    # Deleted photo is gone
+    assert db_session.get(HomePagePhoto, active_id) is None
+
+    # Reserve photo has been automatically promoted to active
+    db_session.expire_all()
+    promoted = db_session.get(HomePagePhoto, reserve_id)
+    assert promoted is not None
+    assert promoted.is_active is True
+

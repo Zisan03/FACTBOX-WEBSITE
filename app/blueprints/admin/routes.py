@@ -996,12 +996,32 @@ def retry_enquiry_notification(enquiry_id):
 @admin_bp.route("/home-photos")
 @login_required
 def list_home_photos():
-    """List all hero background slideshow photos."""
-    photos = HomePagePhoto.query.order_by(
+    """List hero background slideshow photos with active and reserve filtering."""
+    status_filter = request.args.get("status", "all")
+    query = HomePagePhoto.query
+
+    if status_filter == "active":
+        query = query.filter_by(is_active=True)
+    elif status_filter == "reserve":
+        query = query.filter_by(is_active=False)
+
+    photos = query.order_by(
         HomePagePhoto.display_order.asc(),
         HomePagePhoto.created_at.desc(),
     ).all()
-    return render_template("admin/home_photos/index.html", photos=photos)
+
+    total_count = HomePagePhoto.query.count()
+    active_count = HomePagePhoto.query.filter_by(is_active=True).count()
+    reserve_count = HomePagePhoto.query.filter_by(is_active=False).count()
+
+    return render_template(
+        "admin/home_photos/index.html",
+        photos=photos,
+        status_filter=status_filter,
+        total_count=total_count,
+        active_count=active_count,
+        reserve_count=reserve_count,
+    )
 
 
 @admin_bp.route("/home-photos/new", methods=["GET", "POST"])
@@ -1079,7 +1099,7 @@ def toggle_home_photo(photo_id):
         photo.id,
         {"is_active": photo.is_active},
     )
-    status_str = "activated" if photo.is_active else "deactivated"
+    status_str = "promoted to active slideshow" if photo.is_active else "moved to reserve pool"
     flash(f"Photo '{photo.title or photo.alt_text}' has been {status_str}.", "success")
     return redirect(url_for("admin.list_home_photos"))
 
@@ -1087,9 +1107,10 @@ def toggle_home_photo(photo_id):
 @admin_bp.route("/home-photos/<uuid:photo_id>/delete", methods=["POST"])
 @login_required
 def delete_home_photo(photo_id):
-    """Delete a hero background photo and remove Cloudinary asset."""
+    """Delete a hero background photo and remove Cloudinary asset with auto-replenish."""
     photo = db.get_or_404(HomePagePhoto, photo_id)
     photo_title = photo.title or photo.alt_text
+    was_active = photo.is_active
 
     success = delete_home_page_photo_safely(photo.id)
     if success:
@@ -1099,7 +1120,21 @@ def delete_home_photo(photo_id):
             photo_id,
             {"title": photo_title},
         )
-        flash("Hero background photo deleted successfully.", "success")
+        replacement_msg = ""
+        # Auto-replenishment: if the deleted photo was active, promote the next reserve photo
+        if was_active:
+            standby = (
+                HomePagePhoto.query.filter_by(is_active=False)
+                .order_by(HomePagePhoto.display_order.asc(), HomePagePhoto.created_at.asc())
+                .first()
+            )
+            if standby:
+                standby.is_active = True
+                standby.updated_at = datetime.now(timezone.utc)
+                db.session.commit()
+                replacement_msg = f" Photo '{standby.title or standby.alt_text}' was automatically promoted from the standby reserve pool to keep your live slideshow full!"
+
+        flash(f"Hero background photo deleted successfully.{replacement_msg}", "success")
     else:
         flash("Could not delete photo.", "error")
 
