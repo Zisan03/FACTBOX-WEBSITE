@@ -18,77 +18,13 @@
         </div>
       {% endfor %}
     {% else %}
-      <!-- Exact Match with Home Hero Showcase (14 High-Impact Slides) -->
-      <div class="slideshow-slide active" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_25.jpg') }}'); background-position: center 35%;" 
-           role="img" 
-           aria-label="Fact Box Consult documentary director and field production unit on location">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_26.jpg') }}'); background-position: center 35%;" 
-           role="img" 
-           aria-label="High-impact documentary filming and audiovisual storytelling">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_20.jpg') }}'); background-position: center 30%;" 
-           role="img" 
-           aria-label="Community engagement and evidence-based field research">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_21.jpg') }}'); background-position: center 30%;" 
-           role="img" 
-           aria-label="Documentary camera operations and production still">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_07.jpg') }}'); background-position: center 30%;" 
-           role="img" 
-           aria-label="Documentary fieldwork and community storytelling">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_08.jpg') }}'); background-position: center 35%;" 
-           role="img" 
-           aria-label="On-location documentary cinematography and lighting">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_10.jpg') }}'); background-position: center 35%;" 
-           role="img" 
-           aria-label="Audiovisual media production unit and field recording">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_23.jpg') }}'); background-position: center 35%;" 
-           role="img" 
-           aria-label="Fact Box Consult documentary investigation on location">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_11.jpg') }}'); background-position: center 30%;" 
-           role="img" 
-           aria-label="Documentary field camera operations and lighting crew">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_12.jpg') }}'); background-position: center 35%;" 
-           role="img" 
-           aria-label="Field directing and high-definition video monitoring">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_15.jpg') }}'); background-position: center 40%;" 
-           role="img" 
-           aria-label="Cinematography and on-location sound recording in action">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_17.jpg') }}'); background-position: center 35%;" 
-           role="img" 
-           aria-label="Empirical research and investigative fieldwork on site">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_18.jpg') }}'); background-position: center 35%;" 
-           role="img" 
-           aria-label="Digital media and community dialogue session">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_22.jpg') }}'); background-position: center 35%;" 
-           role="img" 
-           aria-label="Visual documentation and cultural heritage filming">
-      </div>
+      {% for i in range(14) %}
+        <div class="slideshow-slide {% if loop.first %}active{% endif %}" 
+             style="background-image: url('{{ get_showcase_photo(i).secure_url }}'); background-position: center 35%;" 
+             role="img" 
+             aria-label="{{ get_showcase_photo(i).alt_text }}">
+        </div>
+      {% endfor %}
     {% endif %}
   </div>
 

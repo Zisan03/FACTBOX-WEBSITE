@@ -18,77 +18,13 @@
         </div>
       {% endfor %}
     {% else %}
-      <!-- Authentic Documentary Photography Hero Rotation (14 High-Impact Slides) -->
-      <div class="slideshow-slide active" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_25.jpg') }}');" 
-           role="img" 
-           aria-label="Fact Box Consult documentary director and field production unit on location">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_26.jpg') }}');" 
-           role="img" 
-           aria-label="High-impact documentary filming and audiovisual storytelling">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_20.jpg') }}');" 
-           role="img" 
-           aria-label="Community engagement and evidence-based field research">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_21.jpg') }}');" 
-           role="img" 
-           aria-label="Documentary camera operations and production still">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_07.jpg') }}');" 
-           role="img" 
-           aria-label="Documentary fieldwork and community storytelling">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_08.jpg') }}');" 
-           role="img" 
-           aria-label="On-location documentary cinematography and lighting">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_10.jpg') }}');" 
-           role="img" 
-           aria-label="Audiovisual media production unit and field recording">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_23.jpg') }}');" 
-           role="img" 
-           aria-label="Fact Box Consult documentary investigation on location">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_11.jpg') }}');" 
-           role="img" 
-           aria-label="Documentary field camera operations and lighting crew">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_12.jpg') }}');" 
-           role="img" 
-           aria-label="Field directing and high-definition video monitoring">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_15.jpg') }}');" 
-           role="img" 
-           aria-label="Cinematography and on-location sound recording in action">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_17.jpg') }}');" 
-           role="img" 
-           aria-label="Empirical research and investigative fieldwork on site">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_18.jpg') }}');" 
-           role="img" 
-           aria-label="Digital media and community dialogue session">
-      </div>
-      <div class="slideshow-slide" 
-           style="background-image: url('{{ url_for('static', filename='img/photos/photo_22.jpg') }}');" 
-           role="img" 
-           aria-label="Visual documentation and cultural heritage filming">
-      </div>
+      {% for i in range(14) %}
+        <div class="slideshow-slide {% if loop.first %}active{% endif %}" 
+             style="background-image: url('{{ get_showcase_photo(i).secure_url }}');" 
+             role="img" 
+             aria-label="{{ get_showcase_photo(i).alt_text }}">
+        </div>
+      {% endfor %}
     {% endif %}
   </div>
 
@@ -152,7 +88,7 @@
     {% if featured_projects and featured_projects[0].images %}
       <div class="flip-card-bg" style="background-image: url('{{ featured_projects[0].images[0].secure_url }}');"></div>
     {% else %}
-      <div class="flip-card-bg" style="background-image: url('{{ url_for('static', filename='img/photos/photo_21.jpg') }}'); background-position: center 30%;"></div>
+      <div class="flip-card-bg" style="background-image: url('{{ get_showcase_photo(0).secure_url }}'); background-position: center 30%;"></div>
     {% endif %}
     
     <div class="flip-card-overlay"></div>
@@ -183,16 +119,16 @@
      ========================================================================== -->
 <section class="photo-mosaic-strip" aria-label="Documentary Photo Mosaic">
   <div style="position: relative; overflow: hidden;">
-    <img src="{{ url_for('static', filename='img/photos/photo_07.jpg') }}" alt="Documentary fieldwork and community storytelling" loading="lazy">
+    <img src="{{ get_showcase_photo(1).secure_url }}" alt="{{ get_showcase_photo(1).alt_text }}" loading="lazy">
   </div>
   <div style="position: relative; overflow: hidden;">
-    <img src="{{ url_for('static', filename='img/photos/photo_08.jpg') }}" alt="On-location documentary cinematography" loading="lazy">
+    <img src="{{ get_showcase_photo(2).secure_url }}" alt="{{ get_showcase_photo(2).alt_text }}" loading="lazy">
   </div>
   <div style="position: relative; overflow: hidden;">
-    <img src="{{ url_for('static', filename='img/photos/photo_09.jpg') }}" alt="Evidence-based research and community dialogue" loading="lazy">
+    <img src="{{ get_showcase_photo(3).secure_url }}" alt="{{ get_showcase_photo(3).alt_text }}" loading="lazy">
   </div>
   <div style="position: relative; overflow: hidden;">
-    <img src="{{ url_for('static', filename='img/photos/photo_10.jpg') }}" alt="Audiovisual media production unit" loading="lazy">
+    <img src="{{ get_showcase_photo(4).secure_url }}" alt="{{ get_showcase_photo(4).alt_text }}" loading="lazy">
   </div>
 </section>
 
@@ -200,7 +136,7 @@
      4. Full-Bleed Panoramic Fieldwork Photo (Locked directly beneath mosaic)
      ========================================================================== -->
 <section class="panoramic-field-block" aria-label="Fieldwork Feature Panorama">
-  <img src="{{ url_for('static', filename='img/photos/photo_23.jpg') }}" alt="Fact Box Consult documentary investigation on location" loading="lazy">
+  <img src="{{ get_showcase_photo(5).secure_url }}" alt="{{ get_showcase_photo(5).alt_text }}" loading="lazy">
   <div class="panoramic-overlay"></div>
   <div class="panoramic-caption">
     <div>
@@ -231,7 +167,7 @@
     <div class="asymmetric-photo-split">
       <!-- Left Card: Tall Portrait Documentary Photo -->
       <div class="asymmetric-card">
-        <img src="{{ url_for('static', filename='img/photos/photo_19.jpg') }}" alt="Authentic documentary portrait of local community member" loading="lazy">
+        <img src="{{ get_showcase_photo(6).secure_url }}" alt="{{ get_showcase_photo(6).alt_text }}" loading="lazy">
         <div class="asymmetric-overlay"></div>
         <div class="asymmetric-content">
           <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-accent); display: block; margin-bottom: 8px;">
@@ -248,7 +184,7 @@
 
       <!-- Right Card: Landscape Documentary Video Still with Play Button -->
       <div class="asymmetric-card">
-        <img src="{{ url_for('static', filename='img/photos/photo_15.jpg') }}" alt="Documentary video production action shot" loading="lazy">
+        <img src="{{ get_showcase_photo(7).secure_url }}" alt="{{ get_showcase_photo(7).alt_text }}" loading="lazy">
         <div class="video-play-affordance">
           <span class="material-symbols-outlined" style="font-size: 32px; margin-left: 3px;">play_arrow</span>
         </div>
@@ -290,7 +226,7 @@
       
       <!-- Service 1: Visual Production -->
       <article class="photo-service-card">
-        <img class="service-bg-img" src="{{ url_for('static', filename='img/photos/photo_04.jpg') }}" alt="Audiovisual media production" loading="lazy">
+        <img class="service-bg-img" src="{{ get_showcase_photo(8).secure_url }}" alt="{{ get_showcase_photo(8).alt_text }}" loading="lazy">
         <div class="service-scrim"></div>
         <div class="service-body">
           <div class="stitch-icon-squircle" style="background: rgba(166, 255, 77, 0.2); color: var(--color-accent); margin-bottom: 16px;">
@@ -310,7 +246,7 @@
 
       <!-- Service 2: Media Consultancy -->
       <article class="photo-service-card">
-        <img class="service-bg-img" src="{{ url_for('static', filename='img/photos/photo_05.jpg') }}" alt="Strategic media consultancy" loading="lazy">
+        <img class="service-bg-img" src="{{ get_showcase_photo(9).secure_url }}" alt="{{ get_showcase_photo(9).alt_text }}" loading="lazy">
         <div class="service-scrim"></div>
         <div class="service-body">
           <div class="stitch-icon-squircle" style="background: rgba(166, 255, 77, 0.2); color: var(--color-accent); margin-bottom: 16px;">
@@ -330,7 +266,7 @@
 
       <!-- Service 3: Research & Planning -->
       <article class="photo-service-card">
-        <img class="service-bg-img" src="{{ url_for('static', filename='img/photos/photo_17.jpg') }}" alt="Research and field planning" loading="lazy">
+        <img class="service-bg-img" src="{{ get_showcase_photo(10).secure_url }}" alt="{{ get_showcase_photo(10).alt_text }}" loading="lazy">
         <div class="service-scrim"></div>
         <div class="service-body">
           <div class="stitch-icon-squircle" style="background: rgba(166, 255, 77, 0.2); color: var(--color-accent); margin-bottom: 16px;">
@@ -350,7 +286,7 @@
 
       <!-- Service 4: Digital & New Media -->
       <article class="photo-service-card">
-        <img class="service-bg-img" src="{{ url_for('static', filename='img/photos/photo_18.jpg') }}" alt="Digital and new media engagement" loading="lazy">
+        <img class="service-bg-img" src="{{ get_showcase_photo(11).secure_url }}" alt="{{ get_showcase_photo(11).alt_text }}" loading="lazy">
         <div class="service-scrim"></div>
         <div class="service-body">
           <div class="stitch-icon-squircle" style="background: rgba(166, 255, 77, 0.2); color: var(--color-accent); margin-bottom: 16px;">
@@ -504,8 +440,8 @@
 
     <!-- Right side: Authentic behind-the-scenes production still -->
     <div style="position: relative; min-height: 380px; overflow: hidden; background: #000000;">
-      <img src="{{ url_for('static', filename='img/photos/photo_12.jpg') }}" 
-           alt="Fact Box Consult documentary crew on set" 
+      <img src="{{ get_showcase_photo(12).secure_url }}" 
+           alt="{{ get_showcase_photo(12).alt_text }}" 
            style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85; filter: contrast(1.1);">
       <div style="position: absolute; inset: 0; background: linear-gradient(90deg, #0d1611 0%, transparent 60%);"></div>
     </div>
