@@ -1138,6 +1138,10 @@ def delete_home_photo(photo_id):
     else:
         flash("Could not delete photo.", "error")
 
+    status = request.args.get("status") or request.form.get("status")
+    if status and status in ["all", "active", "reserve"]:
+        return redirect(url_for("admin.list_home_photos", status=status))
+
     return redirect(url_for("admin.list_home_photos"))
 
 
