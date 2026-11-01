@@ -7,7 +7,7 @@
 <!-- ==========================================================================
      1. Hero / Banner Section (TVSense-Inspired Editorial Header)
      ========================================================================== -->
-<section style="background: linear-gradient(135deg, #0d2c18 0%, #177a3d 50%, #092011 100%); color: #ffffff; padding: 110px 0 84px; position: relative; overflow: hidden;">
+<section style="background: linear-gradient(135deg, #0d2c18 0%, #177a3d 50%, #092011 100%); color: #ffffff; padding: clamp(80px, 12vw, 110px) 0 clamp(48px, 8vw, 84px); position: relative; overflow: hidden;">
   <!-- Subtle decorative ambient radial glow -->
   <div style="position: absolute; top: -20%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(166, 255, 77, 0.16) 0%, transparent 70%); pointer-events: none;"></div>
   <div style="position: absolute; bottom: -20%; left: -10%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(0, 0, 0, 0.3) 0%, transparent 70%); pointer-events: none;"></div>
@@ -48,7 +48,7 @@
 <!-- ==========================================================================
      2. Vision & Philosophy Section (TVSense Split Layout with Authentic Photo)
      ========================================================================== -->
-<section style="padding: 96px 0; background: var(--color-surface);">
+<section style="padding: clamp(48px, 8vw, 96px) 0; background: var(--color-surface);">
   <div class="container">
     <div class="about-split">
       
@@ -79,7 +79,7 @@
         <div style="border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-ambient); border: 1px solid var(--color-border); position: relative; background: #1c1b1b;">
           <img src="{{ photo_strategy.secure_url if photo_strategy else get_showcase_photo(1).secure_url }}" 
                alt="{{ photo_strategy.alt_text if photo_strategy else get_showcase_photo(1).alt_text }}" 
-               style="width: 100%; height: 500px; object-fit: cover; display: block; filter: contrast(1.05);">
+               class="about-vision-img">
           
           <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, rgba(12, 28, 17, 0.94) 0%, rgba(0, 0, 0, 0.5) 60%, transparent 100%); padding: 28px 24px 20px; color: #ffffff;">
             <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-accent); font-weight: 700; display: block; margin-bottom: 4px;">
@@ -113,7 +113,7 @@
     </div>
 
     <!-- The 2 Required Stats: 10 Years Experience & 40+ Documentaries -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; max-width: 960px; margin: 0 auto;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 32px; max-width: 960px; margin: 0 auto;">
       
       <!-- Stat 1: 10+ Years Professional Experience -->
       <div class="stat-card" style="padding: 48px 36px; text-align: left; position: relative;">
@@ -150,24 +150,25 @@
 <!-- ==========================================================================
      4. Strategic Objectives Section (All 5 Official Objectives from New Doc)
      ========================================================================== -->
-<section style="padding: 96px 0; background: var(--color-surface-container-low);">
+<section id="strategic-objectives" style="padding: clamp(48px, 8vw, 96px) 0; background: var(--color-surface-container-low);">
   <div class="container">
-    <div class="about-split" style="align-items: flex-start;">
+    <div class="objectives-split-container">
       
       <!-- Left Column: High-Impact Visual / Photo Showcase -->
-      <div style="position: sticky; top: 100px;">
-        <div style="border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-ambient); border: 1px solid var(--color-border); position: relative; background: #1c1b1b;">
+      <div class="objectives-photo-column">
+        <div class="objectives-photo-card">
           <img src="{{ photo_logistics.secure_url if photo_logistics else get_showcase_photo(2).secure_url }}" 
                alt="{{ photo_logistics.alt_text if photo_logistics else get_showcase_photo(2).alt_text }}" 
-               style="width: 100%; height: 560px; object-fit: cover; filter: contrast(1.05);">
+               class="objectives-photo-img"
+               loading="lazy">
           
-          <div style="position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(12, 28, 17, 0.92) 100%);"></div>
+          <div class="objectives-photo-scrim"></div>
           
-          <div style="position: absolute; bottom: 32px; left: 32px; right: 32px; color: #ffffff;">
-            <span class="inline-badge" style="background: var(--color-accent); color: var(--color-primary-dark); font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em; display: inline-block; margin-bottom: 12px;">
+          <div class="objectives-caption-overlay">
+            <span class="inline-badge objectives-mandate-badge">
               Mission Mandate
             </span>
-            <h3 style="font-family: var(--font-display); font-size: 22px; font-weight: 700; line-height: 1.3; margin: 0; color: #ffffff;">
+            <h3 class="objectives-mandate-quote">
               Making communication simple, stories meaningful, and information accessible to all.
             </h3>
           </div>
@@ -175,19 +176,19 @@
       </div>
 
       <!-- Right Column: The 5 Official Strategic Objectives -->
-      <div>
-        <span class="label-caps" style="color: var(--color-primary); margin-bottom: 12px;">Our Strategic Purpose</span>
-        <h2 style="font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 44px); font-weight: 700; color: var(--color-primary-dark); line-height: 1.2; margin-bottom: 16px;">
+      <div class="objectives-content-column">
+        <span class="label-caps" style="color: var(--color-primary); margin-bottom: 12px; display: inline-block;">Our Strategic Purpose</span>
+        <h2 style="font-family: var(--font-display); font-size: clamp(26px, 3.5vw, 42px); font-weight: 700; color: var(--color-primary-dark); line-height: 1.2; margin-bottom: 16px;">
           Strategic Objectives
         </h2>
-        <p style="font-size: 16px; color: var(--color-text-muted); line-height: 1.7; margin-bottom: 36px;">
+        <p style="font-size: clamp(15px, 2vw, 16px); color: var(--color-text-muted); line-height: 1.7; margin-bottom: 28px;">
           Drawn directly from our corporate charter to guide how we deliver excellence across media, research, and consultancy:
         </p>
 
-        <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="objectives-cards-list">
           
           <!-- Objective 1 -->
-          <div class="objective-card" style="padding: 24px 22px;">
+          <div class="objective-card">
             <div style="display: flex; gap: 16px; align-items: flex-start;">
               <div class="objective-icon" style="margin-bottom: 0; flex-shrink: 0; width: 44px; height: 44px; font-size: 20px;">
                 <span class="material-symbols-outlined">analytics</span>
@@ -204,7 +205,7 @@
           </div>
 
           <!-- Objective 2 -->
-          <div class="objective-card" style="padding: 24px 22px;">
+          <div class="objective-card">
             <div style="display: flex; gap: 16px; align-items: flex-start;">
               <div class="objective-icon" style="margin-bottom: 0; flex-shrink: 0; width: 44px; height: 44px; font-size: 20px;">
                 <span class="material-symbols-outlined">campaign</span>
@@ -221,7 +222,7 @@
           </div>
 
           <!-- Objective 3 -->
-          <div class="objective-card" style="padding: 24px 22px;">
+          <div class="objective-card">
             <div style="display: flex; gap: 16px; align-items: flex-start;">
               <div class="objective-icon" style="margin-bottom: 0; flex-shrink: 0; width: 44px; height: 44px; font-size: 20px;">
                 <span class="material-symbols-outlined">diversity_3</span>
@@ -238,7 +239,7 @@
           </div>
 
           <!-- Objective 4 -->
-          <div class="objective-card" style="padding: 24px 22px;">
+          <div class="objective-card">
             <div style="display: flex; gap: 16px; align-items: flex-start;">
               <div class="objective-icon" style="margin-bottom: 0; flex-shrink: 0; width: 44px; height: 44px; font-size: 20px;">
                 <span class="material-symbols-outlined">handshake</span>
@@ -255,7 +256,7 @@
           </div>
 
           <!-- Objective 5 -->
-          <div class="objective-card" style="padding: 24px 22px;">
+          <div class="objective-card">
             <div style="display: flex; gap: 16px; align-items: flex-start;">
               <div class="objective-icon" style="margin-bottom: 0; flex-shrink: 0; width: 44px; height: 44px; font-size: 20px;">
                 <span class="material-symbols-outlined">rocket_launch</span>
@@ -281,7 +282,7 @@
 <!-- ==========================================================================
      5. The 5 Principles of Communication (Verbatim from Official Document)
      ========================================================================== -->
-<section style="padding: 96px 0; background: var(--color-surface);">
+<section style="padding: clamp(48px, 8vw, 96px) 0; background: var(--color-surface);">
   <div class="container">
     <div style="text-align: center; max-width: 780px; margin: 0 auto 56px;">
       <span class="label-caps" style="color: var(--color-primary); margin-bottom: 12px;">Core Principles</span>
@@ -292,7 +293,7 @@
       <div style="width: 80px; height: 3px; background: var(--color-primary); border-radius: 2px; margin: 20px auto 0;"></div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 56px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 24px; margin-bottom: 56px;">
       
       <div style="background: var(--color-surface-container-low); padding: 32px 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); border-top: 4px solid var(--color-primary);">
         <h3 style="font-size: 18px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 10px;">Empathy</h3>
@@ -332,7 +333,7 @@
     </div>
 
     <!-- Our Approach Callout Box (Verbatim from Fact Box Document) -->
-    <div style="background: linear-gradient(135deg, #f8fbf9 0%, #eef7f2 100%); border: 1px solid rgba(23, 122, 61, 0.2); border-left: 6px solid var(--color-primary); padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);">
+    <div style="background: linear-gradient(135deg, #f8fbf9 0%, #eef7f2 100%); border: 1px solid rgba(23, 122, 61, 0.2); border-left: 6px solid var(--color-primary); padding: clamp(24px, 5vw, 40px); border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle);">
       <div style="display: flex; gap: 20px; align-items: flex-start;">
         <span class="material-symbols-outlined" style="font-size: 40px; color: var(--color-primary); flex-shrink: 0;">lightbulb</span>
         <div>
@@ -355,9 +356,9 @@
 <section style="background: #0d1611; color: #ffffff; padding: 0; overflow: hidden;">
   <div style="display: grid; grid-template-columns: 1fr; min-height: 420px;" class="cta-split-grid">
     
-    <div class="cta-split-container" style="display: grid; grid-template-columns: 1.2fr 0.8fr; width: 100%;">
+    <div class="cta-split-container">
       <!-- Left side: Text & Actions -->
-      <div style="padding: 72px 56px; display: flex; flex-direction: column; justify-content: center;">
+      <div class="cta-split-content">
         <span class="label-caps" style="color: var(--color-accent); margin-bottom: 16px; letter-spacing: 0.14em;">Get In Touch</span>
         <h2 style="font-family: var(--font-display); font-size: clamp(32px, 3.8vw, 48px); font-weight: 700; line-height: 1.15; color: #ffffff; margin-bottom: 16px;">
           Let's Create Something Great Together<span style="color: var(--color-accent);">.</span>
@@ -377,7 +378,7 @@
       </div>
 
       <!-- Right side: Authentic documentary photography still -->
-      <div style="position: relative; min-height: 360px; overflow: hidden; background: #000000;">
+      <div class="cta-split-photo">
         <img src="{{ photo_environmental.secure_url if photo_environmental else get_showcase_photo(3).secure_url }}" 
              alt="{{ photo_environmental.alt_text if photo_environmental else get_showcase_photo(3).alt_text }}" 
              style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85; filter: contrast(1.1);">

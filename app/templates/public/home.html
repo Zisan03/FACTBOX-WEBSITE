@@ -32,12 +32,12 @@
   <div class="slideshow-overlay" style="background: linear-gradient(180deg, rgba(12,20,15,0.45) 0%, rgba(12,20,15,0.7) 60%, rgba(12,20,15,0.92) 100%);"></div>
 
   <!-- Hero Text — Bold TVSense-Inspired Headline & Taglines -->
-  <div class="container hero-content" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; height: 100%; padding-bottom: 120px;">
+  <div class="container hero-content" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; height: 100%; padding-bottom: clamp(60px, 10vh, 120px);">
     <span class="label-caps" style="color: var(--color-accent); margin-bottom: 16px; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase;">
       The Media Think-Tank &bull; RC: 7592601
     </span>
     
-    <h1 class="hero-title" style="color: #ffffff; font-family: var(--font-display); font-size: clamp(38px, 5.2vw, 68px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 8px; max-width: 900px;">
+    <h1 class="hero-title" style="color: #ffffff; font-family: var(--font-display); font-size: clamp(30px, 6vw, 68px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 8px; max-width: 900px;">
       Stories That Connect<span style="color: var(--color-accent);">.</span>
       <span style="display: block; position: relative;">
         Messages That Matter<span style="color: var(--color-accent);">.</span>
@@ -84,7 +84,7 @@
      2. TVSense-Style Featured Project Spotlight (Flip Card Interaction)
      ========================================================================== -->
 <section style="padding: 0; background: var(--color-surface-dark);">
-  <div class="flip-project-card" style="border-radius: 0; height: 560px;">
+  <div class="flip-project-card flip-spotlight-card">
     {% if featured_projects and featured_projects[0].images %}
       <div class="flip-card-bg" style="background-image: url('{{ featured_projects[0].images[0].secure_url }}');"></div>
     {% else %}
@@ -93,7 +93,7 @@
     
     <div class="flip-card-overlay"></div>
     
-    <div class="flip-card-content" style="max-width: var(--container-max); margin: 0 auto; padding: 48px;">
+    <div class="flip-card-content flip-spotlight-content">
       <span class="label-caps" style="color: var(--color-accent); margin-bottom: 12px; letter-spacing: 0.15em;">
         Featured Documentary Spotlight
       </span>
@@ -417,9 +417,9 @@
      9. TVSense-Style Split Call to Action (Behind-the-Scenes Photo)
      ========================================================================== -->
 <section style="background: #0d1611; color: #ffffff; padding: 0; overflow: hidden;">
-  <div class="cta-split-container" style="display: grid; grid-template-columns: 1.2fr 0.8fr; width: 100%;">
+  <div class="cta-split-container">
     <!-- Left side: Text & Actions -->
-    <div style="padding: 72px 56px; display: flex; flex-direction: column; justify-content: center;">
+    <div class="cta-split-content">
       <span class="label-caps" style="color: var(--color-accent); margin-bottom: 16px; letter-spacing: 0.14em;">Get In Touch</span>
       <h2 style="font-family: var(--font-display); font-size: clamp(32px, 3.8vw, 46px); font-weight: 700; line-height: 1.15; color: #ffffff; margin-bottom: 16px;">
         Let's Create Something Great Together<span style="color: var(--color-accent);">.</span>
@@ -439,7 +439,7 @@
     </div>
 
     <!-- Right side: Authentic behind-the-scenes production still -->
-    <div style="position: relative; min-height: 380px; overflow: hidden; background: #000000;">
+    <div class="cta-split-photo">
       <img src="{{ get_showcase_photo(12).secure_url }}" 
            alt="{{ get_showcase_photo(12).alt_text }}" 
            style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85; filter: contrast(1.1);">
