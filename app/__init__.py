@@ -232,9 +232,9 @@ def register_cli_commands(app: Flask):
 
         count = 0
         for p in partners_data:
-            existing = PartnerLogo.query.filter_by(name=p["name"]).first()
+            existing_logos = PartnerLogo.query.filter_by(name=p["name"]).order_by(PartnerLogo.created_at.asc()).all()
             secure_url = get_optimized_delivery_url(p["logo_cloudinary_public_id"])
-            if not existing:
+            if not existing_logos:
                 logo = PartnerLogo(
                     name=p["name"],
                     logo_cloudinary_public_id=p["logo_cloudinary_public_id"],
@@ -247,14 +247,25 @@ def register_cli_commands(app: Flask):
                 db.session.add(logo)
                 count += 1
             else:
-                existing.logo_cloudinary_public_id = p["logo_cloudinary_public_id"]
-                existing.logo_secure_url = secure_url
-                existing.alt_text = p["alt_text"]
-                existing.display_order = p["display_order"]
-                existing.is_published = True
+                canonical = existing_logos[0]
+                canonical.logo_cloudinary_public_id = p["logo_cloudinary_public_id"]
+                canonical.logo_secure_url = secure_url
+                canonical.website_url = p["website_url"]
+                canonical.alt_text = p["alt_text"]
+                canonical.display_order = p["display_order"]
+                canonical.is_published = True
+                canonical.updated_at = datetime.now(timezone.utc)
+                for extra in existing_logos[1:]:
+                    db.session.delete(extra)
 
-        db.session.commit()
-        click.echo(f"Successfully processed partner logos ({count} new records added).")
+        try:
+            db.session.commit()
+            click.echo(f"Successfully processed partner logos ({count} new records added).")
+        except Exception as e:
+            db.session.rollback()
+            click.echo(f"Error seeding partner logos: {e}", err=True)
+            raise e
+
 
     @app.cli.command("seed-home-photos")
     def seed_home_photos():
@@ -501,19 +512,59 @@ def register_cli_commands(app: Flask):
             },
         ]
 
+        from sqlalchemy import func
+
         count = 0
         for p in photos_data:
-            existing = (
-                HomePagePhoto.query.filter_by(title=p["title"]).first()
-                or HomePagePhoto.query.filter_by(cloudinary_public_id=p["cloudinary_public_id"]).first()
-            )
-            secure_url = get_optimized_delivery_url(p["cloudinary_public_id"])
+            target_pid = p["cloudinary_public_id"]
+            target_title = p["title"]
+            secure_url = get_optimized_delivery_url(target_pid)
             is_active_val = p.get("is_active", True)
-            if not existing:
+
+            # 1. Identify existing records: lookup by unique Cloudinary public ID and by title
+            rec_with_pid = HomePagePhoto.query.filter_by(cloudinary_public_id=target_pid).first()
+            recs_with_title = (
+                HomePagePhoto.query.filter_by(title=target_title)
+                .order_by(HomePagePhoto.updated_at.desc(), HomePagePhoto.created_at.desc())
+                .all()
+            )
+
+            if rec_with_pid:
+                # The target Cloudinary public ID already belongs to rec_with_pid.
+                # Remove any other records with the same title that hold stale/obsolete public IDs.
+                for obsolete in recs_with_title:
+                    if obsolete.id != rec_with_pid.id:
+                        db.session.delete(obsolete)
+                db.session.flush()
+
+                # Update canonical record metadata
+                rec_with_pid.title = target_title
+                rec_with_pid.caption = p["caption"]
+                rec_with_pid.secure_url = secure_url
+                rec_with_pid.alt_text = p["alt_text"]
+                rec_with_pid.display_order = p["display_order"]
+                rec_with_pid.is_active = is_active_val
+                rec_with_pid.updated_at = datetime.now(timezone.utc)
+            elif recs_with_title:
+                # No record currently holds target_pid. Update the existing title match and purge extras.
+                canonical = recs_with_title[0]
+                for extra in recs_with_title[1:]:
+                    db.session.delete(extra)
+                db.session.flush()
+
+                canonical.cloudinary_public_id = target_pid
+                canonical.secure_url = secure_url
+                canonical.caption = p["caption"]
+                canonical.alt_text = p["alt_text"]
+                canonical.display_order = p["display_order"]
+                canonical.is_active = is_active_val
+                canonical.updated_at = datetime.now(timezone.utc)
+            else:
+                # Brand new record
                 photo = HomePagePhoto(
-                    title=p["title"],
+                    title=target_title,
                     caption=p["caption"],
-                    cloudinary_public_id=p["cloudinary_public_id"],
+                    cloudinary_public_id=target_pid,
                     secure_url=secure_url,
                     alt_text=p["alt_text"],
                     display_order=p["display_order"],
@@ -521,19 +572,12 @@ def register_cli_commands(app: Flask):
                 )
                 db.session.add(photo)
                 count += 1
-            else:
-                existing.cloudinary_public_id = p["cloudinary_public_id"]
-                existing.secure_url = secure_url
-                existing.title = p["title"]
-                existing.caption = p["caption"]
-                existing.alt_text = p["alt_text"]
-                existing.display_order = p["display_order"]
-                existing.is_active = is_active_val
 
-        # Deduplicate any duplicate records by title keeping only the most recently updated one
-        from sqlalchemy import func
+        # Post-reconciliation safeguard: clean any remaining duplicate titles
         duplicate_titles = [
-            t[0] for t in db.session.query(HomePagePhoto.title)
+            t[0]
+            for t in db.session.query(HomePagePhoto.title)
+            .filter(HomePagePhoto.title.isnot(None))
             .group_by(HomePagePhoto.title)
             .having(func.count(HomePagePhoto.id) > 1)
             .all()
@@ -547,8 +591,13 @@ def register_cli_commands(app: Flask):
             for extra in dupes[1:]:
                 db.session.delete(extra)
 
-        db.session.commit()
-        click.echo(f"Successfully processed showcase photos ({count} new records added).")
+        try:
+            db.session.commit()
+            click.echo(f"Successfully processed showcase photos ({count} new records added).")
+        except Exception as e:
+            db.session.rollback()
+            click.echo(f"Error seeding showcase photos: {e}", err=True)
+            raise e
 
     @app.cli.command("upload-showcase-to-cloudinary")
     @click.option(
