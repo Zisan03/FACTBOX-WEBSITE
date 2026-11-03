@@ -20,6 +20,7 @@ from app.extensions import db
 from app.models.portfolio import PortfolioImage
 from app.models.home_photo import HomePagePhoto
 from app.models.content import PartnerLogo
+from app.models.tombstone import MediaDeletionTombstone
 
 logger = logging.getLogger(__name__)
 
@@ -340,17 +341,143 @@ def save_home_page_photo_safely(
     return photo
 
 
-def delete_home_page_photo_safely(photo_id: Any) -> bool:
-    """Delete a HomePagePhoto and remove its Cloudinary asset."""
+def count_cloudinary_references(
+    public_id: str,
+    exclude_home_photo_id: Any = None,
+    exclude_partner_logo_id: Any = None,
+    exclude_portfolio_image_id: Any = None,
+) -> int:
+    """Count how many records in PostgreSQL reference this Cloudinary public ID."""
+    if not public_id:
+        return 0
+
+    count = 0
+    hp_q = HomePagePhoto.query.filter_by(cloudinary_public_id=public_id)
+    if exclude_home_photo_id:
+        hp_q = hp_q.filter(HomePagePhoto.id != exclude_home_photo_id)
+    count += hp_q.count()
+
+    pl_q = PartnerLogo.query.filter_by(logo_cloudinary_public_id=public_id)
+    if exclude_partner_logo_id:
+        pl_q = pl_q.filter(PartnerLogo.id != exclude_partner_logo_id)
+    count += pl_q.count()
+
+    pi_q = PortfolioImage.query.filter_by(cloudinary_public_id=public_id)
+    if exclude_portfolio_image_id:
+        pi_q = pi_q.filter(PortfolioImage.id != exclude_portfolio_image_id)
+    count += pi_q.count()
+
+    return count
+
+
+SYSTEM_PARTNER_LOGO_PIDS = {
+    "factbox/partner_logos/gsjax2legfdz502bt23d",
+    "factbox/partner_logos/g725yqqj331tkqwrr2yn",
+    "factbox/partner_logos/wxxsdt6cjltdr0sua0v7",
+    "factbox/partner_logos/gdxqtejvs8qkswywzvax",
+    "factbox/partner_logos/pwf156ifhqoe6ckfedim",
+    "factbox/partner_logos/ort5r7yhkpguiy9gpve5",
+    "factbox/partner_logos/mluqwd4yhmbkdfso5zrr",
+}
+
+SYSTEM_SHOWCASE_PIDS = {
+    "factbox/home_hero/vobloojextsk2ucwsmsi",
+    "factbox/home_hero/emwghkdazvbdt153sfpp",
+    "factbox/home_hero/i53doietpynralczswjz",
+    "factbox/home_hero/xfx85kgr4mjtucwdim4b",
+    "factbox/home_hero/zswgxxhygc4unwibalsy",
+    "factbox/home_hero/qp8xbacdin1nyzua3ity",
+    "factbox/home_hero/ei804zdxlbrymogcbyxm",
+    "factbox/home_hero/ksgxefammqhfcylffoks",
+    "factbox/home_hero/ltjoie8ua6cvwwzjsfi2",
+    "factbox/home_hero/qn4cknhojqhqrtogicjq",
+    "factbox/home_hero/smgb4jqqcx8wyafbhcwh",
+    "factbox/home_hero/hb8e8lltox5qgkw41uj0",
+    "factbox/home_hero/lsh4rvjzg62kntvjqw7x",
+    "factbox/home_hero/oax73qwkxjsqzplsqdim",
+    "factbox/home_hero/idzaqfvsccnvstyfrwmi",
+    "factbox/home_hero/hcdz2x3fxtztfhkuvet9",
+    "factbox/home_hero/z6nidpkdiso8ygxxpuec",
+    "factbox/home_hero/ttktjsyf7j5dbnvqdyys",
+    "factbox/home_hero/scpemyioaskwmoo7nlfg",
+    "factbox/home_hero/no82qe6s8q6vd0uj2zfm",
+    "factbox/home_hero/j5wmdstsaca2hgd2gei1",
+    "factbox/home_hero/ztowroteennxanfaz77q",
+    "factbox/home_hero/mwgwkyvyjkvd7ykpmd6c",
+    "factbox/home_hero/ubxt7mjvtt2earl8hltp",
+    "factbox/home_hero/tqybvwohve0sn6pfnkf7",
+    "factbox/home_hero/ugbot3wtqah57evrqal5",
+    "factbox/home_hero/ihlk1nigc6mpz6xi7uwy",
+    "factbox/home_hero/xzi4oy5yyicj72zkkyuz",
+    "factbox/home_hero/np4nnhd9fgskvtopvhrh",
+    "factbox/home_hero/ypl01q1pytvw4uvzmgal",
+    "factbox/home_hero/l0cwq2erjuufwrjruf0w",
+}
+
+
+def is_system_asset(public_id: str | None) -> bool:
+    """Check if public ID belongs to curated initial showcase or partner assets."""
+    if not public_id:
+        return False
+    return public_id in SYSTEM_SHOWCASE_PIDS or public_id in SYSTEM_PARTNER_LOGO_PIDS
+
+
+def delete_home_page_photo_safely(
+    photo_id: Any,
+    admin_email: str | None = None,
+    destroy_cloudinary: bool = True,
+) -> bool:
+    """Delete a HomePagePhoto, create a deletion tombstone, and conditionally remove Cloudinary asset.
+    
+    Pillars 3 & 5 Compliance:
+    - Records an immutable tombstone in media_deletion_tombstone with a full metadata snapshot.
+    - Prevents deployments, restarts, and safe seed commands from resurrecting the photo.
+    - Preserves system/showcase and shared Cloudinary assets so deliberate restoration remains possible.
+    """
     photo = db.session.get(HomePagePhoto, photo_id)
     if not photo:
         return False
 
     public_id = photo.cloudinary_public_id
+    photo_title = photo.title or photo.alt_text
+
+    # 1. Snapshot metadata for deliberate restoration
+    snapshot = {
+        "title": photo.title,
+        "caption": photo.caption,
+        "cloudinary_public_id": photo.cloudinary_public_id,
+        "secure_url": photo.secure_url,
+        "alt_text": photo.alt_text,
+        "display_order": photo.display_order,
+        "is_active": photo.is_active,
+    }
+
+    # 2. Record deletion tombstone
+    existing_tombstone = MediaDeletionTombstone.query.filter_by(
+        asset_type="home_page_photo",
+        cloudinary_public_id=public_id,
+    ).first()
+    if not existing_tombstone:
+        tombstone = MediaDeletionTombstone(
+            asset_type="home_page_photo",
+            cloudinary_public_id=public_id,
+            title_or_name=photo_title,
+            original_data=snapshot,
+            deleted_by=admin_email,
+            reason="Administrator dashboard deletion",
+        )
+        db.session.add(tombstone)
+
+    # 3. Check references across PostgreSQL
+    references = count_cloudinary_references(public_id, exclude_home_photo_id=photo.id)
+
+    # 4. Remove database record
     db.session.delete(photo)
     db.session.commit()
 
-    if public_id:
+    # 5. Cloudinary asset lifecycle rules (Pillar 5):
+    # Only destroy if explicitly requested AND unshared AND not a protected system showcase asset
+    if destroy_cloudinary and references == 0 and not is_system_asset(public_id):
         delete_image_from_cloudinary(public_id)
 
     return True
@@ -402,19 +529,126 @@ def save_partner_logo_safely(
     return logo
 
 
-def delete_partner_logo_safely(logo_id: Any) -> bool:
-    """Delete a PartnerLogo and remove its Cloudinary asset."""
+def delete_partner_logo_safely(
+    logo_id: Any,
+    admin_email: str | None = None,
+    destroy_cloudinary: bool = True,
+) -> bool:
+    """Delete a PartnerLogo, create a deletion tombstone, and conditionally remove Cloudinary asset.
+    
+    Pillars 3 & 5 Compliance:
+    - Records an immutable tombstone in media_deletion_tombstone with a full metadata snapshot.
+    - Prevents deployments, restarts, and safe seed commands from resurrecting the logo.
+    - Preserves system and shared Cloudinary assets so deliberate restoration remains possible.
+    """
     logo = db.session.get(PartnerLogo, logo_id)
     if not logo:
         return False
 
     public_id = logo.logo_cloudinary_public_id
+    logo_name = logo.name
+
+    # 1. Snapshot metadata for deliberate restoration
+    snapshot = {
+        "name": logo.name,
+        "logo_cloudinary_public_id": logo.logo_cloudinary_public_id,
+        "logo_secure_url": logo.logo_secure_url,
+        "website_url": logo.website_url,
+        "alt_text": logo.alt_text,
+        "display_order": logo.display_order,
+        "is_published": logo.is_published,
+    }
+
+    # 2. Record deletion tombstone
+    existing_tombstone = MediaDeletionTombstone.query.filter_by(
+        asset_type="partner_logo",
+        cloudinary_public_id=public_id,
+    ).first()
+    if not existing_tombstone:
+        tombstone = MediaDeletionTombstone(
+            asset_type="partner_logo",
+            cloudinary_public_id=public_id,
+            title_or_name=logo_name,
+            original_data=snapshot,
+            deleted_by=admin_email,
+            reason="Administrator dashboard deletion",
+        )
+        db.session.add(tombstone)
+
+    # 3. Check references across PostgreSQL
+    references = count_cloudinary_references(public_id, exclude_partner_logo_id=logo.id)
+
+    # 4. Remove database record
     db.session.delete(logo)
     db.session.commit()
 
-    if public_id:
+    # 5. Cloudinary asset lifecycle rules (Pillar 5):
+    if destroy_cloudinary and references == 0 and not is_system_asset(public_id):
         delete_image_from_cloudinary(public_id)
 
     return True
+
+
+def restore_deleted_media(tombstone_id: Any) -> Tuple[bool, str]:
+    """Restore a previously deleted media item from its tombstone record.
+    
+    Pillars 3 & 8 Compliance:
+    - Reconstructs the PostgreSQL record with its original metadata in an inactive/unpublished
+      state so an administrator can review before publishing.
+    - Removes the tombstone record so future seeding remains clean.
+    """
+    tombstone = db.session.get(MediaDeletionTombstone, tombstone_id)
+    if not tombstone:
+        return False, "Deletion record not found."
+
+    asset_type = tombstone.asset_type
+    data = tombstone.original_data or {}
+
+    if asset_type == "home_page_photo":
+        pid = tombstone.cloudinary_public_id or data.get("cloudinary_public_id")
+        existing = HomePagePhoto.query.filter_by(cloudinary_public_id=pid).first()
+        if existing:
+            db.session.delete(tombstone)
+            db.session.commit()
+            return True, f"Photo '{existing.title or existing.alt_text}' is already present in the library."
+
+        photo = HomePagePhoto(
+            title=data.get("title") or tombstone.title_or_name,
+            caption=data.get("caption"),
+            cloudinary_public_id=pid,
+            secure_url=data.get("secure_url"),
+            alt_text=data.get("alt_text") or "Restored documentary photo",
+            display_order=data.get("display_order", 0),
+            is_active=False,  # Restored as reserve/inactive for safety
+        )
+        db.session.add(photo)
+        db.session.delete(tombstone)
+        db.session.commit()
+        return True, f"Photo '{photo.title or photo.alt_text}' was successfully restored to the reserve pool."
+
+    elif asset_type == "partner_logo":
+        pid = tombstone.cloudinary_public_id or data.get("logo_cloudinary_public_id")
+        existing = PartnerLogo.query.filter_by(logo_cloudinary_public_id=pid).first()
+        if existing:
+            db.session.delete(tombstone)
+            db.session.commit()
+            return True, f"Partner logo '{existing.name}' is already present in the library."
+
+        logo = PartnerLogo(
+            name=data.get("name") or tombstone.title_or_name,
+            logo_cloudinary_public_id=pid,
+            logo_secure_url=data.get("logo_secure_url"),
+            website_url=data.get("website_url"),
+            alt_text=data.get("alt_text") or "Restored partner logo",
+            display_order=data.get("display_order", 0),
+            is_published=False,  # Restored as unpublished for safety
+        )
+        db.session.add(logo)
+        db.session.delete(tombstone)
+        db.session.commit()
+        return True, f"Partner logo '{logo.name}' was successfully restored (unpublished)."
+
+    return False, f"Unknown asset type '{asset_type}'."
+
 
 

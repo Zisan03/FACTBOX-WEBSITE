@@ -32,6 +32,7 @@ from app.models.service import Service
 from app.models.enquiry import Enquiry
 from app.models.home_photo import HomePagePhoto
 from app.models.content import PartnerLogo
+from app.models.tombstone import MediaDeletionTombstone
 from app.blueprints.admin.forms import (
     AdminLoginForm,
     AdminChangePasswordForm,
@@ -62,6 +63,7 @@ from app.services.media import (
     delete_home_page_photo_safely,
     save_partner_logo_safely,
     delete_partner_logo_safely,
+    restore_deleted_media,
     upload_image_to_cloudinary,
     delete_image_from_cloudinary,
     get_optimized_delivery_url,
@@ -1013,14 +1015,22 @@ def list_home_photos():
     total_count = HomePagePhoto.query.count()
     active_count = HomePagePhoto.query.filter_by(is_active=True).count()
     reserve_count = HomePagePhoto.query.filter_by(is_active=False).count()
+    tombstones = (
+        MediaDeletionTombstone.query.filter_by(asset_type="home_page_photo")
+        .order_by(MediaDeletionTombstone.deleted_at.desc())
+        .all()
+    )
+    deleted_count = len(tombstones)
 
     return render_template(
         "admin/home_photos/index.html",
         photos=photos,
+        tombstones=tombstones,
         status_filter=status_filter,
         total_count=total_count,
         active_count=active_count,
         reserve_count=reserve_count,
+        deleted_count=deleted_count,
     )
 
 
@@ -1107,12 +1117,15 @@ def toggle_home_photo(photo_id):
 @admin_bp.route("/home-photos/<uuid:photo_id>/delete", methods=["POST"])
 @login_required
 def delete_home_photo(photo_id):
-    """Delete a hero background photo and remove Cloudinary asset with auto-replenish."""
+    """Delete a hero background photo and record tombstone with auto-replenish."""
     photo = db.get_or_404(HomePagePhoto, photo_id)
     photo_title = photo.title or photo.alt_text
     was_active = photo.is_active
 
-    success = delete_home_page_photo_safely(photo.id)
+    success = delete_home_page_photo_safely(
+        photo.id,
+        admin_email=current_user.email if hasattr(current_user, "email") else None,
+    )
     if success:
         log_admin_audit(
             "delete_home_page_photo",
@@ -1145,6 +1158,24 @@ def delete_home_photo(photo_id):
     return redirect(url_for("admin.list_home_photos"))
 
 
+@admin_bp.route("/home-photos/restore/<uuid:tombstone_id>", methods=["POST"])
+@login_required
+def restore_home_photo(tombstone_id):
+    """Deliberately restore a previously deleted home photo from its tombstone record."""
+    success, msg = restore_deleted_media(tombstone_id)
+    if success:
+        log_admin_audit(
+            "restore_home_page_photo",
+            "home_page_photo",
+            tombstone_id,
+            {"message": msg},
+        )
+        flash(msg, "success")
+    else:
+        flash(msg, "error")
+    return redirect(url_for("admin.list_home_photos"))
+
+
 # ============================================================================
 # Partner & Client Logo Management
 # ============================================================================
@@ -1157,7 +1188,17 @@ def list_partner_logos():
         PartnerLogo.display_order.asc(),
         PartnerLogo.created_at.asc(),
     ).all()
-    return render_template("admin/partner_logos/index.html", logos=logos)
+    tombstones = (
+        MediaDeletionTombstone.query.filter_by(asset_type="partner_logo")
+        .order_by(MediaDeletionTombstone.deleted_at.desc())
+        .all()
+    )
+    return render_template(
+        "admin/partner_logos/index.html",
+        logos=logos,
+        tombstones=tombstones,
+        deleted_count=len(tombstones),
+    )
 
 
 @admin_bp.route("/partner-logos/upload", methods=["GET", "POST"])
@@ -1259,11 +1300,14 @@ def toggle_partner_logo(logo_id):
 @admin_bp.route("/partner-logos/<uuid:logo_id>/delete", methods=["POST"])
 @login_required
 def delete_partner_logo(logo_id):
-    """Delete a partner logo and remove Cloudinary asset."""
+    """Delete a partner logo and record tombstone."""
     logo = db.get_or_404(PartnerLogo, logo_id)
     logo_name = logo.name
 
-    success = delete_partner_logo_safely(logo.id)
+    success = delete_partner_logo_safely(
+        logo.id,
+        admin_email=current_user.email if hasattr(current_user, "email") else None,
+    )
     if success:
         log_admin_audit(
             "delete_partner_logo",
@@ -1275,6 +1319,24 @@ def delete_partner_logo(logo_id):
     else:
         flash("Could not delete logo.", "error")
 
+    return redirect(url_for("admin.list_partner_logos"))
+
+
+@admin_bp.route("/partner-logos/restore/<uuid:tombstone_id>", methods=["POST"])
+@login_required
+def restore_partner_logo(tombstone_id):
+    """Deliberately restore a previously deleted partner logo from its tombstone record."""
+    success, msg = restore_deleted_media(tombstone_id)
+    if success:
+        log_admin_audit(
+            "restore_partner_logo",
+            "partner_logo",
+            tombstone_id,
+            {"message": msg},
+        )
+        flash(msg, "success")
+    else:
+        flash(msg, "error")
     return redirect(url_for("admin.list_partner_logos"))
 
 

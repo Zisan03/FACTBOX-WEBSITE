@@ -173,9 +173,23 @@ def register_cli_commands(app: Flask):
         click.echo(f"Successfully reset password for administrator: {normalized_email}")
 
     @app.cli.command("seed-partner-logos")
-    def seed_partner_logos():
-        """Seed the 7 verified partner organizations into PostgreSQL with Cloudinary CDN assets."""
+    @click.option(
+        "--force-restore",
+        is_flag=True,
+        default=False,
+        help="Force recreation of previously deleted partner logos, ignoring deletion tombstones.",
+    )
+    def seed_partner_logos(force_restore: bool = False):
+        """Seed the 7 verified partner organizations into PostgreSQL with Cloudinary CDN assets.
+        
+        Pillars 2, 3, and 6 Compliance:
+        - Consults media_deletion_tombstone before adding records; respects administrator deletions.
+        - Preserves administrator-edited fields: is_published, display_order, alt_text, website_url.
+        - Never resets an unpublished logo back to published.
+        - Safe to run repeatedly; idempotent and non-destructive.
+        """
         from app.models.content import PartnerLogo
+        from app.models.tombstone import MediaDeletionTombstone
         from app.services.media import get_optimized_delivery_url
 
         partners_data = [
@@ -231,13 +245,63 @@ def register_cli_commands(app: Flask):
         ]
 
         count = 0
+        skipped_deleted = 0
+        preserved_existing = 0
+
         for p in partners_data:
-            existing_logos = PartnerLogo.query.filter_by(name=p["name"]).order_by(PartnerLogo.created_at.asc()).all()
-            secure_url = get_optimized_delivery_url(p["logo_cloudinary_public_id"])
-            if not existing_logos:
+            pid = p["logo_cloudinary_public_id"]
+            name = p["name"]
+
+            # 1. Check deletion tombstones (Administrator Deletion Authority)
+            tombstone = MediaDeletionTombstone.query.filter_by(
+                asset_type="partner_logo"
+            ).filter(
+                (MediaDeletionTombstone.cloudinary_public_id == pid)
+                | (MediaDeletionTombstone.title_or_name == name)
+            ).first()
+
+            if tombstone:
+                if not force_restore:
+                    click.echo(f"  [SKIPPED - DELETED BY ADMIN] {name} ({pid})")
+                    skipped_deleted += 1
+                    continue
+                else:
+                    click.echo(f"  [FORCE-RESTORE] Removing tombstone for {name} ({pid})")
+                    db.session.delete(tombstone)
+                    db.session.flush()
+
+            # 2. Check existing records in database: check by target pid first, then by name
+            secure_url = get_optimized_delivery_url(pid)
+            rec_with_pid = PartnerLogo.query.filter_by(logo_cloudinary_public_id=pid).first()
+            recs_with_name = PartnerLogo.query.filter_by(name=name).order_by(PartnerLogo.created_at.asc()).all()
+
+            if rec_with_pid:
+                # The target Cloudinary public ID already belongs to rec_with_pid.
+                # Remove any other records with the same name that hold stale/obsolete public IDs.
+                for obsolete in recs_with_name:
+                    if obsolete.id != rec_with_pid.id:
+                        db.session.delete(obsolete)
+                db.session.flush()
+
+                if not rec_with_pid.logo_secure_url:
+                    rec_with_pid.logo_secure_url = secure_url
+                preserved_existing += 1
+
+            elif recs_with_name:
+                # Update existing name match to target canonical pid and purge extras
+                canonical = recs_with_name[0]
+                canonical.logo_cloudinary_public_id = pid
+                canonical.logo_secure_url = secure_url
+                for extra in recs_with_name[1:]:
+                    db.session.delete(extra)
+                db.session.flush()
+                preserved_existing += 1
+
+            else:
+                # Fresh insertion
                 logo = PartnerLogo(
-                    name=p["name"],
-                    logo_cloudinary_public_id=p["logo_cloudinary_public_id"],
+                    name=name,
+                    logo_cloudinary_public_id=pid,
                     logo_secure_url=secure_url,
                     website_url=p["website_url"],
                     alt_text=p["alt_text"],
@@ -246,31 +310,36 @@ def register_cli_commands(app: Flask):
                 )
                 db.session.add(logo)
                 count += 1
-            else:
-                canonical = existing_logos[0]
-                canonical.logo_cloudinary_public_id = p["logo_cloudinary_public_id"]
-                canonical.logo_secure_url = secure_url
-                canonical.website_url = p["website_url"]
-                canonical.alt_text = p["alt_text"]
-                canonical.display_order = p["display_order"]
-                canonical.is_published = True
-                canonical.updated_at = datetime.now(timezone.utc)
-                for extra in existing_logos[1:]:
-                    db.session.delete(extra)
 
         try:
             db.session.commit()
-            click.echo(f"Successfully processed partner logos ({count} new records added).")
+            click.echo(
+                f"Successfully processed partner logos: {count} new added, "
+                f"{preserved_existing} preserved intact, {skipped_deleted} skipped (deleted by admin)."
+            )
         except Exception as e:
             db.session.rollback()
             click.echo(f"Error seeding partner logos: {e}", err=True)
             raise e
 
-
     @app.cli.command("seed-home-photos")
-    def seed_home_photos():
-        """Seed verified Cloudinary showcase photos into PostgreSQL for hero background showcase."""
+    @click.option(
+        "--force-restore",
+        is_flag=True,
+        default=False,
+        help="Force recreation of previously deleted showcase photos, ignoring deletion tombstones.",
+    )
+    def seed_home_photos(force_restore: bool = False):
+        """Seed verified Cloudinary showcase photos into PostgreSQL for hero background showcase.
+        
+        Pillars 2, 3, and 6 Compliance:
+        - Consults media_deletion_tombstone before adding records; respects administrator deletions.
+        - Preserves administrator-edited fields: is_active, display_order, caption, alt_text.
+        - Never resets an inactive/reserve photo back to active.
+        - Safe to run repeatedly; idempotent and non-destructive.
+        """
         from app.models.home_photo import HomePagePhoto
+        from app.models.tombstone import MediaDeletionTombstone
         from app.services.media import get_optimized_delivery_url
 
         photos_data = [
@@ -515,13 +584,34 @@ def register_cli_commands(app: Flask):
         from sqlalchemy import func
 
         count = 0
+        skipped_deleted = 0
+        preserved_existing = 0
+
         for p in photos_data:
             target_pid = p["cloudinary_public_id"]
             target_title = p["title"]
             secure_url = get_optimized_delivery_url(target_pid)
             is_active_val = p.get("is_active", True)
 
-            # 1. Identify existing records: lookup by unique Cloudinary public ID and by title
+            # 1. Check deletion tombstones (Administrator Deletion Authority)
+            tombstone = MediaDeletionTombstone.query.filter_by(
+                asset_type="home_page_photo"
+            ).filter(
+                (MediaDeletionTombstone.cloudinary_public_id == target_pid)
+                | (MediaDeletionTombstone.title_or_name == target_title)
+            ).first()
+
+            if tombstone:
+                if not force_restore:
+                    click.echo(f"  [SKIPPED - DELETED BY ADMIN] {target_title} ({target_pid})")
+                    skipped_deleted += 1
+                    continue
+                else:
+                    click.echo(f"  [FORCE-RESTORE] Removing tombstone for {target_title} ({target_pid})")
+                    db.session.delete(tombstone)
+                    db.session.flush()
+
+            # 2. Identify existing records: lookup by unique Cloudinary public ID and by title
             rec_with_pid = HomePagePhoto.query.filter_by(cloudinary_public_id=target_pid).first()
             recs_with_title = (
                 HomePagePhoto.query.filter_by(title=target_title)
@@ -537,14 +627,12 @@ def register_cli_commands(app: Flask):
                         db.session.delete(obsolete)
                 db.session.flush()
 
-                # Update canonical record metadata
-                rec_with_pid.title = target_title
-                rec_with_pid.caption = p["caption"]
-                rec_with_pid.secure_url = secure_url
-                rec_with_pid.alt_text = p["alt_text"]
-                rec_with_pid.display_order = p["display_order"]
-                rec_with_pid.is_active = is_active_val
-                rec_with_pid.updated_at = datetime.now(timezone.utc)
+                # Crucial: PRESERVE administrator decisions!
+                # DO NOT overwrite caption, alt_text, display_order, or is_active!
+                if not rec_with_pid.secure_url:
+                    rec_with_pid.secure_url = secure_url
+                preserved_existing += 1
+
             elif recs_with_title:
                 # No record currently holds target_pid. Update the existing title match and purge extras.
                 canonical = recs_with_title[0]
@@ -553,12 +641,11 @@ def register_cli_commands(app: Flask):
                 db.session.flush()
 
                 canonical.cloudinary_public_id = target_pid
-                canonical.secure_url = secure_url
-                canonical.caption = p["caption"]
-                canonical.alt_text = p["alt_text"]
-                canonical.display_order = p["display_order"]
-                canonical.is_active = is_active_val
-                canonical.updated_at = datetime.now(timezone.utc)
+                if not canonical.secure_url:
+                    canonical.secure_url = secure_url
+                # PRESERVE administrator caption, alt_text, display_order, and is_active!
+                preserved_existing += 1
+
             else:
                 # Brand new record
                 photo = HomePagePhoto(
@@ -593,11 +680,52 @@ def register_cli_commands(app: Flask):
 
         try:
             db.session.commit()
-            click.echo(f"Successfully processed showcase photos ({count} new records added).")
+            click.echo(
+                f"Successfully processed showcase photos: {count} new added, "
+                f"{preserved_existing} preserved intact, {skipped_deleted} skipped (deleted by admin)."
+            )
         except Exception as e:
             db.session.rollback()
             click.echo(f"Error seeding showcase photos: {e}", err=True)
             raise e
+
+    @app.cli.command("restore-media")
+    @click.option(
+        "--type",
+        "asset_type",
+        type=click.Choice(["home_page_photo", "partner_logo"]),
+        required=True,
+        help="Asset type to restore",
+    )
+    @click.option("--public-id", default=None, help="Cloudinary public ID of the tombstoned asset")
+    @click.option("--title", default=None, help="Title or organization name of the tombstoned asset")
+    @click.option("--id", "tombstone_id", default=None, help="UUID of the tombstone record")
+    def restore_media_command(asset_type: str, public_id: str | None, title: str | None, tombstone_id: str | None):
+        """Deliberately restore an administrator-deleted media item from its tombstone."""
+        from app.models.tombstone import MediaDeletionTombstone
+        from app.services.media import restore_deleted_media
+
+        q = MediaDeletionTombstone.query.filter_by(asset_type=asset_type)
+        if tombstone_id:
+            q = q.filter_by(id=tombstone_id)
+        elif public_id:
+            q = q.filter_by(cloudinary_public_id=public_id)
+        elif title:
+            q = q.filter_by(title_or_name=title)
+        else:
+            click.echo("Error: Please specify --id, --public-id, or --title to identify the item.", err=True)
+            return
+
+        tombstone = q.first()
+        if not tombstone:
+            click.echo(f"No deletion tombstone found for asset_type={asset_type}.", err=True)
+            return
+
+        success, msg = restore_deleted_media(tombstone.id)
+        if success:
+            click.echo(f"Success: {msg}")
+        else:
+            click.echo(f"Error: {msg}", err=True)
 
     @app.cli.command("upload-showcase-to-cloudinary")
     @click.option(

@@ -70,6 +70,9 @@ def db_session(app):
 @pytest.fixture
 def sample_admin(db_session):
     """Create and return a sample active admin user."""
+    admin = AdminUser.query.filter_by(email="testadmin@factboxconsult.com").first()
+    if admin:
+        return admin
     admin = AdminUser(
         email="testadmin@factboxconsult.com",
         is_active=True,

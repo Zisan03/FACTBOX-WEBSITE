@@ -113,4 +113,60 @@
     </div>
   {% endif %}
 </div>
+
+{% if tombstones %}
+<!-- ========================================================================= -->
+<!-- Deleted Items & Deliberate Restoration Section (Pillar 3 & 10)           -->
+<!-- ========================================================================= -->
+<div style="margin-top: 32px; background: #ffffff; border: 1px solid #fed7aa; border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle); overflow: hidden;">
+  <div style="padding: 16px 20px; background: #fff7ed; border-bottom: 1px solid #fed7aa; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <h3 style="font-size: 16px; font-weight: 700; color: #9a3412; margin: 0; display: flex; align-items: center; gap: 8px;">
+        <span>🛡️</span> Deletion Tombstone History &amp; Restoration
+      </h3>
+      <p style="font-size: 13px; color: #7c2d12; margin: 4px 0 0; line-height: 1.4;">
+        These partner logos were deleted by an administrator. Application restarts, code deployments, and seed commands are <strong>strictly blocked</strong> from resurrecting them. Only deliberate administrator restoration can restore them.
+      </p>
+    </div>
+    <span style="background: #ea580c; color: #ffffff; padding: 3px 12px; border-radius: 12px; font-size: 12px; font-weight: 700;">
+      {{ deleted_count }} Deleted
+    </span>
+  </div>
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+      <thead>
+        <tr style="background: #fffaf0; border-bottom: 1px solid #fed7aa; text-align: left;">
+          <th style="padding: 12px 18px; font-weight: 700; color: #7c2d12;">Organization Name</th>
+          <th style="padding: 12px 18px; font-weight: 700; color: #7c2d12;">Cloudinary Public ID</th>
+          <th style="padding: 12px 18px; font-weight: 700; color: #7c2d12;">Deleted When</th>
+          <th style="padding: 12px 18px; font-weight: 700; color: #7c2d12; text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tombstones %}
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 12px 18px; font-weight: 600; color: var(--color-text-main);">
+              {{ t.title_or_name or "Partner logo" }}
+            </td>
+            <td style="padding: 12px 18px; font-family: monospace; font-size: 12px; color: var(--color-text-muted);">
+              {{ t.cloudinary_public_id }}
+            </td>
+            <td style="padding: 12px 18px; color: var(--color-text-muted);">
+              {{ t.deleted_at.strftime('%Y-%m-%d %H:%M UTC') if t.deleted_at else 'Recent' }}
+            </td>
+            <td style="padding: 12px 18px; text-align: right;">
+              <form action="{{ url_for('admin.restore_partner_logo', tombstone_id=t.id) }}" method="POST" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn" style="padding: 6px 14px; font-size: 12px; font-weight: 700; background: #005f2b; color: #ffffff; border: none; border-radius: var(--radius-sm); cursor: pointer;">
+                  ↺ Restore to Library
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
 {% endblock %}
