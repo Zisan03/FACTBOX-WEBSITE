@@ -1,0 +1,216 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_title %}Upload / Register Media — Central Media Library{% endblock %}
+{% block admin_heading %}Upload / Register Media{% endblock %}
+
+{% block admin_content %}
+<div style="max-width: 740px; margin: 0 auto;">
+  
+  <!-- Back Link -->
+  <div style="margin-bottom: 20px;">
+    <a href="{{ url_for('admin.media_library') }}" style="font-size: 13px; font-weight: 600; color: var(--color-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+      &larr; Back to Central Media Library
+    </a>
+  </div>
+
+  <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-subtle);">
+    <h2 style="font-size: 20px; font-weight: 800; color: var(--color-text-main); margin: 0 0 8px;">
+      Upload or Register New Media
+    </h2>
+    <p style="font-size: 13px; color: var(--color-text-muted); margin: 0 0 24px; line-height: 1.5;">
+      Images are securely streamed to Cloudinary with deep signature validation (JPEG, PNG, WebP, GIF, up to 10 MB). Videos are registered via privacy-enhanced YouTube embeds.
+    </p>
+
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('admin.upload_media_library') }}" id="mediaUploadForm">
+      {{ form.csrf_token }}
+
+      <!-- Media Type Selection -->
+      <div style="margin-bottom: 20px;">
+        <label for="media_type" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          Media Type <span style="color: #dc2626;">*</span>
+        </label>
+        {{ form.media_type(id="media_type", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: #ffffff;", onchange="handleMediaTypeChange()") }}
+        {% for error in form.media_type.errors %}
+          <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Destination / Section Selection -->
+      <div style="margin-bottom: 20px;">
+        <label for="destination" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          Website Destination / Category <span style="color: #dc2626;">*</span>
+        </label>
+        {{ form.destination(id="destination", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: #ffffff;", onchange="handleDestinationChange()") }}
+        {% for error in form.destination.errors %}
+          <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Target Portfolio Project (Only shown for portfolio media) -->
+      <div id="projectSelectGroup" style="display: none; margin-bottom: 20px;">
+        <label for="project_id" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          Attach to Portfolio Project <span style="color: #dc2626;">*</span>
+        </label>
+        {{ form.project_id(id="project_id", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: #ffffff;") }}
+        <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 4px;">
+          Select the client documentary or media project this asset belongs to.
+        </div>
+      </div>
+
+      <!-- Title / Name -->
+      <div style="margin-bottom: 20px;">
+        <label for="title" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          Title or Asset Name <span style="color: #dc2626;">*</span>
+        </label>
+        {{ form.title(id="title", placeholder="e.g. Community Dialogue in Turkana, Mercy Corps Logo, Fact Box Official Badge", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); outline: none;") }}
+        {% for error in form.title.errors %}
+          <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Image File Field (Conditional) -->
+      <div id="imageFileGroup" style="margin-bottom: 20px;">
+        <label for="image_file" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          Upload Image File (JPEG, PNG, WebP, GIF &le; 10 MB) <span style="color: #dc2626;">*</span>
+        </label>
+        {{ form.image_file(id="image_file", style="width: 100%; padding: 10px; font-size: 13px; border: 1px dashed var(--color-border); border-radius: var(--radius-sm); background: #fbfbfc;") }}
+        <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 4px;">
+          Files are validated with binary header inspection before upload. Ephemeral local storage is never used.
+        </div>
+        {% for error in form.image_file.errors %}
+          <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- YouTube URL Field (Conditional) -->
+      <div id="videoUrlGroup" style="display: none; margin-bottom: 20px;">
+        <label for="youtube_url" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          YouTube Video Link or 11-Character ID <span style="color: #dc2626;">*</span>
+        </label>
+        {{ form.youtube_url(id="youtube_url", placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ or youtu.be/dQw4w9WgXcQ", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); outline: none;") }}
+        <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 4px;">
+          Accepts standard watch links, shortened share links, or embed URLs. Rendered using privacy-enhanced youtube-nocookie.com.
+        </div>
+        {% for error in form.youtube_url.errors %}
+          <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Alternative Text -->
+      <div style="margin-bottom: 20px;">
+        <label for="alt_text" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          Alternative Text (Accessibility & SEO)
+        </label>
+        {{ form.alt_text(id="alt_text", placeholder="Descriptive text for screen readers and search engines...", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); outline: none;") }}
+        {% for error in form.alt_text.errors %}
+          <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Description / Caption -->
+      <div style="margin-bottom: 20px;">
+        <label for="caption" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          Caption or Editorial Notes (Optional)
+        </label>
+        {{ form.caption(id="caption", rows="3", placeholder="Documentary context, location notes, or credits...", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); outline: none; resize: vertical;") }}
+        {% for error in form.caption.errors %}
+          <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Organization Website URL (for partner logos) -->
+      <div id="websiteUrlGroup" style="display: none; margin-bottom: 20px;">
+        <label for="website_url" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          Partner / Client Website URL (Optional)
+        </label>
+        {{ form.website_url(id="website_url", placeholder="https://example.org", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); outline: none;") }}
+      </div>
+
+      <!-- Two-column: Status & Order -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px;">
+        <div>
+          <label for="status" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+            Initial Status
+          </label>
+          {{ form.status(id="status", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: #ffffff;") }}
+        </div>
+        <div>
+          <label for="display_order" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+            Display Order
+          </label>
+          {{ form.display_order(id="display_order", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); outline: none;") }}
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--color-border); padding-top: 20px;">
+        <a href="{{ url_for('admin.media_library') }}" class="btn" style="padding: 10px 18px; font-size: 14px; color: #475569; background: #ffffff; border: 1px solid #cbd5e1; border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 14px; font-weight: 700; border-radius: var(--radius-sm); color: #fff;">
+          Upload & Register Media
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+  function handleMediaTypeChange() {
+    var mediaType = document.getElementById('media_type').value;
+    var imageGroup = document.getElementById('imageFileGroup');
+    var videoGroup = document.getElementById('videoUrlGroup');
+    var dest = document.getElementById('destination');
+
+    if (mediaType === 'video') {
+      imageGroup.style.display = 'none';
+      videoGroup.style.display = 'block';
+      if (dest.value === 'home_photo' || dest.value === 'partner_logo' || dest.value === 'brand_asset') {
+        dest.value = 'homepage_video';
+      }
+    } else {
+      imageGroup.style.display = 'block';
+      videoGroup.style.display = 'none';
+      if (dest.value === 'portfolio_video' || dest.value === 'homepage_video') {
+        dest.value = 'brand_asset';
+      }
+    }
+    handleDestinationChange();
+  }
+
+  function handleDestinationChange() {
+    var dest = document.getElementById('destination').value;
+    var projectGroup = document.getElementById('projectSelectGroup');
+    var websiteGroup = document.getElementById('websiteUrlGroup');
+    var mediaTypeSelect = document.getElementById('media_type');
+
+    if (dest === 'portfolio_image' || dest === 'portfolio_video') {
+      projectGroup.style.display = 'block';
+    } else {
+      projectGroup.style.display = 'none';
+    }
+
+    if (dest === 'partner_logo') {
+      websiteGroup.style.display = 'block';
+    } else {
+      websiteGroup.style.display = 'none';
+    }
+
+    if (dest === 'portfolio_video' || dest === 'homepage_video') {
+      mediaTypeSelect.value = 'video';
+      document.getElementById('imageFileGroup').style.display = 'none';
+      document.getElementById('videoUrlGroup').style.display = 'block';
+    } else if (dest === 'home_photo' || dest === 'partner_logo' || dest === 'portfolio_image' || dest === 'brand_asset') {
+      mediaTypeSelect.value = 'image';
+      document.getElementById('imageFileGroup').style.display = 'block';
+      document.getElementById('videoUrlGroup').style.display = 'none';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    handleMediaTypeChange();
+  });
+</script>
+{% endblock %}
+

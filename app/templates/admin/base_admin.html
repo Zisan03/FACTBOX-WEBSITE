@@ -40,6 +40,10 @@
          style="padding: 10px 18px; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: var(--radius-md); transition: all 0.15s ease; {% if request.endpoint in ('admin.dashboard', 'admin.login') %}background: var(--color-primary); color: #ffffff;{% else %}color: var(--color-text-main); background: transparent;{% endif %}">
         Dashboard
       </a>
+      <a href="{{ url_for('admin.media_library') }}" 
+         style="padding: 10px 18px; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: var(--radius-md); transition: all 0.15s ease; {% if 'media' in (request.endpoint or '') %}background: var(--color-primary); color: #ffffff;{% else %}color: var(--color-text-main); background: transparent;{% endif %}">
+        Media Library
+      </a>
       <a href="{{ url_for('admin.list_projects') }}" 
          style="padding: 10px 18px; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: var(--radius-md); transition: all 0.15s ease; {% if 'project' in (request.endpoint or '') %}background: var(--color-primary); color: #ffffff;{% else %}color: var(--color-text-main); background: transparent;{% endif %}">
         Portfolio Projects

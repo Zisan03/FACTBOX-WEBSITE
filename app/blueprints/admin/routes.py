@@ -8,6 +8,7 @@ and Stage 3 Content Management CRUD for:
 - Consulting Services
 - Internal Draft Previews
 """
+import math
 from datetime import datetime, timezone
 from urllib.parse import urlparse, urljoin
 from flask import (
@@ -32,6 +33,7 @@ from app.models.service import Service
 from app.models.enquiry import Enquiry
 from app.models.home_photo import HomePagePhoto
 from app.models.content import PartnerLogo
+from app.models.media import WebsiteMedia
 from app.models.tombstone import MediaDeletionTombstone
 from app.blueprints.admin.forms import (
     AdminLoginForm,
@@ -48,6 +50,8 @@ from app.blueprints.admin.forms import (
     HomePagePhotoEditForm,
     PartnerLogoUploadForm,
     PartnerLogoEditForm,
+    MediaLibraryUploadForm,
+    MediaLibraryEditForm,
     slugify,
 )
 from app.services.video import (
@@ -59,14 +63,19 @@ from app.services.video import (
 from app.services.media import (
     save_portfolio_image_safely,
     delete_portfolio_image_safely,
+    delete_portfolio_video_safely,
     save_home_page_photo_safely,
     delete_home_page_photo_safely,
     save_partner_logo_safely,
     delete_partner_logo_safely,
+    save_website_media_safely,
+    delete_website_media_safely,
     restore_deleted_media,
     upload_image_to_cloudinary,
     delete_image_from_cloudinary,
     get_optimized_delivery_url,
+    check_cloudinary_asset_exists,
+    count_cloudinary_references,
     MediaValidationError,
     CloudinaryUploadError,
 )
@@ -252,6 +261,14 @@ def dashboard():
     total_partner_logos = PartnerLogo.query.count()
     published_partner_logos = PartnerLogo.query.filter_by(is_published=True).count()
 
+    total_media = (
+        HomePagePhoto.query.count()
+        + PartnerLogo.query.count()
+        + PortfolioImage.query.count()
+        + PortfolioVideo.query.count()
+        + WebsiteMedia.query.count()
+    )
+
     recent_events = (
         AdminAuditEvent.query.order_by(AdminAuditEvent.occurred_at.desc())
         .limit(10)
@@ -274,6 +291,7 @@ def dashboard():
         active_home_photos=active_home_photos,
         total_partner_logos=total_partner_logos,
         published_partner_logos=published_partner_logos,
+        total_media=total_media,
         recent_events=recent_events,
     )
 
@@ -1338,5 +1356,832 @@ def restore_partner_logo(tombstone_id):
     else:
         flash(msg, "error")
     return redirect(url_for("admin.list_partner_logos"))
+
+
+# ============================================================================
+# Central Media Library Management (Stage 2 Enhancement)
+# ============================================================================
+
+@admin_bp.route("/media-library")
+@login_required
+def media_library():
+    """Central Media Library dashboard with live database counts and filtering."""
+    status_filter = request.args.get("status", "active").lower()
+    media_type_filter = request.args.get("type", "all").lower()
+    category_filter = request.args.get("category", "all").lower()
+    search_query = request.args.get("q", "").strip()
+    sort_order = request.args.get("sort", "newest").lower()
+
+    try:
+        page = max(1, int(request.args.get("page", 1)))
+    except (ValueError, TypeError):
+        page = 1
+    per_page = 12
+
+    # 1. Calculate live, verified database counts across all categories
+    active_hp = HomePagePhoto.query.filter_by(is_active=True, is_archived=False).count()
+    active_pl = PartnerLogo.query.filter_by(is_published=True, is_archived=False).count()
+    active_pi = (
+        PortfolioImage.query.join(PortfolioProject)
+        .filter(PortfolioProject.status == "published", PortfolioImage.is_archived == False)
+        .count()
+    )
+    active_pv = (
+        PortfolioVideo.query.join(PortfolioProject)
+        .filter(PortfolioProject.status == "published", PortfolioVideo.is_archived == False)
+        .count()
+    )
+    active_wm = WebsiteMedia.query.filter_by(status="active").count()
+    total_active = active_hp + active_pl + active_pi + active_pv + active_wm
+
+    unpub_hp = HomePagePhoto.query.filter_by(is_active=False, is_archived=False).count()
+    unpub_pl = PartnerLogo.query.filter_by(is_published=False, is_archived=False).count()
+    unpub_pi = (
+        PortfolioImage.query.join(PortfolioProject)
+        .filter(PortfolioProject.status == "draft", PortfolioImage.is_archived == False)
+        .count()
+    )
+    unpub_pv = (
+        PortfolioVideo.query.join(PortfolioProject)
+        .filter(PortfolioProject.status == "draft", PortfolioVideo.is_archived == False)
+        .count()
+    )
+    unpub_wm = WebsiteMedia.query.filter_by(status="unpublished").count()
+    total_unpublished = unpub_hp + unpub_pl + unpub_pi + unpub_pv + unpub_wm
+
+    arch_hp = HomePagePhoto.query.filter_by(is_archived=True).count()
+    arch_pl = PartnerLogo.query.filter_by(is_archived=True).count()
+    arch_pi = PortfolioImage.query.filter_by(is_archived=True).count()
+    arch_pv = PortfolioVideo.query.filter_by(is_archived=True).count()
+    arch_wm = WebsiteMedia.query.filter_by(status="archived").count()
+    total_archived = arch_hp + arch_pl + arch_pi + arch_pv + arch_wm
+
+    total_deleted = MediaDeletionTombstone.query.count()
+
+    counts = {
+        "active": total_active,
+        "unpublished": total_unpublished,
+        "archived": total_archived,
+        "deleted": total_deleted,
+    }
+
+    # 2. Deleted Tab Branch (Queries existing MediaDeletionTombstone system)
+    if status_filter == "deleted":
+        tombstone_query = MediaDeletionTombstone.query.order_by(MediaDeletionTombstone.deleted_at.desc())
+        all_tombstones = tombstone_query.all()
+
+        tombstone_items = []
+        for t in all_tombstones:
+            data = t.original_data or {}
+            pid = t.cloudinary_public_id or data.get("cloudinary_public_id") or data.get("logo_cloudinary_public_id")
+            
+            # Identify restoration availability: check if Cloudinary asset still exists
+            is_available = True
+            if pid:
+                is_available = check_cloudinary_asset_exists(pid)
+            elif t.asset_type == "portfolio_video":
+                is_available = True
+            else:
+                is_available = False
+
+            thumb = None
+            if pid:
+                thumb = get_optimized_delivery_url(pid, width=200, height=140, crop="fill")
+            elif t.asset_type == "portfolio_video" and data.get("youtube_video_id"):
+                thumb = get_youtube_thumbnail_url(data.get("youtube_video_id"))
+
+            tombstone_items.append({
+                "id": t.id,
+                "asset_type": t.asset_type,
+                "title": t.title_or_name or "Deleted Asset",
+                "cloudinary_public_id": pid,
+                "deleted_at": t.deleted_at,
+                "deleted_by": t.deleted_by or "Administrator",
+                "reason": t.reason or "Administrator removal",
+                "is_available": is_available,
+                "thumbnail_url": thumb,
+                "data": data,
+            })
+
+        # Apply search query if present
+        if search_query:
+            sq = search_query.lower()
+            tombstone_items = [
+                item for item in tombstone_items
+                if sq in item["title"].lower()
+                or (item["cloudinary_public_id"] and sq in item["cloudinary_public_id"].lower())
+                or sq in item["asset_type"].lower()
+            ]
+
+        # Apply category filter if present
+        if category_filter != "all":
+            tombstone_items = [
+                item for item in tombstone_items
+                if item["asset_type"] == category_filter
+            ]
+
+        total_items = len(tombstone_items)
+        total_pages = max(1, math.ceil(total_items / per_page))
+        page = min(page, total_pages)
+        paginated_items = tombstone_items[(page - 1) * per_page : page * per_page]
+
+        return render_template(
+            "admin/media_library/index.html",
+            status_filter=status_filter,
+            media_type_filter=media_type_filter,
+            category_filter=category_filter,
+            search_query=search_query,
+            sort_order=sort_order,
+            counts=counts,
+            tombstones=paginated_items,
+            media_items=[],
+            page=page,
+            total_pages=total_pages,
+            total_items=total_items,
+        )
+
+    # 3. Active / Unpublished / Archived Branches
+    items = []
+
+    # Fetch HomePagePhoto records
+    hp_q = HomePagePhoto.query
+    if status_filter == "active":
+        hp_q = hp_q.filter_by(is_active=True, is_archived=False)
+    elif status_filter == "unpublished":
+        hp_q = hp_q.filter_by(is_active=False, is_archived=False)
+    elif status_filter == "archived":
+        hp_q = hp_q.filter_by(is_archived=True)
+
+    for photo in hp_q.all():
+        pid = photo.cloudinary_public_id
+        items.append({
+            "id": photo.id,
+            "model_name": "home_photo",
+            "title": photo.title or photo.alt_text or "Hero Photograph",
+            "media_type": "image",
+            "category": "home_photo",
+            "category_label": "Home Page Hero",
+            "status": "archived" if photo.is_archived else ("active" if photo.is_active else "unpublished"),
+            "thumbnail_url": get_optimized_delivery_url(pid, width=320, height=220, crop="fill"),
+            "preview_url": photo.secure_url,
+            "alt_text": photo.alt_text,
+            "caption": photo.caption,
+            "created_at": photo.created_at,
+            "cloudinary_public_id": pid,
+            "youtube_video_id": None,
+            "location": "Homepage Hero Slideshow" if photo.is_active else "Hero Standby Reserve",
+            "references_count": count_cloudinary_references(pid),
+            "display_order": photo.display_order,
+            "can_publish": not photo.is_active and not photo.is_archived,
+            "can_unpublish": photo.is_active,
+            "can_archive": not photo.is_archived,
+        })
+
+    # Fetch PartnerLogo records
+    pl_q = PartnerLogo.query
+    if status_filter == "active":
+        pl_q = pl_q.filter_by(is_published=True, is_archived=False)
+    elif status_filter == "unpublished":
+        pl_q = pl_q.filter_by(is_published=False, is_archived=False)
+    elif status_filter == "archived":
+        pl_q = pl_q.filter_by(is_archived=True)
+
+    for logo in pl_q.all():
+        pid = logo.logo_cloudinary_public_id
+        items.append({
+            "id": logo.id,
+            "model_name": "partner_logo",
+            "title": logo.name,
+            "media_type": "image",
+            "category": "partner_logo",
+            "category_label": "Partner & Client Logo",
+            "status": "archived" if logo.is_archived else ("active" if logo.is_published else "unpublished"),
+            "thumbnail_url": get_optimized_delivery_url(pid, width=320, height=220, crop="fit"),
+            "preview_url": logo.logo_secure_url,
+            "alt_text": logo.alt_text,
+            "caption": f"Website: {logo.website_url}" if logo.website_url else None,
+            "created_at": logo.created_at,
+            "cloudinary_public_id": pid,
+            "youtube_video_id": None,
+            "location": "Footer Partner Carousel" if logo.is_published else "Logo Library (Hidden)",
+            "references_count": count_cloudinary_references(pid),
+            "display_order": logo.display_order,
+            "can_publish": not logo.is_published and not logo.is_archived,
+            "can_unpublish": logo.is_published,
+            "can_archive": not logo.is_archived,
+        })
+
+    # Fetch PortfolioImage records
+    pi_q = PortfolioImage.query.join(PortfolioProject)
+    if status_filter == "active":
+        pi_q = pi_q.filter(PortfolioProject.status == "published", PortfolioImage.is_archived == False)
+    elif status_filter == "unpublished":
+        pi_q = pi_q.filter(PortfolioProject.status == "draft", PortfolioImage.is_archived == False)
+    elif status_filter == "archived":
+        pi_q = pi_q.filter(PortfolioImage.is_archived == True)
+
+    for img in pi_q.all():
+        pid = img.cloudinary_public_id
+        proj_title = img.project.title if img.project else "Portfolio"
+        items.append({
+            "id": img.id,
+            "model_name": "portfolio_image",
+            "title": img.title or img.alt_text or "Project Photograph",
+            "media_type": "image",
+            "category": "portfolio_image",
+            "category_label": "Portfolio Photograph",
+            "status": "archived" if img.is_archived else ("active" if (img.project and img.project.status == "published") else "unpublished"),
+            "thumbnail_url": get_optimized_delivery_url(pid, width=320, height=220, crop="fill"),
+            "preview_url": img.secure_url,
+            "alt_text": img.alt_text,
+            "caption": img.caption,
+            "created_at": img.created_at,
+            "cloudinary_public_id": pid,
+            "youtube_video_id": None,
+            "location": f"Project: {proj_title}",
+            "references_count": count_cloudinary_references(pid),
+            "display_order": img.display_order,
+            "can_publish": False,
+            "can_unpublish": False,
+            "can_archive": not img.is_archived,
+        })
+
+    # Fetch PortfolioVideo records
+    pv_q = PortfolioVideo.query.join(PortfolioProject)
+    if status_filter == "active":
+        pv_q = pv_q.filter(PortfolioProject.status == "published", PortfolioVideo.is_archived == False)
+    elif status_filter == "unpublished":
+        pv_q = pv_q.filter(PortfolioProject.status == "draft", PortfolioVideo.is_archived == False)
+    elif status_filter == "archived":
+        pv_q = pv_q.filter(PortfolioVideo.is_archived == True)
+
+    for vid in pv_q.all():
+        proj_title = vid.project.title if vid.project else "Portfolio"
+        items.append({
+            "id": vid.id,
+            "model_name": "portfolio_video",
+            "title": vid.title or f"YouTube Video ({vid.youtube_video_id})",
+            "media_type": "video",
+            "category": "portfolio_video",
+            "category_label": "Portfolio Video",
+            "status": "archived" if vid.is_archived else ("active" if (vid.project and vid.project.status == "published") else "unpublished"),
+            "thumbnail_url": get_youtube_thumbnail_url(vid.youtube_video_id),
+            "preview_url": vid.embed_url,
+            "alt_text": vid.title or "Portfolio documentary video",
+            "caption": f"YouTube ID: {vid.youtube_video_id}",
+            "created_at": vid.created_at,
+            "cloudinary_public_id": None,
+            "youtube_video_id": vid.youtube_video_id,
+            "location": f"Project: {proj_title}",
+            "references_count": 1,
+            "display_order": vid.display_order,
+            "can_publish": False,
+            "can_unpublish": False,
+            "can_archive": not vid.is_archived,
+        })
+
+    # Fetch WebsiteMedia records
+    wm_q = WebsiteMedia.query
+    if status_filter in ("active", "unpublished", "archived"):
+        wm_q = wm_q.filter_by(status=status_filter)
+
+    for wm in wm_q.all():
+        thumb = None
+        if wm.media_type == "video" and wm.youtube_video_id:
+            thumb = get_youtube_thumbnail_url(wm.youtube_video_id)
+        elif wm.cloudinary_public_id:
+            thumb = get_optimized_delivery_url(wm.cloudinary_public_id, width=320, height=220, crop="fit")
+        elif wm.secure_url:
+            thumb = wm.secure_url
+
+        cat_label = {
+            "brand_asset": "Official Brand Asset",
+            "homepage_video": "Homepage Video",
+            "website_media": "Website Media",
+        }.get(wm.category, "Website Media")
+
+        location_label = {
+            "brand_asset": "Official Brand Identity",
+            "homepage_video": "Homepage Video Feature",
+            "website_media": "General Website Media",
+        }.get(wm.category, "Website Media")
+
+        items.append({
+            "id": wm.id,
+            "model_name": "website_media",
+            "title": wm.title,
+            "media_type": wm.media_type,
+            "category": wm.category,
+            "category_label": cat_label,
+            "status": wm.status,
+            "thumbnail_url": thumb,
+            "preview_url": wm.embed_url if wm.media_type == "video" else wm.secure_url,
+            "alt_text": wm.alt_text,
+            "caption": wm.caption,
+            "created_at": wm.created_at,
+            "cloudinary_public_id": wm.cloudinary_public_id,
+            "youtube_video_id": wm.youtube_video_id,
+            "location": location_label,
+            "references_count": count_cloudinary_references(wm.cloudinary_public_id) if wm.cloudinary_public_id else 1,
+            "display_order": wm.display_order,
+            "can_publish": wm.status != "active",
+            "can_unpublish": wm.status == "active",
+            "can_archive": wm.status != "archived",
+        })
+
+    # 4. In-Memory Filter by Search Query
+    if search_query:
+        sq = search_query.lower()
+        items = [
+            i for i in items
+            if sq in i["title"].lower()
+            or (i["alt_text"] and sq in i["alt_text"].lower())
+            or (i["caption"] and sq in i["caption"].lower())
+            or (i["cloudinary_public_id"] and sq in i["cloudinary_public_id"].lower())
+            or (i["youtube_video_id"] and sq in i["youtube_video_id"].lower())
+        ]
+
+    # Filter by Media Type (Image vs Video)
+    if media_type_filter != "all":
+        items = [i for i in items if i["media_type"] == media_type_filter]
+
+    # Filter by Category
+    if category_filter != "all":
+        items = [i for i in items if i["category"] == category_filter]
+
+    # 5. Sorting
+    if sort_order == "oldest":
+        items.sort(key=lambda x: x["created_at"])
+    elif sort_order == "title_asc":
+        items.sort(key=lambda x: (x["title"] or "").lower())
+    elif sort_order == "title_desc":
+        items.sort(key=lambda x: (x["title"] or "").lower(), reverse=True)
+    else:  # newest
+        items.sort(key=lambda x: x["created_at"], reverse=True)
+
+    # 6. Pagination
+    total_items = len(items)
+    total_pages = max(1, math.ceil(total_items / per_page))
+    page = min(page, total_pages)
+    paginated_items = items[(page - 1) * per_page : page * per_page]
+
+    return render_template(
+        "admin/media_library/index.html",
+        status_filter=status_filter,
+        media_type_filter=media_type_filter,
+        category_filter=category_filter,
+        search_query=search_query,
+        sort_order=sort_order,
+        counts=counts,
+        media_items=paginated_items,
+        tombstones=[],
+        page=page,
+        total_pages=total_pages,
+        total_items=total_items,
+    )
+
+
+@admin_bp.route("/media-library/upload", methods=["GET", "POST"])
+@login_required
+def upload_media_library():
+    """Universal media upload interface for the central Media Library."""
+    form = MediaLibraryUploadForm()
+    
+    # Populate projects for portfolio selection
+    projects = PortfolioProject.query.order_by(PortfolioProject.title.asc()).all()
+    form.project_id.choices = [("", "-- Select Project (Required for Portfolio Media) --")] + [
+        (str(p.id), p.title) for p in projects
+    ]
+
+    if form.validate_on_submit():
+        destination = form.destination.data
+        media_type = form.media_type.data
+        title = form.title.data.strip()
+        alt_text = form.alt_text.data.strip() if form.alt_text.data else title
+        caption = form.caption.data.strip() if form.caption.data else None
+        display_order = form.display_order.data or 0
+        status_choice = form.status.data
+
+        try:
+            if destination == "home_photo":
+                if not form.image_file.data:
+                    flash("An image file is required for Home Page Hero Photos.", "error")
+                    return render_template("admin/media_library/upload.html", form=form)
+
+                is_active = (status_choice == "active")
+                photo = save_home_page_photo_safely(
+                    file_storage=form.image_file.data,
+                    alt_text=alt_text,
+                    title=title,
+                    caption=caption,
+                    display_order=display_order,
+                    is_active=is_active,
+                )
+                log_admin_audit("upload_home_photo", "home_page_photo", photo.id, {"title": title})
+                flash(f"Hero photograph '{photo.title or photo.alt_text}' uploaded successfully.", "success")
+                return redirect(url_for("admin.media_library", status="active" if is_active else "unpublished"))
+
+            elif destination == "partner_logo":
+                if not form.image_file.data:
+                    flash("An image file is required for Partner Logos.", "error")
+                    return render_template("admin/media_library/upload.html", form=form)
+
+                is_published = (status_choice == "active")
+                logo = save_partner_logo_safely(
+                    file_storage=form.image_file.data,
+                    name=title,
+                    alt_text=alt_text,
+                    website_url=form.website_url.data.strip() if form.website_url.data else None,
+                    display_order=display_order,
+                    is_published=is_published,
+                )
+                log_admin_audit("upload_partner_logo", "partner_logo", logo.id, {"name": title})
+                flash(f"Partner logo '{logo.name}' uploaded successfully.", "success")
+                return redirect(url_for("admin.media_library", status="active" if is_published else "unpublished"))
+
+            elif destination == "portfolio_image":
+                if not form.project_id.data:
+                    flash("Please select a target portfolio project for this image.", "error")
+                    return render_template("admin/media_library/upload.html", form=form)
+                if not form.image_file.data:
+                    flash("An image file is required for portfolio images.", "error")
+                    return render_template("admin/media_library/upload.html", form=form)
+
+                import uuid
+                proj = db.session.get(PortfolioProject, uuid.UUID(form.project_id.data))
+                if not proj:
+                    flash("Target portfolio project not found.", "error")
+                    return render_template("admin/media_library/upload.html", form=form)
+
+                img = save_portfolio_image_safely(
+                    project_id=proj.id,
+                    file_storage=form.image_file.data,
+                    alt_text=alt_text,
+                    caption=caption,
+                    display_order=display_order,
+                )
+                img.title = title
+                db.session.commit()
+                log_admin_audit("upload_portfolio_image", "portfolio_image", img.id, {"title": title})
+                flash(f"Portfolio photograph '{title}' uploaded and attached to '{proj.title}'.", "success")
+                return redirect(url_for("admin.media_library", status="active" if proj.status == "published" else "unpublished"))
+
+            elif destination == "portfolio_video":
+                if not form.project_id.data:
+                    flash("Please select a target portfolio project for this video.", "error")
+                    return render_template("admin/media_library/upload.html", form=form)
+                if not form.youtube_url.data:
+                    flash("A YouTube video URL is required.", "error")
+                    return render_template("admin/media_library/upload.html", form=form)
+
+                import uuid
+                proj = db.session.get(PortfolioProject, uuid.UUID(form.project_id.data))
+                if not proj:
+                    flash("Target portfolio project not found.", "error")
+                    return render_template("admin/media_library/upload.html", form=form)
+
+                yt_id = extract_youtube_id(form.youtube_url.data)
+                vid = PortfolioVideo(
+                    project_id=proj.id,
+                    youtube_video_id=yt_id,
+                    title=title,
+                    display_order=display_order,
+                )
+                db.session.add(vid)
+                db.session.commit()
+                log_admin_audit("add_portfolio_video", "portfolio_video", vid.id, {"title": title, "youtube_id": yt_id})
+                flash(f"Portfolio video '{title}' added to '{proj.title}'.", "success")
+                return redirect(url_for("admin.media_library", status="active" if proj.status == "published" else "unpublished"))
+
+            else:  # 'brand_asset', 'homepage_video', 'website_media'
+                wm = save_website_media_safely(
+                    title=title,
+                    category=destination,
+                    file_storage=form.image_file.data if media_type == "image" else None,
+                    youtube_url=form.youtube_url.data if media_type == "video" else None,
+                    alt_text=alt_text,
+                    caption=caption,
+                    status="active" if status_choice == "active" else "unpublished",
+                    display_order=display_order,
+                )
+                log_admin_audit("upload_website_media", "website_media", wm.id, {"title": title, "category": destination})
+                flash(f"Media asset '{title}' registered successfully.", "success")
+                return redirect(url_for("admin.media_library", status=wm.status))
+
+        except (MediaValidationError, VideoValidationError, CloudinaryUploadError) as e:
+            flash(f"Validation error: {str(e)}", "error")
+        except Exception as e:
+            current_app.logger.exception(f"Error during media library upload: {e}")
+            flash(f"An unexpected error occurred during upload: {str(e)}", "error")
+
+    return render_template("admin/media_library/upload.html", form=form)
+
+
+@admin_bp.route("/media-library/<item_type>/<uuid:item_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_media_item(item_type, item_id):
+    """Edit metadata (title, alt text, caption, display order) for a media asset."""
+    form = MediaLibraryEditForm()
+
+    if item_type == "home_photo":
+        item = db.get_or_404(HomePagePhoto, item_id)
+        current_title = item.title or ""
+        current_alt = item.alt_text or ""
+        current_caption = item.caption or ""
+        current_order = item.display_order
+        current_web = ""
+    elif item_type == "partner_logo":
+        item = db.get_or_404(PartnerLogo, item_id)
+        current_title = item.name or ""
+        current_alt = item.alt_text or ""
+        current_caption = ""
+        current_order = item.display_order
+        current_web = item.website_url or ""
+    elif item_type == "portfolio_image":
+        item = db.get_or_404(PortfolioImage, item_id)
+        current_title = getattr(item, "title", "") or ""
+        current_alt = item.alt_text or ""
+        current_caption = item.caption or ""
+        current_order = item.display_order
+        current_web = ""
+    elif item_type == "portfolio_video":
+        item = db.get_or_404(PortfolioVideo, item_id)
+        current_title = item.title or ""
+        current_alt = ""
+        current_caption = ""
+        current_order = item.display_order
+        current_web = ""
+    elif item_type == "website_media":
+        item = db.get_or_404(WebsiteMedia, item_id)
+        current_title = item.title or ""
+        current_alt = item.alt_text or ""
+        current_caption = item.caption or ""
+        current_order = item.display_order
+        current_web = ""
+    else:
+        flash("Unsupported media item type.", "error")
+        return redirect(url_for("admin.media_library"))
+
+    if request.method == "GET":
+        form.title.data = current_title
+        form.alt_text.data = current_alt
+        form.caption.data = current_caption
+        form.display_order.data = current_order
+        form.website_url.data = current_web
+
+    if form.validate_on_submit():
+        new_title = form.title.data.strip()
+        new_alt = form.alt_text.data.strip() if form.alt_text.data else new_title
+        new_caption = form.caption.data.strip() if form.caption.data else None
+        new_order = form.display_order.data or 0
+        new_web = form.website_url.data.strip() if form.website_url.data else None
+
+        if item_type == "home_photo":
+            item.title = new_title
+            item.alt_text = new_alt
+            item.caption = new_caption
+            item.display_order = new_order
+            item.updated_at = datetime.now(timezone.utc)
+        elif item_type == "partner_logo":
+            item.name = new_title
+            item.alt_text = new_alt
+            item.website_url = new_web
+            item.display_order = new_order
+            item.updated_at = datetime.now(timezone.utc)
+        elif item_type == "portfolio_image":
+            item.title = new_title
+            item.alt_text = new_alt
+            item.caption = new_caption
+            item.display_order = new_order
+        elif item_type == "portfolio_video":
+            item.title = new_title
+            item.display_order = new_order
+        elif item_type == "website_media":
+            item.title = new_title
+            item.alt_text = new_alt
+            item.caption = new_caption
+            item.display_order = new_order
+            item.updated_at = datetime.now(timezone.utc)
+
+        db.session.commit()
+        log_admin_audit("update_media_metadata", item_type, item.id, {"title": new_title})
+        flash(f"Media details for '{new_title}' updated successfully.", "success")
+        return redirect(url_for("admin.media_library"))
+
+    return render_template("admin/media_library/edit.html", form=form, item=item, item_type=item_type)
+
+
+@admin_bp.route("/media-library/<item_type>/<uuid:item_id>/publish", methods=["POST"])
+@login_required
+def publish_media_item(item_type, item_id):
+    """Publish an eligible media item to the public website."""
+    if item_type == "home_photo":
+        item = db.get_or_404(HomePagePhoto, item_id)
+        item.is_active = True
+        item.is_archived = False
+        item.updated_at = datetime.now(timezone.utc)
+        title = item.title or item.alt_text
+    elif item_type == "partner_logo":
+        item = db.get_or_404(PartnerLogo, item_id)
+        item.is_published = True
+        item.is_archived = False
+        item.updated_at = datetime.now(timezone.utc)
+        title = item.name
+    elif item_type in ("portfolio_image", "portfolio_video"):
+        cls = PortfolioImage if item_type == "portfolio_image" else PortfolioVideo
+        item = db.get_or_404(cls, item_id)
+        item.is_archived = False
+        title = getattr(item, "title", None) or getattr(item, "alt_text", "Portfolio Asset")
+    elif item_type == "website_media":
+        item = db.get_or_404(WebsiteMedia, item_id)
+        item.status = "active"
+        item.updated_at = datetime.now(timezone.utc)
+        title = item.title
+    else:
+        flash("Unsupported media item type.", "error")
+        return redirect(url_for("admin.media_library"))
+
+    db.session.commit()
+    log_admin_audit("publish_media", item_type, item_id, {"title": title})
+    flash(f"Media '{title}' is now published and active on the website.", "success")
+    return redirect(url_for("admin.media_library", status="active"))
+
+
+@admin_bp.route("/media-library/<item_type>/<uuid:item_id>/unpublish", methods=["POST"])
+@login_required
+def unpublish_media_item(item_type, item_id):
+    """Unpublish an active media item without deleting or archiving it."""
+    if item_type == "home_photo":
+        item = db.get_or_404(HomePagePhoto, item_id)
+        item.is_active = False
+        item.updated_at = datetime.now(timezone.utc)
+        title = item.title or item.alt_text
+    elif item_type == "partner_logo":
+        item = db.get_or_404(PartnerLogo, item_id)
+        item.is_published = False
+        item.updated_at = datetime.now(timezone.utc)
+        title = item.name
+    elif item_type == "website_media":
+        item = db.get_or_404(WebsiteMedia, item_id)
+        item.status = "unpublished"
+        item.updated_at = datetime.now(timezone.utc)
+        title = item.title
+    else:
+        flash("This media asset is controlled by its parent project status.", "error")
+        return redirect(url_for("admin.media_library"))
+
+    db.session.commit()
+    log_admin_audit("unpublish_media", item_type, item_id, {"title": title})
+    flash(f"Media '{title}' has been unpublished.", "success")
+    return redirect(url_for("admin.media_library", status="unpublished"))
+
+
+@admin_bp.route("/media-library/<item_type>/<uuid:item_id>/archive", methods=["POST"])
+@login_required
+def archive_media_item(item_type, item_id):
+    """Archive a media item as a reversible administrative operation.
+    
+    Compliance:
+    - Retained in Cloudinary and PostgreSQL.
+    - Does NOT create a deletion tombstone.
+    - Does NOT destroy Cloudinary files.
+    """
+    if item_type == "home_photo":
+        item = db.get_or_404(HomePagePhoto, item_id)
+        item.is_archived = True
+        item.is_active = False
+        item.updated_at = datetime.now(timezone.utc)
+        title = item.title or item.alt_text
+    elif item_type == "partner_logo":
+        item = db.get_or_404(PartnerLogo, item_id)
+        item.is_archived = True
+        item.is_published = False
+        item.updated_at = datetime.now(timezone.utc)
+        title = item.name
+    elif item_type == "portfolio_image":
+        item = db.get_or_404(PortfolioImage, item_id)
+        item.is_archived = True
+        title = getattr(item, "title", None) or item.alt_text
+    elif item_type == "portfolio_video":
+        item = db.get_or_404(PortfolioVideo, item_id)
+        item.is_archived = True
+        title = item.title or item.youtube_video_id
+    elif item_type == "website_media":
+        item = db.get_or_404(WebsiteMedia, item_id)
+        item.status = "archived"
+        item.updated_at = datetime.now(timezone.utc)
+        title = item.title
+    else:
+        flash("Unsupported media item type.", "error")
+        return redirect(url_for("admin.media_library"))
+
+    db.session.commit()
+    log_admin_audit("archive_media", item_type, item_id, {"title": title})
+    flash(f"Media '{title}' has been archived for future use.", "success")
+    return redirect(url_for("admin.media_library", status="archived"))
+
+
+@admin_bp.route("/media-library/<item_type>/<uuid:item_id>/restore-archive", methods=["POST"])
+@login_required
+def restore_archived_media_item(item_type, item_id):
+    """Restore an archived media item back to unpublished state for administrator review."""
+    if item_type == "home_photo":
+        item = db.get_or_404(HomePagePhoto, item_id)
+        item.is_archived = False
+        item.is_active = False  # Restored to standby reserve pool
+        item.updated_at = datetime.now(timezone.utc)
+        title = item.title or item.alt_text
+    elif item_type == "partner_logo":
+        item = db.get_or_404(PartnerLogo, item_id)
+        item.is_archived = False
+        item.is_published = False
+        item.updated_at = datetime.now(timezone.utc)
+        title = item.name
+    elif item_type == "portfolio_image":
+        item = db.get_or_404(PortfolioImage, item_id)
+        item.is_archived = False
+        title = getattr(item, "title", None) or item.alt_text
+    elif item_type == "portfolio_video":
+        item = db.get_or_404(PortfolioVideo, item_id)
+        item.is_archived = False
+        title = item.title or item.youtube_video_id
+    elif item_type == "website_media":
+        item = db.get_or_404(WebsiteMedia, item_id)
+        item.status = "unpublished"
+        item.updated_at = datetime.now(timezone.utc)
+        title = item.title
+    else:
+        flash("Unsupported media item type.", "error")
+        return redirect(url_for("admin.media_library"))
+
+    db.session.commit()
+    log_admin_audit("restore_archived_media", item_type, item_id, {"title": title})
+    flash(f"Archived media '{title}' restored to unpublished pool.", "success")
+    return redirect(url_for("admin.media_library", status="unpublished"))
+
+
+@admin_bp.route("/media-library/<item_type>/<uuid:item_id>/delete", methods=["POST"])
+@login_required
+def delete_media_item(item_type, item_id):
+    """Delete a media asset, preserve tombstones, and protect shared Cloudinary assets."""
+    admin_email = current_user.email if hasattr(current_user, "email") else None
+    success = False
+    title = "Asset"
+
+    if item_type == "home_photo":
+        photo = db.session.get(HomePagePhoto, item_id)
+        if photo:
+            title = photo.title or photo.alt_text
+            success = delete_home_page_photo_safely(item_id, admin_email=admin_email)
+    elif item_type == "partner_logo":
+        logo = db.session.get(PartnerLogo, item_id)
+        if logo:
+            title = logo.name
+            success = delete_partner_logo_safely(item_id, admin_email=admin_email)
+    elif item_type == "portfolio_image":
+        img = db.session.get(PortfolioImage, item_id)
+        if img:
+            title = getattr(img, "title", None) or img.alt_text
+            success = delete_portfolio_image_safely(item_id, admin_email=admin_email)
+    elif item_type == "portfolio_video":
+        vid = db.session.get(PortfolioVideo, item_id)
+        if vid:
+            title = vid.title or vid.youtube_video_id
+            success = delete_portfolio_video_safely(item_id, admin_email=admin_email)
+    elif item_type == "website_media":
+        wm = db.session.get(WebsiteMedia, item_id)
+        if wm:
+            title = wm.title
+            success = delete_website_media_safely(item_id, admin_email=admin_email)
+    else:
+        flash("Unsupported media item type.", "error")
+        return redirect(url_for("admin.media_library"))
+
+    if success:
+        log_admin_audit("delete_media_library_item", item_type, item_id, {"title": title})
+        flash(f"Media asset '{title}' deleted and recorded in deletion history.", "success")
+    else:
+        flash(f"Could not delete media asset '{title}'.", "error")
+
+    current_status = request.form.get("current_status", "active")
+    return redirect(url_for("admin.media_library", status=current_status))
+
+
+@admin_bp.route("/media-library/restore-deleted/<uuid:tombstone_id>", methods=["POST"])
+@login_required
+def restore_deleted_media_library(tombstone_id):
+    """Deliberately restore a media asset from tombstone history.
+    
+    Verifies Cloudinary asset availability; prevents false restoration reports.
+    """
+    success, msg = restore_deleted_media(tombstone_id)
+    if success:
+        log_admin_audit("restore_tombstone_media", "media_deletion_tombstone", tombstone_id, {"message": msg})
+        flash(msg, "success")
+        return redirect(url_for("admin.media_library", status="unpublished"))
+    else:
+        flash(msg, "error")
+        return redirect(url_for("admin.media_library", status="deleted"))
+
 
 

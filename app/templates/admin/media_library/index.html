@@ -1,0 +1,572 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_title %}Central Media Library — Fact Box Admin{% endblock %}
+{% block admin_heading %}Central Media Library{% endblock %}
+
+{% block admin_content %}
+<!-- Top Header & Actions -->
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+  <div>
+    <h2 style="font-size: 22px; font-weight: 800; color: var(--color-text-main); margin: 0; letter-spacing: -0.02em;">
+      Universal Asset Repository
+    </h2>
+    <p style="font-size: 14px; color: var(--color-text-muted); margin: 6px 0 0; max-width: 680px; line-height: 1.5;">
+      Organize, inspect, publish, archive, and manage all photographs, documentary videos, brand marks, and partner logos across the website in one unified library.
+    </p>
+  </div>
+  <a href="{{ url_for('admin.upload_media_library') }}" class="btn btn-primary" style="padding: 11px 20px; font-size: 14px; color: #ffffff; text-decoration: none; border-radius: var(--radius-sm); font-weight: 600; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,95,43,0.25);">
+    <span style="font-size: 16px; font-weight: 700;">+</span> Upload / Register Media
+  </a>
+</div>
+
+<!-- Verified Database Metric Counters -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px;">
+  <!-- Active Tab Card -->
+  <a href="{{ url_for('admin.media_library', status='active', type=media_type_filter, category=category_filter, sort=sort_order) }}" style="text-decoration: none; color: inherit;">
+    <div style="background: #ffffff; border: 1px solid {% if status_filter == 'active' %}#16a34a; box-shadow: 0 0 0 2px rgba(22,163,74,0.2){% else %}var(--color-border){% endif %}; border-radius: var(--radius-md); padding: 18px 20px; transition: all 0.15s ease;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #166534;">
+          Active / Published
+        </span>
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #16a34a;"></span>
+      </div>
+      <div style="font-size: 32px; font-weight: 800; color: #15803d; line-height: 1;">{{ counts.active }}</div>
+      <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 6px;">Live on public website</div>
+    </div>
+  </a>
+
+  <!-- Unpublished Tab Card -->
+  <a href="{{ url_for('admin.media_library', status='unpublished', type=media_type_filter, category=category_filter, sort=sort_order) }}" style="text-decoration: none; color: inherit;">
+    <div style="background: #ffffff; border: 1px solid {% if status_filter == 'unpublished' %}#2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.2){% else %}var(--color-border){% endif %}; border-radius: var(--radius-md); padding: 18px 20px; transition: all 0.15s ease;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #1e40af;">
+          Unpublished / Reserve
+        </span>
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3b82f6;"></span>
+      </div>
+      <div style="font-size: 32px; font-weight: 800; color: #1d4ed8; line-height: 1;">{{ counts.unpublished }}</div>
+      <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 6px;">Drafts & standby reserve</div>
+    </div>
+  </a>
+
+  <!-- Archived Tab Card -->
+  <a href="{{ url_for('admin.media_library', status='archived', type=media_type_filter, category=category_filter, sort=sort_order) }}" style="text-decoration: none; color: inherit;">
+    <div style="background: #ffffff; border: 1px solid {% if status_filter == 'archived' %}#d97706; box-shadow: 0 0 0 2px rgba(217,119,6,0.2){% else %}var(--color-border){% endif %}; border-radius: var(--radius-md); padding: 18px 20px; transition: all 0.15s ease;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #b45309;">
+          Archived Media
+        </span>
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #f59e0b;"></span>
+      </div>
+      <div style="font-size: 32px; font-weight: 800; color: #b45309; line-height: 1;">{{ counts.archived }}</div>
+      <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 6px;">Preserved, restorable</div>
+    </div>
+  </a>
+
+  <!-- Deleted Tab Card -->
+  <a href="{{ url_for('admin.media_library', status='deleted', type=media_type_filter, category=category_filter, sort=sort_order) }}" style="text-decoration: none; color: inherit;">
+    <div style="background: #ffffff; border: 1px solid {% if status_filter == 'deleted' %}#dc2626; box-shadow: 0 0 0 2px rgba(220,38,38,0.2){% else %}var(--color-border){% endif %}; border-radius: var(--radius-md); padding: 18px 20px; transition: all 0.15s ease;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #991b1b;">
+          Deletion History
+        </span>
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ef4444;"></span>
+      </div>
+      <div style="font-size: 32px; font-weight: 800; color: #dc2626; line-height: 1;">{{ counts.deleted }}</div>
+      <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 6px;">Protected tombstones</div>
+    </div>
+  </a>
+</div>
+
+<!-- Search, Filter & Controls Panel -->
+<div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 24px; box-shadow: var(--shadow-subtle);">
+  <form method="GET" action="{{ url_for('admin.media_library') }}" style="display: flex; flex-direction: column; gap: 16px;">
+    <input type="hidden" name="status" value="{{ status_filter }}">
+
+    <!-- Row 1: Search and Main Selects -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+      <!-- Search Box -->
+      <div style="grid-column: span 2; min-width: 240px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin-bottom: 6px;">
+          Search Media
+        </label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" name="q" value="{{ search_query }}" placeholder="Search by title, caption, public ID, or alt text..." style="width: 100%; padding: 9px 14px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); outline: none;">
+          {% if search_query %}
+            <a href="{{ url_for('admin.media_library', status=status_filter, type=media_type_filter, category=category_filter, sort=sort_order) }}" class="btn" style="padding: 9px 12px; font-size: 13px; background: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; border-radius: var(--radius-sm); text-decoration: none;">
+              Clear
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Media Type Filter -->
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin-bottom: 6px;">
+          Media Type
+        </label>
+        <select name="type" onchange="this.form.submit()" style="width: 100%; padding: 9px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: #ffffff; cursor: pointer;">
+          <option value="all" {% if media_type_filter == 'all' %}selected{% endif %}>All Types</option>
+          <option value="image" {% if media_type_filter == 'image' %}selected{% endif %}>Photographs & Images</option>
+          <option value="video" {% if media_type_filter == 'video' %}selected{% endif %}>Documentary Videos</option>
+        </select>
+      </div>
+
+      <!-- Category Filter -->
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin-bottom: 6px;">
+          Section / Category
+        </label>
+        <select name="category" onchange="this.form.submit()" style="width: 100%; padding: 9px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: #ffffff; cursor: pointer;">
+          <option value="all" {% if category_filter == 'all' %}selected{% endif %}>All Sections</option>
+          <option value="home_photo" {% if category_filter == 'home_photo' %}selected{% endif %}>Homepage Hero Slideshow</option>
+          <option value="portfolio_image" {% if category_filter == 'portfolio_image' %}selected{% endif %}>Portfolio Photographs</option>
+          <option value="portfolio_video" {% if category_filter == 'portfolio_video' %}selected{% endif %}>Portfolio Videos</option>
+          <option value="partner_logo" {% if category_filter == 'partner_logo' %}selected{% endif %}>Partner & Client Logos</option>
+          <option value="brand_asset" {% if category_filter == 'brand_asset' %}selected{% endif %}>Official Brand Assets</option>
+          <option value="homepage_video" {% if category_filter == 'homepage_video' %}selected{% endif %}>Homepage Videos</option>
+          <option value="website_media" {% if category_filter == 'website_media' %}selected{% endif %}>General Website Media</option>
+        </select>
+      </div>
+
+      <!-- Sort Order -->
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin-bottom: 6px;">
+          Sort By
+        </label>
+        <select name="sort" onchange="this.form.submit()" style="width: 100%; padding: 9px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: #ffffff; cursor: pointer;">
+          <option value="newest" {% if sort_order == 'newest' %}selected{% endif %}>Upload Date (Newest)</option>
+          <option value="oldest" {% if sort_order == 'oldest' %}selected{% endif %}>Upload Date (Oldest)</option>
+          <option value="title_asc" {% if sort_order == 'title_asc' %}selected{% endif %}>Title (A &rarr; Z)</option>
+          <option value="title_desc" {% if sort_order == 'title_desc' %}selected{% endif %}>Title (Z &rarr; A)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Submit Search -->
+    <div style="display: flex; justify-content: flex-end;">
+      <button type="submit" class="btn btn-primary" style="padding: 8px 18px; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm);">
+        Apply Filters
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- ========================================================================= -->
+<!-- SECTION: DELETED MEDIA HISTORY (TOMBSTONES)                              -->
+<!-- ========================================================================= -->
+{% if status_filter == 'deleted' %}
+<div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-subtle); overflow: hidden;">
+  <div style="padding: 16px 20px; background: #fff1f2; border-bottom: 1px solid #fecdd3; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+    <div style="font-size: 13px; color: #9f1239; font-weight: 600;">
+      🛡 <strong>Permanent Deletion Protection Active:</strong> Deletion history guarantees deliberate removals never resurrect during deployments or routine seeding.
+    </div>
+    <span style="font-size: 12px; color: #be123c; font-weight: 700;">{{ total_items }} Total Tombstone Records</span>
+  </div>
+
+  {% if tombstones %}
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <thead>
+          <tr style="background: #fafafa; border-bottom: 2px solid var(--color-border); text-align: left;">
+            <th style="padding: 14px 18px; font-weight: 700; color: var(--color-text-muted); width: 110px;">Preview</th>
+            <th style="padding: 14px 18px; font-weight: 700; color: var(--color-text-muted);">Asset Title & Identifier</th>
+            <th style="padding: 14px 18px; font-weight: 700; color: var(--color-text-muted);">Asset Type</th>
+            <th style="padding: 14px 18px; font-weight: 700; color: var(--color-text-muted);">Deleted Date & User</th>
+            <th style="padding: 14px 18px; font-weight: 700; color: var(--color-text-muted);">Restoration Availability</th>
+            <th style="padding: 14px 18px; font-weight: 700; color: var(--color-text-muted); text-align: right; width: 160px;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in tombstones %}
+            <tr style="border-bottom: 1px solid var(--color-border); vertical-align: middle;">
+              <td style="padding: 12px 18px;">
+                {% if t.thumbnail_url %}
+                  <div style="width: 80px; height: 56px; border-radius: var(--radius-sm); overflow: hidden; background: #f3f4f6; border: 1px solid var(--color-border);">
+                    <img src="{{ t.thumbnail_url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                  </div>
+                {% else %}
+                  <div style="width: 80px; height: 56px; border-radius: var(--radius-sm); background: #fee2e2; border: 1px solid #fecaca; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                    🗑
+                  </div>
+                {% endif %}
+              </td>
+              <td style="padding: 12px 18px;">
+                <div style="font-weight: 700; color: var(--color-text-main); margin-bottom: 3px;">
+                  {{ t.title }}
+                </div>
+                {% if t.cloudinary_public_id %}
+                  <div style="font-family: monospace; font-size: 11px; color: var(--color-text-muted);">
+                    {{ t.cloudinary_public_id }}
+                  </div>
+                {% endif %}
+              </td>
+              <td style="padding: 12px 18px;">
+                <span style="display: inline-block; padding: 3px 8px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 700; background: #f3f4f6; color: #4b5563;">
+                  {{ t.asset_type.replace('_', ' ').title() }}
+                </span>
+              </td>
+              <td style="padding: 12px 18px; font-size: 13px; color: var(--color-text-muted);">
+                <div>{{ t.deleted_at.strftime('%Y-%m-%d %H:%M UTC') if t.deleted_at else 'Recent' }}</div>
+                <div style="font-size: 11px; color: #6b7280;">by {{ t.deleted_by }}</div>
+              </td>
+              <td style="padding: 12px 18px;">
+                {% if t.is_available %}
+                  <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #dcfce7; color: #166534;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #16a34a;"></span>
+                    Available in Cloudinary
+                  </span>
+                {% else %}
+                  <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; background: #fee2e2; color: #991b1b;" title="The original Cloudinary asset was destroyed; cannot restore.">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #dc2626;"></span>
+                    Purged / Not Restorable
+                  </span>
+                {% endif %}
+              </td>
+              <td style="padding: 12px 18px; text-align: right;">
+                {% if t.is_available %}
+                  <form action="{{ url_for('admin.restore_deleted_media_library', tombstone_id=t.id) }}" method="POST" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn" style="padding: 7px 14px; font-size: 12px; font-weight: 700; background: #005f2b; color: #ffffff; border: none; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease;">
+                      ↺ Restore to Library
+                    </button>
+                  </form>
+                {% else %}
+                  <button type="button" disabled style="padding: 7px 14px; font-size: 12px; font-weight: 600; background: #e5e7eb; color: #9ca3af; border: none; border-radius: var(--radius-sm); cursor: not-allowed;">
+                    Unavailable
+                  </button>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div style="padding: 56px 24px; text-align: center;">
+      <div style="font-size: 40px; margin-bottom: 12px;">🛡</div>
+      <h3 style="font-size: 16px; font-weight: 700; color: var(--color-text-main); margin: 0 0 6px;">No Deletion Tombstones</h3>
+      <p style="font-size: 13px; color: var(--color-text-muted); margin: 0; max-width: 440px; margin-inline: auto;">
+        No media assets have been deleted under the tombstone protection system matching your current filter.
+      </p>
+    </div>
+  {% endif %}
+</div>
+
+<!-- ========================================================================= -->
+<!-- SECTION: ACTIVE / UNPUBLISHED / ARCHIVED MEDIA ITEMS GRID               -->
+<!-- ========================================================================= -->
+{% else %}
+  {% if media_items %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-bottom: 28px;">
+      {% for item in media_items %}
+        <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; transition: all 0.2s ease;">
+          
+          <!-- Thumbnail / Preview Area -->
+          <div style="position: relative; width: 100%; height: 190px; background: #0f172a; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+            {% if item.media_type == 'image' and item.thumbnail_url %}
+              <img src="{{ item.thumbnail_url }}" alt="{{ item.alt_text or item.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+            {% elif item.media_type == 'video' and item.thumbnail_url %}
+              <img src="{{ item.thumbnail_url }}" alt="{{ item.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+              <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.35);">
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(220,38,38,0.9); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; padding-left: 3px;">
+                  ▶
+                </div>
+              </div>
+            {% else %}
+              <div style="font-size: 36px; color: #64748b;">🖼</div>
+            {% endif %}
+
+            <!-- Badges Overlay -->
+            <div style="position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; flex-wrap: wrap;">
+              <span style="padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; {% if item.media_type == 'video' %}background: #dc2626; color: #fff;{% else %}background: #0284c7; color: #fff;{% endif %}">
+                {{ item.media_type }}
+              </span>
+              <span style="padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; {% if item.status == 'active' %}background: #16a34a; color: #fff;{% elif item.status == 'archived' %}background: #d97706; color: #fff;{% else %}background: #475569; color: #fff;{% endif %}">
+                {{ item.status }}
+              </span>
+            </div>
+
+            <!-- Quick Preview Button -->
+            <button type="button" onclick="openMediaPreview('{{ item.preview_url }}', '{{ item.media_type }}', '{{ item.title | escape }}')" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.65); color: #fff; border: none; border-radius: 4px; padding: 5px 9px; font-size: 11px; font-weight: 600; cursor: pointer; backdrop-filter: blur(2px);">
+              🔍 Preview
+            </button>
+          </div>
+
+          <!-- Card Content Body -->
+          <div style="padding: 16px 18px; flex-grow: 1; display: flex; flex-direction: column;">
+            
+            <!-- Category and Location Header -->
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+              <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary);">
+                {{ item.category_label }}
+              </span>
+              <span style="font-size: 11px; color: var(--color-text-muted);">
+                {{ item.created_at.strftime('%Y-%m-%d') if item.created_at else '' }}
+              </span>
+            </div>
+
+            <!-- Title -->
+            <h3 style="font-size: 15px; font-weight: 700; color: var(--color-text-main); margin: 0 0 6px; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ item.title }}">
+              {{ item.title }}
+            </h3>
+
+            <!-- Website Usage Location -->
+            <div style="font-size: 12px; color: #047857; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
+              <span>📍</span> <span>{{ item.location }}</span>
+            </div>
+
+            <!-- Description / Alt Text -->
+            <p style="font-size: 12px; color: var(--color-text-muted); margin: 0 0 12px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-grow: 1;">
+              {{ item.caption or item.alt_text or "No metadata provided." }}
+            </p>
+
+            <!-- Technical Reference / Public ID -->
+            {% if item.cloudinary_public_id %}
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 6px 8px; margin-bottom: 12px; font-size: 11px; color: #64748b; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ item.cloudinary_public_id }}">
+                ID: {{ item.cloudinary_public_id }}
+              </div>
+            {% elif item.youtube_video_id %}
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 6px 8px; margin-bottom: 12px; font-size: 11px; color: #dc2626; font-family: monospace;">
+                YouTube: {{ item.youtube_video_id }}
+              </div>
+            {% endif %}
+
+            <!-- Shared Reference Protection Warning (if used in >1 section) -->
+            {% if item.references_count > 1 %}
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; padding: 6px 8px; margin-bottom: 12px; font-size: 11px; color: #1e40af; font-weight: 600;">
+                🔗 Shared Asset: Referenced in {{ item.references_count }} locations across the database
+              </div>
+            {% endif %}
+
+            <!-- Action Buttons Footer -->
+            <div style="border-top: 1px solid var(--color-border); padding-top: 12px; margin-top: auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; gap: 6px;">
+                <!-- Edit -->
+                <a href="{{ url_for('admin.edit_media_item', item_type=item.model_name, item_id=item.id) }}" class="btn" style="padding: 6px 10px; font-size: 12px; background: #f3f4f6; color: var(--color-text-main); border: 1px solid var(--color-border); border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">
+                  ✏ Edit
+                </a>
+
+                <!-- Publish / Unpublish -->
+                {% if item.can_publish %}
+                  <form action="{{ url_for('admin.publish_media_item', item_type=item.model_name, item_id=item.id) }}" method="POST" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn" style="padding: 6px 10px; font-size: 12px; background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">
+                      Publish
+                    </button>
+                  </form>
+                {% elif item.can_unpublish %}
+                  <form action="{{ url_for('admin.unpublish_media_item', item_type=item.model_name, item_id=item.id) }}" method="POST" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn" style="padding: 6px 10px; font-size: 12px; background: #fef3c7; color: #b45309; border: 1px solid #fde68a; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">
+                      Unpublish
+                    </button>
+                  </form>
+                {% endif %}
+
+                <!-- Archive / Restore Archive -->
+                {% if item.status == 'archived' %}
+                  <form action="{{ url_for('admin.restore_archived_media_item', item_type=item.model_name, item_id=item.id) }}" method="POST" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn" style="padding: 6px 10px; font-size: 12px; background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">
+                      Unarchive
+                    </button>
+                  </form>
+                {% elif item.can_archive %}
+                  <form action="{{ url_for('admin.archive_media_item', item_type=item.model_name, item_id=item.id) }}" method="POST" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn" style="padding: 6px 10px; font-size: 12px; background: #fffbeb; color: #b45309; border: 1px solid #fef3c7; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">
+                      Archive
+                    </button>
+                  </form>
+                {% endif %}
+              </div>
+
+              <!-- Delete Button (Triggers Safe Confirmation Modal) -->
+              <button type="button" onclick="openDeleteMediaModal('{{ item.model_name }}', '{{ item.id }}', '{{ item.title | escape }}', '{{ item.cloudinary_public_id or '' }}', {{ item.references_count }})" class="btn" style="padding: 6px 10px; font-size: 12px; background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;">
+                🗑 Delete
+              </button>
+            </div>
+
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 56px 24px; text-align: center; box-shadow: var(--shadow-subtle);">
+      <div style="font-size: 40px; margin-bottom: 12px;">📁</div>
+      <h3 style="font-size: 17px; font-weight: 700; color: var(--color-text-main); margin: 0 0 6px;">No Media Assets Found</h3>
+      <p style="font-size: 13px; color: var(--color-text-muted); margin: 0 0 20px; max-width: 440px; margin-inline: auto;">
+        No media assets match your active category, type, or search query.
+      </p>
+      <a href="{{ url_for('admin.upload_media_library') }}" class="btn btn-primary" style="padding: 9px 18px; font-size: 13px; color: #fff; text-decoration: none; border-radius: var(--radius-sm); font-weight: 600;">
+        + Upload Media
+      </a>
+    </div>
+  {% endif %}
+{% endif %}
+
+<!-- Pagination Controls -->
+{% if total_pages > 1 %}
+  <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 32px; flex-wrap: wrap;">
+    {% if page > 1 %}
+      <a href="{{ url_for('admin.media_library', page=page-1, status=status_filter, type=media_type_filter, category=category_filter, q=search_query, sort=sort_order) }}" class="btn" style="padding: 8px 14px; font-size: 13px; background: #ffffff; color: var(--color-text-main); border: 1px solid var(--color-border); border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">
+        &larr; Previous
+      </a>
+    {% endif %}
+
+    <span style="font-size: 13px; color: var(--color-text-muted); padding: 8px 12px;">
+      Page <strong>{{ page }}</strong> of <strong>{{ total_pages }}</strong> ({{ total_items }} assets)
+    </span>
+
+    {% if page < total_pages %}
+      <a href="{{ url_for('admin.media_library', page=page+1, status=status_filter, type=media_type_filter, category=category_filter, q=search_query, sort=sort_order) }}" class="btn" style="padding: 8px 14px; font-size: 13px; background: #ffffff; color: var(--color-text-main); border: 1px solid var(--color-border); border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">
+        Next &rarr;
+      </a>
+    {% endif %}
+  </div>
+{% endif %}
+
+<!-- ========================================================================= -->
+<!-- MODAL: HIGH-RESOLUTION MEDIA PREVIEW                                      -->
+<!-- ========================================================================= -->
+<div id="mediaPreviewOverlay" style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.85); backdrop-filter: blur(4px); z-index: 99998; align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: #ffffff; border-radius: var(--radius-lg); max-width: 800px; width: 100%; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative;" onclick="event.stopPropagation();">
+    
+    <div style="padding: 16px 20px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+      <h3 id="previewModalTitle" style="font-size: 16px; font-weight: 700; color: var(--color-text-main); margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        Media Preview
+      </h3>
+      <button type="button" onclick="closeMediaPreview()" style="background: none; border: none; font-size: 22px; color: #94a3b8; cursor: pointer; padding: 0 4px; line-height: 1;">
+        &times;
+      </button>
+    </div>
+
+    <div id="previewModalContainer" style="background: #090d16; min-height: 340px; display: flex; align-items: center; justify-content: center; max-height: 70vh; overflow: hidden;">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: SAFE PERMANENT DELETION CONFIRMATION                               -->
+<!-- ========================================================================= -->
+<div id="deleteMediaOverlay" style="display: none; position: fixed; inset: 0; background: rgba(17,24,39,0.7); backdrop-filter: blur(4px); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: #ffffff; border-radius: var(--radius-lg); max-width: 520px; width: 100%; padding: 26px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid var(--color-border); position: relative;" onclick="event.stopPropagation();">
+    
+    <div style="display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px;">
+      <div style="width: 44px; height: 44px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+        🗑
+      </div>
+      <div style="flex-grow: 1;">
+        <h3 style="font-size: 18px; font-weight: 800; color: var(--color-text-main); margin: 0 0 4px;">
+          Delete Media Asset?
+        </h3>
+        <p style="font-size: 13px; color: var(--color-text-muted); margin: 0; line-height: 1.45;">
+          A permanent deletion tombstone will be recorded to guarantee this deliberate removal persists across future deployments.
+        </p>
+      </div>
+      <button type="button" onclick="closeDeleteMediaModal()" style="background: none; border: none; font-size: 22px; color: #9ca3af; cursor: pointer; padding: 0 4px; line-height: 1;">
+        &times;
+      </button>
+    </div>
+
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 16px;">
+      <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; margin-bottom: 2px;">Asset Title</div>
+      <div id="modalDeleteAssetTitle" style="font-weight: 700; font-size: 14px; color: var(--color-text-main);"></div>
+    </div>
+
+    <!-- Multi-reference warning banner -->
+    <div id="modalDeleteSharedWarning" style="display: none; background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 20px; font-size: 13px; color: #92400e; line-height: 1.45;">
+      ⚠️ <strong>Shared Asset Notice:</strong> This asset's underlying file is referenced by other records in the database. Deleting this reference will <strong>NOT</strong> destroy the file in Cloudinary, protecting the other sections.
+    </div>
+
+    <form id="modalDeleteMediaForm" method="POST" action="">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="current_status" value="{{ status_filter }}">
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" onclick="closeDeleteMediaModal()" style="padding: 9px 16px; font-size: 13px; font-weight: 600; color: #475569; background: #ffffff; border: 1px solid #cbd5e1; border-radius: var(--radius-sm); cursor: pointer;">
+          Cancel
+        </button>
+        <button type="submit" style="padding: 9px 20px; font-size: 13px; font-weight: 700; color: #ffffff; background: #dc2626; border: 1px solid #dc2626; border-radius: var(--radius-sm); cursor: pointer; box-shadow: 0 2px 6px rgba(220,38,38,0.3);">
+          Yes, Delete Asset
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<!-- JavaScript Controls -->
+<script>
+  function openMediaPreview(url, type, title) {
+    var titleEl = document.getElementById('previewModalTitle');
+    var container = document.getElementById('previewModalContainer');
+    titleEl.textContent = title || 'Media Preview';
+    container.innerHTML = '';
+
+    if (type === 'video') {
+      var iframe = document.createElement('iframe');
+      iframe.src = url;
+      iframe.style.width = '100%';
+      iframe.style.height = '420px';
+      iframe.style.border = 'none';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      container.appendChild(iframe);
+    } else {
+      var img = document.createElement('img');
+      img.src = url;
+      img.style.maxWidth = '100%';
+      img.style.maxHeight = '70vh';
+      img.style.objectFit = 'contain';
+      container.appendChild(img);
+    }
+
+    var overlay = document.getElementById('mediaPreviewOverlay');
+    overlay.style.display = 'flex';
+  }
+
+  function closeMediaPreview() {
+    var container = document.getElementById('previewModalContainer');
+    container.innerHTML = '';
+    document.getElementById('mediaPreviewOverlay').style.display = 'none';
+  }
+
+  function openDeleteMediaModal(itemType, itemId, title, publicId, refCount) {
+    document.getElementById('modalDeleteAssetTitle').textContent = title || 'Unnamed Asset';
+    
+    var sharedWarning = document.getElementById('modalDeleteSharedWarning');
+    if (refCount > 1) {
+      sharedWarning.style.display = 'block';
+    } else {
+      sharedWarning.style.display = 'none';
+    }
+
+    var form = document.getElementById('modalDeleteMediaForm');
+    form.action = '/admin/media-library/' + encodeURIComponent(itemType) + '/' + encodeURIComponent(itemId) + '/delete';
+
+    document.getElementById('deleteMediaOverlay').style.display = 'flex';
+  }
+
+  function closeDeleteMediaModal() {
+    document.getElementById('deleteMediaOverlay').style.display = 'none';
+  }
+
+  // Close overlays on backdrop click or Escape key
+  document.getElementById('mediaPreviewOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeMediaPreview();
+  });
+  document.getElementById('deleteMediaOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteMediaModal();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeMediaPreview();
+      closeDeleteMediaModal();
+    }
+  });
+</script>
+{% endblock %}
+

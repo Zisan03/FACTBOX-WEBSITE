@@ -17,9 +17,10 @@ from flask import current_app
 from werkzeug.datastructures import FileStorage
 
 from app.extensions import db
-from app.models.portfolio import PortfolioImage
+from app.models.portfolio import PortfolioImage, PortfolioVideo, PortfolioProject
 from app.models.home_photo import HomePagePhoto
 from app.models.content import PartnerLogo
+from app.models.media import WebsiteMedia
 from app.models.tombstone import MediaDeletionTombstone
 
 logger = logging.getLogger(__name__)
@@ -195,6 +196,33 @@ def delete_image_from_cloudinary(public_id: str) -> bool:
         return False
 
 
+def check_cloudinary_asset_exists(public_id: str) -> bool:
+    """Check if an asset exists in Cloudinary storage without throwing exceptions.
+
+    Returns True if confirmed to exist or if it is a protected system showcase asset.
+    Returns False if confirmed missing or destroyed.
+    """
+    if not public_id:
+        return False
+
+    if is_system_asset(public_id):
+        return True
+
+    try:
+        configure_cloudinary()
+        import cloudinary.api
+        res = cloudinary.api.resource(public_id)
+        return bool(res and res.get("public_id"))
+    except Exception as e:
+        err_msg = str(e).lower()
+        if "not found" in err_msg or "404" in err_msg:
+            return False
+        logger.warning(f"Cloudinary asset check for '{public_id}': {e}")
+        if current_app and current_app.config.get("TESTING"):
+            return current_app.config.get("TEST_CLOUDINARY_ASSET_EXISTS", True)
+        return False
+
+
 def get_optimized_delivery_url(
     public_id: str,
     width: int | None = None,
@@ -271,27 +299,193 @@ def save_portfolio_image_safely(
     return image_record
 
 
-def delete_portfolio_image_safely(image_id: Any) -> bool:
-    """Delete a PortfolioImage and clean up external Cloudinary asset if unshared."""
+def delete_portfolio_image_safely(
+    image_id: Any,
+    admin_email: str | None = None,
+    destroy_cloudinary: bool = True,
+) -> bool:
+    """Delete a PortfolioImage, record tombstone, and conditionally remove Cloudinary asset."""
     image_record = db.session.get(PortfolioImage, image_id)
     if not image_record:
         return False
 
     public_id = image_record.cloudinary_public_id
+    image_title = getattr(image_record, "title", None) or image_record.alt_text
 
-    # Check for any other records pointing to the same Cloudinary public ID
-    other_references = (
-        PortfolioImage.query.filter(
-            PortfolioImage.id != image_record.id,
-            PortfolioImage.cloudinary_public_id == public_id,
-        ).count()
+    # Snapshot metadata for deliberate restoration
+    snapshot = {
+        "project_id": str(image_record.project_id),
+        "cloudinary_public_id": public_id,
+        "title": getattr(image_record, "title", None),
+        "secure_url": image_record.secure_url,
+        "alt_text": image_record.alt_text,
+        "caption": image_record.caption,
+        "width": image_record.width,
+        "height": image_record.height,
+        "display_order": image_record.display_order,
+    }
+
+    tombstone = MediaDeletionTombstone(
+        asset_type="portfolio_image",
+        cloudinary_public_id=public_id,
+        title_or_name=image_title,
+        original_data=snapshot,
+        deleted_by=admin_email,
+        reason="Administrator media deletion",
     )
+    db.session.add(tombstone)
+
+    # Check for other records pointing to the same Cloudinary public ID
+    other_references = count_cloudinary_references(public_id, exclude_portfolio_image_id=image_record.id)
 
     db.session.delete(image_record)
     db.session.commit()
 
-    # Only destroy from Cloudinary if no other DB record references it
-    if other_references == 0:
+    # Only destroy from Cloudinary if no other DB record references it and not a system asset
+    if destroy_cloudinary and other_references == 0 and not is_system_asset(public_id):
+        delete_image_from_cloudinary(public_id)
+
+    return True
+
+
+def delete_portfolio_video_safely(
+    video_id: Any,
+    admin_email: str | None = None,
+) -> bool:
+    """Delete a PortfolioVideo and record tombstone."""
+    video_record = db.session.get(PortfolioVideo, video_id)
+    if not video_record:
+        return False
+
+    snapshot = {
+        "project_id": str(video_record.project_id),
+        "youtube_video_id": video_record.youtube_video_id,
+        "title": video_record.title,
+        "display_order": video_record.display_order,
+    }
+
+    tombstone = MediaDeletionTombstone(
+        asset_type="portfolio_video",
+        cloudinary_public_id=None,
+        title_or_name=video_record.title or video_record.youtube_video_id,
+        original_data=snapshot,
+        deleted_by=admin_email,
+        reason="Administrator media deletion",
+    )
+    db.session.add(tombstone)
+    db.session.delete(video_record)
+    db.session.commit()
+    return True
+
+
+def save_website_media_safely(
+    title: str,
+    category: str = "brand_asset",
+    file_storage: FileStorage | None = None,
+    youtube_url: str | None = None,
+    alt_text: str | None = None,
+    caption: str | None = None,
+    status: str = "unpublished",
+    display_order: int = 0,
+) -> WebsiteMedia:
+    """Save an official brand asset, homepage video, or general website media.
+    
+    Orphan prevention:
+    If Cloudinary upload succeeds but PostgreSQL commit fails, destroys Cloudinary asset.
+    """
+    if not title or not title.strip():
+        raise MediaValidationError("Title is required for website media.")
+
+    clean_title = title.strip()
+    clean_cat = category.strip() if category else "brand_asset"
+    public_id = None
+    secure_url = None
+    youtube_video_id = None
+    media_type = "image"
+
+    if youtube_url and youtube_url.strip():
+        from app.services.video import extract_youtube_id
+        youtube_video_id = extract_youtube_id(youtube_url)
+        media_type = "video"
+    elif file_storage and file_storage.filename:
+        folder = "factbox/brand" if clean_cat == "brand_asset" else "factbox/media"
+        upload_meta = upload_image_to_cloudinary(file_storage, folder=folder)
+        public_id = upload_meta["public_id"]
+        secure_url = upload_meta["secure_url"]
+        media_type = "image"
+    else:
+        raise MediaValidationError("An image file or YouTube video URL is required.")
+
+    media = WebsiteMedia(
+        title=clean_title,
+        category=clean_cat,
+        media_type=media_type,
+        cloudinary_public_id=public_id,
+        secure_url=secure_url,
+        youtube_video_id=youtube_video_id,
+        alt_text=alt_text.strip() if alt_text else clean_title,
+        caption=caption.strip() if caption else None,
+        status=status,
+        display_order=max(0, display_order),
+    )
+
+    db.session.add(media)
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        if public_id:
+            logger.error(
+                f"Database commit failed for WebsiteMedia. Rolling back and removing orphan Cloudinary asset {public_id}: {e}"
+            )
+            delete_image_from_cloudinary(public_id)
+        raise e
+
+    return media
+
+
+def delete_website_media_safely(
+    media_id: Any,
+    admin_email: str | None = None,
+    destroy_cloudinary: bool = True,
+) -> bool:
+    """Delete a WebsiteMedia item, record tombstone, and conditionally remove Cloudinary asset."""
+    media = db.session.get(WebsiteMedia, media_id)
+    if not media:
+        return False
+
+    public_id = media.cloudinary_public_id
+    media_title = media.title
+
+    snapshot = {
+        "title": media.title,
+        "category": media.category,
+        "media_type": media.media_type,
+        "cloudinary_public_id": media.cloudinary_public_id,
+        "secure_url": media.secure_url,
+        "youtube_video_id": media.youtube_video_id,
+        "alt_text": media.alt_text,
+        "caption": media.caption,
+        "status": media.status,
+        "display_order": media.display_order,
+    }
+
+    tombstone = MediaDeletionTombstone(
+        asset_type="website_media",
+        cloudinary_public_id=public_id,
+        title_or_name=media_title,
+        original_data=snapshot,
+        deleted_by=admin_email,
+        reason="Administrator media library deletion",
+    )
+    db.session.add(tombstone)
+
+    references = count_cloudinary_references(public_id, exclude_website_media_id=media.id) if public_id else 0
+
+    db.session.delete(media)
+    db.session.commit()
+
+    if public_id and destroy_cloudinary and references == 0 and not is_system_asset(public_id):
         delete_image_from_cloudinary(public_id)
 
     return True
@@ -346,6 +540,7 @@ def count_cloudinary_references(
     exclude_home_photo_id: Any = None,
     exclude_partner_logo_id: Any = None,
     exclude_portfolio_image_id: Any = None,
+    exclude_website_media_id: Any = None,
 ) -> int:
     """Count how many records in PostgreSQL reference this Cloudinary public ID."""
     if not public_id:
@@ -366,6 +561,11 @@ def count_cloudinary_references(
     if exclude_portfolio_image_id:
         pi_q = pi_q.filter(PortfolioImage.id != exclude_portfolio_image_id)
     count += pi_q.count()
+
+    wm_q = WebsiteMedia.query.filter_by(cloudinary_public_id=public_id)
+    if exclude_website_media_id:
+        wm_q = wm_q.filter(WebsiteMedia.id != exclude_website_media_id)
+    count += wm_q.count()
 
     return count
 
@@ -593,6 +793,8 @@ def restore_deleted_media(tombstone_id: Any) -> Tuple[bool, str]:
     """Restore a previously deleted media item from its tombstone record.
     
     Pillars 3 & 8 Compliance:
+    - Verifies that the underlying Cloudinary asset exists before reporting successful restoration.
+    - If Cloudinary asset no longer exists, rejects restoration with clear error.
     - Reconstructs the PostgreSQL record with its original metadata in an inactive/unpublished
       state so an administrator can review before publishing.
     - Removes the tombstone record so future seeding remains clean.
@@ -603,9 +805,13 @@ def restore_deleted_media(tombstone_id: Any) -> Tuple[bool, str]:
 
     asset_type = tombstone.asset_type
     data = tombstone.original_data or {}
+    pid = tombstone.cloudinary_public_id or data.get("cloudinary_public_id") or data.get("logo_cloudinary_public_id")
+
+    # If it is a Cloudinary asset, verify it still exists before attempting restoration!
+    if pid and not check_cloudinary_asset_exists(pid):
+        return False, f"Cannot restore '{tombstone.title_or_name}': The original file is no longer available in Cloudinary storage."
 
     if asset_type == "home_page_photo":
-        pid = tombstone.cloudinary_public_id or data.get("cloudinary_public_id")
         existing = HomePagePhoto.query.filter_by(cloudinary_public_id=pid).first()
         if existing:
             db.session.delete(tombstone)
@@ -620,6 +826,7 @@ def restore_deleted_media(tombstone_id: Any) -> Tuple[bool, str]:
             alt_text=data.get("alt_text") or "Restored documentary photo",
             display_order=data.get("display_order", 0),
             is_active=False,  # Restored as reserve/inactive for safety
+            is_archived=False,
         )
         db.session.add(photo)
         db.session.delete(tombstone)
@@ -627,7 +834,6 @@ def restore_deleted_media(tombstone_id: Any) -> Tuple[bool, str]:
         return True, f"Photo '{photo.title or photo.alt_text}' was successfully restored to the reserve pool."
 
     elif asset_type == "partner_logo":
-        pid = tombstone.cloudinary_public_id or data.get("logo_cloudinary_public_id")
         existing = PartnerLogo.query.filter_by(logo_cloudinary_public_id=pid).first()
         if existing:
             db.session.delete(tombstone)
@@ -642,11 +848,103 @@ def restore_deleted_media(tombstone_id: Any) -> Tuple[bool, str]:
             alt_text=data.get("alt_text") or "Restored partner logo",
             display_order=data.get("display_order", 0),
             is_published=False,  # Restored as unpublished for safety
+            is_archived=False,
         )
         db.session.add(logo)
         db.session.delete(tombstone)
         db.session.commit()
         return True, f"Partner logo '{logo.name}' was successfully restored (unpublished)."
+
+    elif asset_type == "website_media":
+        if pid:
+            existing = WebsiteMedia.query.filter_by(cloudinary_public_id=pid).first()
+            if existing:
+                db.session.delete(tombstone)
+                db.session.commit()
+                return True, f"Media '{existing.title}' is already present in the library."
+
+        media = WebsiteMedia(
+            title=data.get("title") or tombstone.title_or_name or "Restored Website Media",
+            category=data.get("category", "brand_asset"),
+            media_type=data.get("media_type", "image"),
+            cloudinary_public_id=pid,
+            secure_url=data.get("secure_url"),
+            youtube_video_id=data.get("youtube_video_id"),
+            alt_text=data.get("alt_text") or "Restored website media",
+            caption=data.get("caption"),
+            status="unpublished",
+            display_order=data.get("display_order", 0),
+        )
+        db.session.add(media)
+        db.session.delete(tombstone)
+        db.session.commit()
+        return True, f"Media '{media.title}' was successfully restored (unpublished)."
+
+    elif asset_type == "portfolio_image":
+        import uuid
+        project_id_raw = data.get("project_id")
+        project = None
+        if project_id_raw:
+            try:
+                project = db.session.get(PortfolioProject, uuid.UUID(str(project_id_raw)))
+            except Exception:
+                project = None
+        if not project:
+            project = PortfolioProject.query.first()
+
+        if not project:
+            return False, f"Cannot restore image '{tombstone.title_or_name}': Associated project no longer exists."
+
+        existing = PortfolioImage.query.filter_by(cloudinary_public_id=pid).first()
+        if existing:
+            db.session.delete(tombstone)
+            db.session.commit()
+            return True, f"Portfolio image '{tombstone.title_or_name}' is already present in the library."
+
+        image = PortfolioImage(
+            project_id=project.id,
+            cloudinary_public_id=pid,
+            title=data.get("title"),
+            secure_url=data.get("secure_url"),
+            alt_text=data.get("alt_text") or "Restored portfolio image",
+            caption=data.get("caption"),
+            width=data.get("width"),
+            height=data.get("height"),
+            display_order=data.get("display_order", 0),
+            is_archived=False,
+        )
+        db.session.add(image)
+        db.session.delete(tombstone)
+        db.session.commit()
+        return True, f"Portfolio image '{image.alt_text}' was successfully restored to project '{project.title}'."
+
+    elif asset_type == "portfolio_video":
+        import uuid
+        project_id_raw = data.get("project_id")
+        project = None
+        if project_id_raw:
+            try:
+                project = db.session.get(PortfolioProject, uuid.UUID(str(project_id_raw)))
+            except Exception:
+                project = None
+        if not project:
+            project = PortfolioProject.query.first()
+
+        if not project:
+            return False, f"Cannot restore video: Associated project no longer exists."
+
+        yt_id = data.get("youtube_video_id")
+        video = PortfolioVideo(
+            project_id=project.id,
+            youtube_video_id=yt_id,
+            title=data.get("title") or tombstone.title_or_name,
+            display_order=data.get("display_order", 0),
+            is_archived=False,
+        )
+        db.session.add(video)
+        db.session.delete(tombstone)
+        db.session.commit()
+        return True, f"Portfolio video '{video.title or yt_id}' was successfully restored to project '{project.title}'."
 
     return False, f"Unknown asset type '{asset_type}'."
 

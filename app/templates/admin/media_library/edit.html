@@ -1,0 +1,128 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_title %}Edit Media Metadata — Central Media Library{% endblock %}
+{% block admin_heading %}Edit Media Metadata{% endblock %}
+
+{% block admin_content %}
+<div style="max-width: 680px; margin: 0 auto;">
+
+  <!-- Back Link -->
+  <div style="margin-bottom: 20px;">
+    <a href="{{ url_for('admin.media_library') }}" style="font-size: 13px; font-weight: 600; color: var(--color-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+      &larr; Back to Central Media Library
+    </a>
+  </div>
+
+  <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-subtle);">
+    <h2 style="font-size: 20px; font-weight: 800; color: var(--color-text-main); margin: 0 0 8px;">
+      Edit Media Details
+    </h2>
+    <p style="font-size: 13px; color: var(--color-text-muted); margin: 0 0 24px; line-height: 1.5;">
+      Update titles, accessibility alt text, editorial captions, or ordering.
+    </p>
+
+    <!-- Asset Preview Header Card -->
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px 18px; display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+      {% if item_type == 'portfolio_video' or (item_type == 'website_media' and item.media_type == 'video') %}
+        <div style="width: 80px; height: 56px; border-radius: var(--radius-sm); overflow: hidden; background: #000; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px;">
+          ▶
+        </div>
+      {% elif item.secure_url or getattr(item, 'logo_secure_url', None) %}
+        <div style="width: 80px; height: 56px; border-radius: var(--radius-sm); overflow: hidden; background: #000; flex-shrink: 0; border: 1px solid #cbd5e1;">
+          <img src="{{ item.secure_url or item.logo_secure_url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+      {% endif %}
+      <div style="overflow: hidden;">
+        <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--color-primary); margin-bottom: 2px;">
+          {{ item_type.replace('_', ' ').title() }}
+        </div>
+        <div style="font-weight: 700; font-size: 14px; color: var(--color-text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          {{ getattr(item, 'title', None) or getattr(item, 'name', None) or getattr(item, 'alt_text', 'Media Asset') }}
+        </div>
+        {% if getattr(item, 'cloudinary_public_id', None) or getattr(item, 'logo_cloudinary_public_id', None) %}
+          <div style="font-size: 11px; font-family: monospace; color: var(--color-text-muted);">
+            {{ item.cloudinary_public_id or item.logo_cloudinary_public_id }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin.edit_media_item', item_type=item_type, item_id=item.id) }}">
+      {{ form.csrf_token }}
+
+      <!-- Title / Name -->
+      <div style="margin-bottom: 20px;">
+        <label for="title" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          Title or Asset Name <span style="color: #dc2626;">*</span>
+        </label>
+        {{ form.title(id="title", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); outline: none;") }}
+        {% for error in form.title.errors %}
+          <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Alt Text -->
+      {% if item_type != 'portfolio_video' %}
+        <div style="margin-bottom: 20px;">
+          <label for="alt_text" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+            Alternative Text (Accessibility & SEO)
+          </label>
+          {{ form.alt_text(id="alt_text", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); outline: none;") }}
+          {% for error in form.alt_text.errors %}
+            <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Caption / Description -->
+      {% if item_type in ('home_photo', 'portfolio_image', 'website_media') %}
+        <div style="margin-bottom: 20px;">
+          <label for="caption" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+            Caption or Documentary Context
+          </label>
+          {{ form.caption(id="caption", rows="3", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); outline: none; resize: vertical;") }}
+          {% for error in form.caption.errors %}
+            <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Website URL (for partner logos) -->
+      {% if item_type == 'partner_logo' %}
+        <div style="margin-bottom: 20px;">
+          <label for="website_url" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+            Partner Organization Website URL (Optional)
+          </label>
+          {{ form.website_url(id="website_url", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); outline: none;") }}
+          {% for error in form.website_url.errors %}
+            <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Display Order -->
+      <div style="margin-bottom: 28px;">
+        <label for="display_order" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          Display Order (0 = highest priority)
+        </label>
+        {{ form.display_order(id="display_order", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); outline: none;") }}
+        {% for error in form.display_order.errors %}
+          <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--color-border); padding-top: 20px;">
+        <a href="{{ url_for('admin.media_library') }}" class="btn" style="padding: 10px 18px; font-size: 14px; color: #475569; background: #ffffff; border: 1px solid #cbd5e1; border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 14px; font-weight: 700; border-radius: var(--radius-sm); color: #fff;">
+          Save Metadata
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}
+

@@ -89,9 +89,30 @@ Fields:
 - `alt_text` string required
 - `display_order` integer required, default 0
 - `is_active` boolean required, default true
+- `is_archived` boolean required, default false
 - `created_at`, `updated_at` timestamptz
 
-Rules: Dedicated to the home page hero background gallery. Completely isolated from `portfolio_project` and `portfolio_image`. Managed in the admin panel under a dedicated "Home Page Photos" page. Check constraint on `display_order >= 0`. Deletions must safely clean up Cloudinary assets and database records.
+Rules: Dedicated to the home page hero background gallery. Completely isolated from `portfolio_project` and `portfolio_image`. Managed in the admin panel under a dedicated "Home Page Photos" page and unified Central Media Library. Check constraint on `display_order >= 0`. Deletions record a deletion tombstone and safely clean up Cloudinary assets if unshared.
+
+## 8b. WebsiteMedia (Central Media Library)
+Fields:
+- `id` UUID PK
+- `title` string required
+- `category` string required, default 'brand_asset' ('brand_asset', 'homepage_video', 'website_media')
+- `media_type` string required, default 'image' ('image', 'video')
+- `cloudinary_public_id` string nullable
+- `secure_url` string nullable
+- `youtube_video_id` string nullable
+- `alt_text` string nullable
+- `caption` text nullable
+- `status` string constrained to 'active', 'unpublished', 'archived', required, default 'unpublished'
+- `display_order` integer required, default 0
+- `created_at`, `updated_at` timestamptz
+
+Rules: Dedicated to official brand assets, homepage videos, and approved general website media managed in the Central Media Library. Check constraints on status and non-negative display order. Deletions create deletion tombstones in `media_deletion_tombstone`.
+
+## 8c. Media Archival Lifecycle (ADR-011)
+`is_archived` boolean column added to `home_page_photo`, `partner_logo`, `portfolio_image`, and `portfolio_video`. Archiving is a reversible administrative operation that removes items from public display without creating tombstones or destroying Cloudinary assets.
 
 ## 9. Enquiry
 Fields:

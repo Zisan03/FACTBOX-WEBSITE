@@ -25,6 +25,7 @@ class HomePagePhoto(db.Model):
     alt_text = db.Column(db.String(255), nullable=False)
     display_order = db.Column(db.Integer, nullable=False, default=0)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
+    is_archived = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(
         db.DateTime(timezone=True),
         nullable=False,

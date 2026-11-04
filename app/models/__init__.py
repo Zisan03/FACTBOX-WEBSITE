@@ -13,6 +13,7 @@ from app.models.service import Service
 from app.models.enquiry import Enquiry
 from app.models.content import PageContent, PartnerLogo
 from app.models.home_photo import HomePagePhoto
+from app.models.media import WebsiteMedia
 from app.models.tombstone import MediaDeletionTombstone
 
 __all__ = [
@@ -27,6 +28,7 @@ __all__ = [
     "PageContent",
     "PartnerLogo",
     "HomePagePhoto",
+    "WebsiteMedia",
     "MediaDeletionTombstone",
 ]
 

@@ -110,12 +110,34 @@
       <span style="color: #166534; font-weight: 600;">{{ published_partner_logos }} published in footer</span>
     </div>
   </div>
+
+  <!-- Central Media Library Card -->
+  <div style="background: #ffffff; padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary);">
+        Central Media Library
+      </span>
+      <a href="{{ url_for('admin.media_library') }}" style="font-size: 13px; font-weight: 600; color: var(--color-primary); text-decoration: none;">Manage &rarr;</a>
+    </div>
+    <div style="font-size: 36px; font-weight: 700; color: var(--color-text-main); margin-bottom: 8px;">
+      {{ total_media }}
+    </div>
+    <div style="font-size: 13px; color: var(--color-text-muted);">
+      <span style="color: #166534; font-weight: 600;">All photos, videos & brand assets</span>
+    </div>
+  </div>
 </div>
 
 <!-- Quick Action Shortcuts -->
 <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 32px; box-shadow: var(--shadow-subtle);">
   <h2 style="font-size: 17px; font-weight: 700; color: var(--color-text-main); margin-bottom: 16px;">Quick Actions</h2>
   <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+    <a href="{{ url_for('admin.media_library') }}" class="btn btn-primary" style="padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: var(--radius-sm); color: #fff; background: #0284c7;">
+      ⚡ Central Media Library
+    </a>
+    <a href="{{ url_for('admin.upload_media_library') }}" class="btn btn-primary" style="padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: var(--radius-sm); color: #fff; background: var(--color-primary);">
+      + Upload Media Asset
+    </a>
     <a href="{{ url_for('admin.new_project') }}" class="btn btn-primary" style="padding: 10px 18px; font-size: 14px; text-decoration: none; border-radius: var(--radius-sm); color: #fff;">
       + Add Portfolio Project
     </a>

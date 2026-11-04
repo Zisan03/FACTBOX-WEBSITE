@@ -475,3 +475,106 @@ class PartnerLogoEditForm(FlaskForm):
     is_published = BooleanField("Visible on Website Footer", default=True)
 
 
+class MediaLibraryUploadForm(FlaskForm):
+    """Universal upload form for central Media Library.
+    
+    Accommodates homepage photographs, videos, portfolio photographs, videos,
+    partner logos, brand assets, and general website media.
+    """
+    media_type = SelectField(
+        "Media Type",
+        choices=[("image", "Image (JPEG, PNG, WebP, GIF)"), ("video", "Video (YouTube URL)")],
+        default="image",
+    )
+    destination = SelectField(
+        "Destination / Category",
+        choices=[
+            ("brand_asset", "Official Brand Asset"),
+            ("home_photo", "Home Page Hero Photograph"),
+            ("partner_logo", "Partner & Client Logo"),
+            ("portfolio_image", "Portfolio Project Photograph"),
+            ("portfolio_video", "Portfolio Project Video"),
+            ("homepage_video", "Homepage Video"),
+            ("website_media", "General Website Media"),
+        ],
+        default="brand_asset",
+    )
+    project_id = SelectField(
+        "Target Portfolio Project (for Portfolio Media)",
+        choices=[],
+        validators=[Optional()],
+    )
+    title = StringField(
+        "Title or Asset Name",
+        validators=[
+            DataRequired(message="Title or asset name is required."),
+            Length(max=255, message="Title must be 255 characters or less."),
+        ],
+    )
+    alt_text = StringField(
+        "Alternative Text (SEO & Accessibility)",
+        validators=[
+            Optional(),
+            Length(max=255, message="Alt text must be 255 characters or less."),
+        ],
+    )
+    caption = TextAreaField(
+        "Description or Caption (Optional)",
+        validators=[Optional()],
+    )
+    website_url = StringField(
+        "External Website URL (for Partner Logos)",
+        validators=[Optional(), Length(max=500)],
+    )
+    image_file = FileField(
+        "Image File",
+        validators=[Optional()],
+    )
+    youtube_url = StringField(
+        "YouTube Video URL or ID",
+        validators=[Optional(), Length(max=255)],
+    )
+    display_order = IntegerField(
+        "Display Order",
+        validators=[NumberRange(min=0, message="Display order must be 0 or greater.")],
+        default=0,
+    )
+    status = SelectField(
+        "Initial Status",
+        choices=[("active", "Active / Published"), ("unpublished", "Unpublished / Reserve")],
+        default="active",
+    )
+
+
+class MediaLibraryEditForm(FlaskForm):
+    """Universal metadata edit form for Media Library assets."""
+    title = StringField(
+        "Title or Asset Name",
+        validators=[
+            DataRequired(message="Title or name is required."),
+            Length(max=255, message="Title must be 255 characters or less."),
+        ],
+    )
+    alt_text = StringField(
+        "Alternative Text (SEO & Accessibility)",
+        validators=[
+            Optional(),
+            Length(max=255, message="Alt text must be 255 characters or less."),
+        ],
+    )
+    caption = TextAreaField(
+        "Description or Caption (Optional)",
+        validators=[Optional()],
+    )
+    website_url = StringField(
+        "External Website URL (Optional)",
+        validators=[Optional(), Length(max=500)],
+    )
+    display_order = IntegerField(
+        "Display Order",
+        validators=[NumberRange(min=0, message="Display order must be 0 or greater.")],
+        default=0,
+    )
+
+
+

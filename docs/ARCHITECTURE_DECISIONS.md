@@ -61,3 +61,16 @@
 **Reason:** Keeps home page presentation assets isolated from client portfolio case studies, avoiding accidental leaks or confusion when non-technical administrators manage the site.
 
 **Controls:** Uses the existing Cloudinary upload service, server-side MIME and size validation, CSRF protection, and non-negative ordering constraints. Scheduled for delivery in Stage 5.
+
+## ADR-011 — Central Media Library Architecture
+**Decision:** Provide a unified Central Media Library dashboard (`/admin/media-library`) in the administrator panel that aggregates and manages all website photographs, videos, partner logos, official brand assets, and general website media in four distinct verified database sections: Active, Unpublished, Archived, and Deleted.
+
+**Archival vs Deletion separation:**
+- **Archiving** is a reversible administrative operation that retains the record in PostgreSQL and the media file in Cloudinary, while suppressing it from public views. Archiving never creates a deletion tombstone and never destroys the Cloudinary asset.
+- **Deletion** records an immutable snapshot in `media_deletion_tombstone` to protect against re-seeding on deployment. Cloudinary files are destroyed only if unshared across the database and not protected system showcase assets.
+- **Tombstone Restoration Verification:** Restoration from deletion requires verifying that the underlying Cloudinary file still exists; missing files are clearly flagged as non-restorable, preventing false restoration claims.
+
+**Data Model Integration:**
+- Leverages existing `HomePagePhoto`, `PartnerLogo`, `PortfolioImage`, and `PortfolioVideo` models.
+- Introduces `website_media` table for standalone official brand assets, homepage videos, and approved website media.
+- Adds `is_archived` status column to media entities to cleanly delineate published, draft/reserve, and archived lifecycle states without conflicting fields.

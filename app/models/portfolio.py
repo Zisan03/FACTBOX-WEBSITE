@@ -117,12 +117,14 @@ class PortfolioImage(db.Model):
         index=True,
     )
     cloudinary_public_id = db.Column(db.String(255), unique=True, nullable=False)
+    title = db.Column(db.String(255), nullable=True)
     secure_url = db.Column(db.String(1024), nullable=False)
     alt_text = db.Column(db.String(255), nullable=False)
     caption = db.Column(db.String(500), nullable=True)
     width = db.Column(db.Integer, nullable=True)
     height = db.Column(db.Integer, nullable=True)
     display_order = db.Column(db.Integer, nullable=False, default=0)
+    is_archived = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(
         db.DateTime(timezone=True),
         nullable=False,
@@ -151,6 +153,7 @@ class PortfolioVideo(db.Model):
     youtube_video_id = db.Column(db.String(50), nullable=False)
     title = db.Column(db.String(255), nullable=True)
     display_order = db.Column(db.Integer, nullable=False, default=0)
+    is_archived = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(
         db.DateTime(timezone=True),
         nullable=False,
