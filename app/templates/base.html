@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Fact Box Consult — Audiovisual Media, Research & Creative Consultancy{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}Fact Box Consult (RC: 7592601) is an audiovisual media, research, and creative consultancy committed to developing fresh ideas into purposeful solutions.{% endblock %}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=3.0">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/factbox_logo.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/factbox_logo.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=3.1">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap">
   {% block extra_head %}{% endblock %}
 </head>
@@ -39,7 +41,7 @@
   <header class="site-header" id="site-header" style="{% if current_user.is_authenticated %}top: 37px;{% endif %}">
     <div class="container nav-wrap">
       <a href="{{ url_for('public.home') }}" class="brand-logo" aria-label="Fact Box Consult Home">
-        <img src="{{ url_for('static', filename='img/factbox_logo.jpg') }}" alt="Fact Box Consult Logo" class="brand-logo-img">
+        <img src="{{ url_for('static', filename='img/factbox_logo.png') }}" alt="Fact Box Consult Logo" class="brand-logo-img">
         <span class="brand-logo-text">FACT BOX CONSULT</span>
       </a>
 
@@ -71,9 +73,9 @@
   <div id="mobile-overlay" class="mobile-drawer-overlay"></div>
   <aside id="mobile-drawer" class="mobile-drawer" aria-label="Mobile Navigation Drawer">
     <button id="nav-close" class="mobile-drawer-close" aria-label="Close mobile menu">&times;</button>
-    <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
-      <img src="{{ url_for('static', filename='img/factbox_logo.jpg') }}" alt="Fact Box Consult Logo" style="height: 36px; width: 36px; border-radius: 4px; object-fit: contain; background: #000; padding: 2px;">
-      <span style="font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--color-primary-dark);">FACT BOX</span>
+    <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
+      <img src="{{ url_for('static', filename='img/factbox_logo.png') }}" alt="Fact Box Consult Logo" style="height: 42px; width: 42px; aspect-ratio: 1/1; object-fit: contain;">
+      <span style="font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--color-primary-dark); letter-spacing: -0.01em;">FACT BOX CONSULT</span>
     </div>
     <ul class="mobile-nav-links">
       <li><a href="{{ url_for('public.home') }}" class="{% if request.endpoint == 'public.home' %}active{% endif %}">Home</a></li>
@@ -111,7 +113,7 @@
               <img src="{{ logo.logo_secure_url }}" 
                    alt="{{ logo.alt_text or logo.name }}" 
                    loading="lazy"
-                   onerror="this.onerror=null; this.src='/static/img/factbox_logo.jpg';">
+                   onerror="this.onerror=null; this.src='/static/img/factbox_logo.png';">
             </a>
           {% endfor %}
         </div>
@@ -120,9 +122,9 @@
       {% endif %}
       <div class="footer-columns-wrap">
         <div style="max-width: 440px;">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-            <img src="{{ url_for('static', filename='img/factbox_logo.jpg') }}" alt="Fact Box Consult Logo" style="height: 42px; width: 42px; border-radius: 4px; object-fit: contain; background: #000; padding: 2px;">
-            <h3 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 700;">FACT BOX CONSULT</h3>
+          <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px;">
+            <img src="{{ url_for('static', filename='img/factbox_logo.png') }}" alt="Fact Box Consult Logo" style="height: 48px; width: 48px; aspect-ratio: 1/1; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));">
+            <h3 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em;">FACT BOX CONSULT</h3>
           </div>
           <p style="color: rgba(255, 255, 255, 0.75); font-size: 14px; line-height: 1.6; margin-bottom: 12px;">
             Audiovisual media, research, and creative consultancy committed to developing fresh ideas and transforming them into meaningful content and solutions.

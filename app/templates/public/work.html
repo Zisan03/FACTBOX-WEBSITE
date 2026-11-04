@@ -73,7 +73,7 @@
                 <img src="{{ org.logo_url if org.logo_url else url_for('static', filename=org.logo_static) }}" 
                      alt="{{ org.name }}" 
                      loading="lazy"
-                     onerror="this.onerror=null; this.src='/static/img/factbox_logo.jpg';">
+                     onerror="this.onerror=null; this.src='/static/img/factbox_logo.png';">
               </span>
               <span class="work-org-name">{{ org.short_name or org.name }}</span>
             </button>
@@ -137,7 +137,7 @@
                   <div class="project-org-logo-badge">
                     <img src="{{ p.matched_org.logo_url if p.matched_org.logo_url else url_for('static', filename=p.matched_org.logo_static) }}" 
                          alt="{{ p.matched_org.name }}"
-                         onerror="this.onerror=null; this.src='/static/img/factbox_logo.jpg';">
+                         onerror="this.onerror=null; this.src='/static/img/factbox_logo.png';">
                   </div>
                   <div class="project-org-meta">
                     <span class="project-org-label">Work Done With</span>
