@@ -182,28 +182,75 @@
         </div>
       </div>
 
-      <!-- Right Card: Landscape Documentary Video Still with Play Button -->
-      <div class="asymmetric-card">
-        <img src="{{ get_showcase_photo(7).secure_url }}" alt="{{ get_showcase_photo(7).alt_text }}" loading="lazy">
-        <div class="video-play-affordance">
-          <span class="material-symbols-outlined" style="font-size: 32px; margin-left: 3px;">play_arrow</span>
+      <!-- Right Card: Landscape Documentary Video / Reel -->
+      {% if homepage_video %}
+        <div class="asymmetric-card asymmetric-video-card" id="storytellingVideoCard" style="background: #050d08;">
+          {% if homepage_video.youtube_video_id %}
+            <iframe src="{{ homepage_video.embed_url }}"
+                    title="{{ homepage_video.alt_text or 'Fact Box Consult Documentary Video' }}"
+                    style="position: absolute; inset: 0; width: 100%; height: 100%; border: none;"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+            </iframe>
+          {% else %}
+            <!-- Native HTML5 Responsive Video Player with Cloudinary MP4 & Poster -->
+            <video id="storytellingVideoPlayer"
+                   class="storytelling-video-element"
+                   preload="metadata"
+                   playsinline
+                   controls
+                   poster="{{ homepage_video.poster_url or get_showcase_photo(7).secure_url }}"
+                   aria-label="{{ homepage_video.alt_text or 'Fact Box Consult 34-second Strategic Storytelling Documentary Reel' }}"
+                   style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #050d08; z-index: 1;">
+              <source src="{{ homepage_video.secure_url }}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            
+            <!-- Video Play Overlay & Storytelling Content -->
+            <button type="button" class="video-play-affordance" id="storytellingPlayButton" aria-label="Play 34-second documentary storytelling reel" style="z-index: 4; cursor: pointer; border: none; outline: none; pointer-events: auto;">
+              <span class="material-symbols-outlined" style="font-size: 32px; margin-left: 3px;">play_arrow</span>
+            </button>
+            <div class="asymmetric-overlay" id="storytellingOverlay" style="z-index: 2; pointer-events: none; transition: opacity 0.4s ease;"></div>
+            <div class="asymmetric-content" id="storytellingContent" style="z-index: 3; pointer-events: none; transition: opacity 0.4s ease;">
+              <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-accent); display: block; margin-bottom: 8px;">
+                High-Impact Media &bull; 34s Reel
+              </span>
+              <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.25; margin-bottom: 8px;">
+                {{ homepage_video.title or 'Messages That Matter' }}
+              </h3>
+              <p style="font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.6; margin-bottom: 12px;">
+                {{ homepage_video.caption or 'Broadcast-grade documentary productions and visual advocacy campaigns that inform and inspire action.' }}
+              </p>
+              <a href="{{ url_for('public.work') }}" style="color: var(--color-accent); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; pointer-events: auto;">
+                View Completed Films <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
+              </a>
+            </div>
+          {% endif %}
         </div>
-        <div class="asymmetric-overlay"></div>
-        <div class="asymmetric-content">
-          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-accent); display: block; margin-bottom: 8px;">
-            High-Impact Media
-          </span>
-          <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.25; margin-bottom: 8px;">
-            Messages That Matter
-          </h3>
-          <p style="font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.6; margin-bottom: 12px;">
-            Broadcast-grade documentary productions and visual advocacy campaigns that inform and inspire action.
-          </p>
-          <a href="{{ url_for('public.work') }}" style="color: var(--color-accent); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-            View Completed Films <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
-          </a>
+      {% else %}
+        <!-- Fallback Right Card: Landscape Documentary Video Still with Play Button -->
+        <div class="asymmetric-card">
+          <img src="{{ get_showcase_photo(7).secure_url }}" alt="{{ get_showcase_photo(7).alt_text }}" loading="lazy">
+          <div class="video-play-affordance">
+            <span class="material-symbols-outlined" style="font-size: 32px; margin-left: 3px;">play_arrow</span>
+          </div>
+          <div class="asymmetric-overlay"></div>
+          <div class="asymmetric-content">
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-accent); display: block; margin-bottom: 8px;">
+              High-Impact Media
+            </span>
+            <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.25; margin-bottom: 8px;">
+              Messages That Matter
+            </h3>
+            <p style="font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.6; margin-bottom: 12px;">
+              Broadcast-grade documentary productions and visual advocacy campaigns that inform and inspire action.
+            </p>
+            <a href="{{ url_for('public.work') }}" style="color: var(--color-accent); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+              View Completed Films <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
+            </a>
+          </div>
         </div>
-      </div>
+      {% endif %}
     </div>
   </div>
 </section>
@@ -447,5 +494,50 @@
     </div>
   </div>
 </section>
+
+{% if homepage_video and not homepage_video.youtube_video_id %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var video = document.getElementById('storytellingVideoPlayer');
+  var playBtn = document.getElementById('storytellingPlayButton');
+  var overlay = document.getElementById('storytellingOverlay');
+  var content = document.getElementById('storytellingContent');
+
+  if (video && playBtn) {
+    function startVideo() {
+      video.play().then(function () {
+        if (playBtn) playBtn.style.display = 'none';
+        if (overlay) overlay.style.opacity = '0';
+        if (content) content.style.opacity = '0';
+      }).catch(function (e) {
+        console.warn('Video playback notice:', e);
+      });
+    }
+
+    playBtn.addEventListener('click', startVideo);
+
+    video.addEventListener('play', function () {
+      if (playBtn) playBtn.style.display = 'none';
+      if (overlay) overlay.style.opacity = '0';
+      if (content) content.style.opacity = '0';
+    });
+
+    video.addEventListener('pause', function () {
+      if (video.currentTime === 0 || video.ended) {
+        if (playBtn) playBtn.style.display = 'flex';
+        if (overlay) overlay.style.opacity = '1';
+        if (content) content.style.opacity = '1';
+      }
+    });
+
+    video.addEventListener('ended', function () {
+      if (playBtn) playBtn.style.display = 'flex';
+      if (overlay) overlay.style.opacity = '1';
+      if (content) content.style.opacity = '1';
+    });
+  }
+});
+</script>
+{% endif %}
 
 {% endblock %}

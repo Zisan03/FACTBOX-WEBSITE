@@ -25,8 +25,9 @@ from app.models.tombstone import MediaDeletionTombstone
 
 logger = logging.getLogger(__name__)
 
-# Enforce 10 MB maximum upload limit matching Cloudinary Free tier allocation
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10,485,760 bytes
+# Enforce upload limits matching Cloudinary Free tier allocation
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB for images
+MAX_VIDEO_FILE_SIZE = 50 * 1024 * 1024  # 50 MB for videos
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 ALLOWED_MIME_TYPES = {
@@ -35,6 +36,13 @@ ALLOWED_MIME_TYPES = {
     "image/png",
     "image/webp",
     "image/gif",
+}
+
+ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".webm", ".mov"}
+ALLOWED_VIDEO_MIME_TYPES = {
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
 }
 
 
@@ -115,6 +123,48 @@ def validate_image_file(file_storage: FileStorage) -> str:
     return detected_format
 
 
+def validate_video_file(file_storage: FileStorage) -> str:
+    """Validate uploaded video file size, extension, and content type.
+
+    Returns the detected format string ('mp4', 'webm', or 'mov').
+    Raises MediaValidationError on validation failure.
+    """
+    if not file_storage or not file_storage.filename:
+        raise MediaValidationError("No file was selected for upload.")
+
+    filename = file_storage.filename.strip()
+    _, ext = os.path.splitext(filename)
+    ext = ext.lower()
+
+    if ext not in ALLOWED_VIDEO_EXTENSIONS:
+        raise MediaValidationError(
+            f"Unsupported video format '{ext}'. Allowed formats: MP4, WebM, and MOV."
+        )
+
+    content_type = (file_storage.content_type or "").lower().split(";")[0].strip()
+    if content_type and content_type not in ALLOWED_VIDEO_MIME_TYPES:
+        raise MediaValidationError(
+            f"Invalid video content type '{content_type}'. Must be video/mp4, video/webm, or video/quicktime."
+        )
+
+    stream = file_storage.stream
+    stream.seek(0, os.SEEK_END)
+    size = stream.tell()
+    stream.seek(0)
+
+    if size <= 0:
+        raise MediaValidationError("The uploaded video file is empty.")
+
+    if size > MAX_VIDEO_FILE_SIZE:
+        max_mb = MAX_VIDEO_FILE_SIZE // (1024 * 1024)
+        actual_mb = round(size / (1024 * 1024), 2)
+        raise MediaValidationError(
+            f"Video file size exceeds the {max_mb} MB limit (uploaded file is {actual_mb} MB)."
+        )
+
+    return ext.lstrip(".")
+
+
 def configure_cloudinary() -> None:
     """Ensure Cloudinary SDK is initialized with environment credentials."""
     cloud_name = None
@@ -179,8 +229,41 @@ def upload_image_to_cloudinary(
     }
 
 
-def delete_image_from_cloudinary(public_id: str) -> bool:
-    """Delete an image asset from Cloudinary.
+def upload_video_to_cloudinary(
+    file_storage: FileStorage,
+    folder: str = "factbox/videos",
+) -> Dict[str, Any]:
+    """Validate and upload a video file to Cloudinary."""
+    validate_video_file(file_storage)
+    configure_cloudinary()
+
+    try:
+        file_storage.stream.seek(0)
+        result = cloudinary.uploader.upload(
+            file_storage.stream,
+            folder=folder,
+            resource_type="video",
+            allowed_formats=["mp4", "webm", "mov"],
+            unique_filename=True,
+            overwrite=False,
+        )
+    except Exception as e:
+        logger.error(f"Cloudinary video upload failed: {str(e)}")
+        raise CloudinaryUploadError(f"Cloudinary video upload failed: {str(e)}") from e
+
+    return {
+        "public_id": result["public_id"],
+        "secure_url": result["secure_url"],
+        "width": result.get("width"),
+        "height": result.get("height"),
+        "format": result.get("format"),
+        "duration": result.get("duration"),
+        "bytes": result.get("bytes"),
+    }
+
+
+def delete_image_from_cloudinary(public_id: str, resource_type: str = "image") -> bool:
+    """Delete an image or video asset from Cloudinary.
 
     Safe operation: handles errors without throwing to avoid breaking calling flows.
     """
@@ -189,14 +272,14 @@ def delete_image_from_cloudinary(public_id: str) -> bool:
 
     try:
         configure_cloudinary()
-        res = cloudinary.uploader.destroy(public_id, invalidate=True)
+        res = cloudinary.uploader.destroy(public_id, resource_type=resource_type, invalidate=True)
         return res.get("result") == "ok"
     except Exception as e:
         logger.warning(f"Failed to delete Cloudinary asset '{public_id}': {str(e)}")
         return False
 
 
-def check_cloudinary_asset_exists(public_id: str) -> bool:
+def check_cloudinary_asset_exists(public_id: str, resource_type: str = "image") -> bool:
     """Check if an asset exists in Cloudinary storage without throwing exceptions.
 
     Returns True if confirmed to exist or if it is a protected system showcase asset.
@@ -211,7 +294,13 @@ def check_cloudinary_asset_exists(public_id: str) -> bool:
     try:
         configure_cloudinary()
         import cloudinary.api
-        res = cloudinary.api.resource(public_id)
+        try:
+            res = cloudinary.api.resource(public_id, resource_type=resource_type)
+        except Exception:
+            if resource_type == "image":
+                res = cloudinary.api.resource(public_id, resource_type="video")
+            else:
+                raise
         return bool(res and res.get("public_id"))
     except Exception as e:
         err_msg = str(e).lower()
@@ -230,6 +319,7 @@ def get_optimized_delivery_url(
     crop: str = "limit",
     quality: str = "auto",
     fetch_format: str = "auto",
+    resource_type: str = "image",
 ) -> str:
     """Generate an optimized, responsive delivery URL with auto format and quality."""
     try:
@@ -238,6 +328,7 @@ def get_optimized_delivery_url(
             "secure": True,
             "quality": quality,
             "fetch_format": fetch_format,
+            "resource_type": resource_type,
         }
         if width:
             options["width"] = width
@@ -250,7 +341,7 @@ def get_optimized_delivery_url(
         return url
     except Exception:
         # Fallback if unconfigured
-        return f"https://res.cloudinary.com/factbox/image/upload/{public_id}"
+        return f"https://res.cloudinary.com/factbox/{resource_type}/upload/{public_id}"
 
 
 def save_portfolio_image_safely(
@@ -408,13 +499,22 @@ def save_website_media_safely(
         youtube_video_id = extract_youtube_id(youtube_url)
         media_type = "video"
     elif file_storage and file_storage.filename:
-        folder = "factbox/brand" if clean_cat == "brand_asset" else "factbox/media"
-        upload_meta = upload_image_to_cloudinary(file_storage, folder=folder)
-        public_id = upload_meta["public_id"]
-        secure_url = upload_meta["secure_url"]
-        media_type = "image"
+        filename_lower = file_storage.filename.strip().lower()
+        _, ext = os.path.splitext(filename_lower)
+        is_video = ext in ALLOWED_VIDEO_EXTENSIONS or clean_cat == "homepage_video" or (file_storage.content_type or "").startswith("video/")
+        if is_video:
+            upload_meta = upload_video_to_cloudinary(file_storage, folder="factbox/videos")
+            public_id = upload_meta["public_id"]
+            secure_url = upload_meta["secure_url"]
+            media_type = "video"
+        else:
+            folder = "factbox/brand" if clean_cat == "brand_asset" else "factbox/media"
+            upload_meta = upload_image_to_cloudinary(file_storage, folder=folder)
+            public_id = upload_meta["public_id"]
+            secure_url = upload_meta["secure_url"]
+            media_type = "image"
     else:
-        raise MediaValidationError("An image file or YouTube video URL is required.")
+        raise MediaValidationError("An image/video file or YouTube video URL is required.")
 
     media = WebsiteMedia(
         title=clean_title,
@@ -438,7 +538,7 @@ def save_website_media_safely(
             logger.error(
                 f"Database commit failed for WebsiteMedia. Rolling back and removing orphan Cloudinary asset {public_id}: {e}"
             )
-            delete_image_from_cloudinary(public_id)
+            delete_image_from_cloudinary(public_id, resource_type=media_type)
         raise e
 
     return media
@@ -486,7 +586,8 @@ def delete_website_media_safely(
     db.session.commit()
 
     if public_id and destroy_cloudinary and references == 0 and not is_system_asset(public_id):
-        delete_image_from_cloudinary(public_id)
+        res_type = "video" if media.media_type == "video" else "image"
+        delete_image_from_cloudinary(public_id, resource_type=res_type)
 
     return True
 
@@ -615,11 +716,20 @@ SYSTEM_SHOWCASE_PIDS = {
 }
 
 
+SYSTEM_VIDEO_PIDS = {
+    "factbox/videos/yysipv6v94ru5c4uxmpu",
+}
+
+
 def is_system_asset(public_id: str | None) -> bool:
-    """Check if public ID belongs to curated initial showcase or partner assets."""
+    """Check if public ID belongs to curated initial showcase, partner, or video assets."""
     if not public_id:
         return False
-    return public_id in SYSTEM_SHOWCASE_PIDS or public_id in SYSTEM_PARTNER_LOGO_PIDS
+    return (
+        public_id in SYSTEM_SHOWCASE_PIDS
+        or public_id in SYSTEM_PARTNER_LOGO_PIDS
+        or public_id in SYSTEM_VIDEO_PIDS
+    )
 
 
 def delete_home_page_photo_safely(
@@ -808,7 +918,8 @@ def restore_deleted_media(tombstone_id: Any) -> Tuple[bool, str]:
     pid = tombstone.cloudinary_public_id or data.get("cloudinary_public_id") or data.get("logo_cloudinary_public_id")
 
     # If it is a Cloudinary asset, verify it still exists before attempting restoration!
-    if pid and not check_cloudinary_asset_exists(pid):
+    res_type = "video" if data.get("media_type") == "video" else "image"
+    if pid and not check_cloudinary_asset_exists(pid, resource_type=res_type):
         return False, f"Cannot restore '{tombstone.title_or_name}': The original file is no longer available in Cloudinary storage."
 
     if asset_type == "home_page_photo":

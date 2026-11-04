@@ -52,6 +52,24 @@ class WebsiteMedia(db.Model):
             return f"https://www.youtube-nocookie.com/embed/{self.youtube_video_id}"
         return None
 
+    @property
+    def poster_url(self) -> str | None:
+        """Return poster frame URL for video (Cloudinary or YouTube)."""
+        if self.youtube_video_id:
+            from app.services.video import get_youtube_thumbnail_url
+            return get_youtube_thumbnail_url(self.youtube_video_id)
+        if self.cloudinary_public_id and self.media_type == "video":
+            from app.services.media import get_optimized_delivery_url
+            return get_optimized_delivery_url(
+                self.cloudinary_public_id,
+                resource_type="video",
+                fetch_format="jpg",
+            )
+        if self.secure_url and self.media_type == "video":
+            import re
+            return re.sub(r'\.[a-zA-Z0-9]+$', '.jpg', self.secure_url)
+        return None
+
     def __repr__(self) -> str:
         return f"<WebsiteMedia {self.title} ({self.category}, {self.status})>"
 

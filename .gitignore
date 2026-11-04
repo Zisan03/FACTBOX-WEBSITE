@@ -43,6 +43,9 @@ htmlcov/
 # Local sub-environments and bulky demonstration media
 factbox-consult/
 *.webp
+*.mp4
+*.mov
+*.webm
 
 # Uploaded temporary media and bulky local photo pools
 images*.*

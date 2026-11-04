@@ -483,7 +483,7 @@ class MediaLibraryUploadForm(FlaskForm):
     """
     media_type = SelectField(
         "Media Type",
-        choices=[("image", "Image (JPEG, PNG, WebP, GIF)"), ("video", "Video (YouTube URL)")],
+        choices=[("image", "Image (JPEG, PNG, WebP, GIF)"), ("video", "Video (MP4/WebM Upload or YouTube URL)")],
         default="image",
     )
     destination = SelectField(

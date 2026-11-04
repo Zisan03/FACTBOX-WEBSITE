@@ -507,14 +507,28 @@
     container.innerHTML = '';
 
     if (type === 'video') {
-      var iframe = document.createElement('iframe');
-      iframe.src = url;
-      iframe.style.width = '100%';
-      iframe.style.height = '420px';
-      iframe.style.border = 'none';
-      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-      iframe.allowFullscreen = true;
-      container.appendChild(iframe);
+      var isDirectVideo = url.indexOf('.mp4') !== -1 || url.indexOf('.webm') !== -1 || url.indexOf('cloudinary.com') !== -1;
+      if (isDirectVideo && url.indexOf('youtube') === -1) {
+        var vid = document.createElement('video');
+        vid.src = url;
+        vid.controls = true;
+        vid.autoplay = true;
+        vid.playsInline = true;
+        vid.style.width = '100%';
+        vid.style.maxHeight = '70vh';
+        vid.style.borderRadius = '8px';
+        vid.style.background = '#000';
+        container.appendChild(vid);
+      } else {
+        var iframe = document.createElement('iframe');
+        iframe.src = url;
+        iframe.style.width = '100%';
+        iframe.style.height = '420px';
+        iframe.style.border = 'none';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+        iframe.allowFullscreen = true;
+        container.appendChild(iframe);
+      }
     } else {
       var img = document.createElement('img');
       img.src = url;

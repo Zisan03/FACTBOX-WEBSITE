@@ -68,13 +68,13 @@
         {% endfor %}
       </div>
 
-      <!-- Image File Field (Conditional) -->
+      <!-- File Upload Field (Images or Video Files) -->
       <div id="imageFileGroup" style="margin-bottom: 20px;">
-        <label for="image_file" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
-          Upload Image File (JPEG, PNG, WebP, GIF &le; 10 MB) <span style="color: #dc2626;">*</span>
+        <label for="image_file" id="fileFieldLabel" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
+          Upload File (JPEG, PNG, WebP, GIF &le; 10 MB) <span style="color: #dc2626;">*</span>
         </label>
         {{ form.image_file(id="image_file", style="width: 100%; padding: 10px; font-size: 13px; border: 1px dashed var(--color-border); border-radius: var(--radius-sm); background: #fbfbfc;") }}
-        <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 4px;">
+        <div id="fileFieldHelp" style="font-size: 12px; color: var(--color-text-muted); margin-top: 4px;">
           Files are validated with binary header inspection before upload. Ephemeral local storage is never used.
         </div>
         {% for error in form.image_file.errors %}
@@ -82,10 +82,10 @@
         {% endfor %}
       </div>
 
-      <!-- YouTube URL Field (Conditional) -->
+      <!-- YouTube URL Field (For Videos) -->
       <div id="videoUrlGroup" style="display: none; margin-bottom: 20px;">
         <label for="youtube_url" style="display: block; font-size: 13px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
-          YouTube Video Link or 11-Character ID <span style="color: #dc2626;">*</span>
+          YouTube Video Link or 11-Character ID <span style="font-size: 12px; color: var(--color-text-muted); font-weight: 400;">(optional if video file is uploaded above)</span>
         </label>
         {{ form.youtube_url(id="youtube_url", placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ or youtu.be/dQw4w9WgXcQ", style="width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); outline: none;") }}
         <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 4px;">
@@ -161,17 +161,23 @@
     var mediaType = document.getElementById('media_type').value;
     var imageGroup = document.getElementById('imageFileGroup');
     var videoGroup = document.getElementById('videoUrlGroup');
+    var fileLabel = document.getElementById('fileFieldLabel');
+    var fileHelp = document.getElementById('fileFieldHelp');
     var dest = document.getElementById('destination');
 
     if (mediaType === 'video') {
-      imageGroup.style.display = 'none';
+      imageGroup.style.display = 'block';
       videoGroup.style.display = 'block';
+      fileLabel.innerHTML = 'Upload Video File (MP4, WebM, MOV &le; 50 MB) <span style="color: #dc2626;">*</span>';
+      fileHelp.textContent = 'Upload MP4/WebM/MOV video file directly to Cloudinary, or enter a YouTube URL below.';
       if (dest.value === 'home_photo' || dest.value === 'partner_logo' || dest.value === 'brand_asset') {
         dest.value = 'homepage_video';
       }
     } else {
       imageGroup.style.display = 'block';
       videoGroup.style.display = 'none';
+      fileLabel.innerHTML = 'Upload Image File (JPEG, PNG, WebP, GIF &le; 10 MB) <span style="color: #dc2626;">*</span>';
+      fileHelp.textContent = 'Files are validated with binary header inspection before upload. Ephemeral local storage is never used.';
       if (dest.value === 'portfolio_video' || dest.value === 'homepage_video') {
         dest.value = 'brand_asset';
       }
@@ -184,6 +190,8 @@
     var projectGroup = document.getElementById('projectSelectGroup');
     var websiteGroup = document.getElementById('websiteUrlGroup');
     var mediaTypeSelect = document.getElementById('media_type');
+    var fileLabel = document.getElementById('fileFieldLabel');
+    var fileHelp = document.getElementById('fileFieldHelp');
 
     if (dest === 'portfolio_image' || dest === 'portfolio_video') {
       projectGroup.style.display = 'block';
@@ -197,14 +205,22 @@
       websiteGroup.style.display = 'none';
     }
 
-    if (dest === 'portfolio_video' || dest === 'homepage_video') {
+    if (dest === 'portfolio_video') {
       mediaTypeSelect.value = 'video';
       document.getElementById('imageFileGroup').style.display = 'none';
       document.getElementById('videoUrlGroup').style.display = 'block';
+    } else if (dest === 'homepage_video') {
+      mediaTypeSelect.value = 'video';
+      document.getElementById('imageFileGroup').style.display = 'block';
+      document.getElementById('videoUrlGroup').style.display = 'block';
+      fileLabel.innerHTML = 'Upload Video File (MP4, WebM, MOV &le; 50 MB) <span style="color: #dc2626;">*</span>';
+      fileHelp.textContent = 'Upload MP4/WebM/MOV video file directly to Cloudinary, or enter a YouTube URL below.';
     } else if (dest === 'home_photo' || dest === 'partner_logo' || dest === 'portfolio_image' || dest === 'brand_asset') {
       mediaTypeSelect.value = 'image';
       document.getElementById('imageFileGroup').style.display = 'block';
       document.getElementById('videoUrlGroup').style.display = 'none';
+      fileLabel.innerHTML = 'Upload Image File (JPEG, PNG, WebP, GIF &le; 10 MB) <span style="color: #dc2626;">*</span>';
+      fileHelp.textContent = 'Files are validated with binary header inspection before upload. Ephemeral local storage is never used.';
     }
   }
 

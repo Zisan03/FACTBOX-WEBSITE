@@ -1870,6 +1870,39 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--color-primary);
 }
 
+.asymmetric-video-card video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #050d08;
+}
+
+#storytellingPlayButton {
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .asymmetric-card {
+    height: 380px;
+  }
+  .asymmetric-content {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .asymmetric-card {
+    height: 320px;
+  }
+  .asymmetric-content {
+    padding: 18px;
+  }
+  .video-play-affordance {
+    width: 56px;
+    height: 56px;
+  }
+}
+
 /* Photo-Backed Core Competency Cards */
 .photo-service-grid {
   display: grid;

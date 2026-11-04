@@ -8,6 +8,7 @@ from flask import Blueprint, render_template
 from app.models.portfolio import PortfolioProject, PortfolioCategory
 from app.models.service import Service
 from app.models.home_photo import HomePagePhoto
+from app.models.media import WebsiteMedia
 from app.services.video import get_youtube_embed_url
 from app.services.media import get_optimized_delivery_url
 from app.constants import ORGANIZATIONS, match_client_to_org
@@ -17,7 +18,7 @@ public_bp = Blueprint("public", __name__)
 
 @public_bp.route("/")
 def home():
-    """Home page displaying hero photo slideshow, featured work, and active services."""
+    """Home page displaying hero photo slideshow, featured work, active services, and strategic storytelling video."""
     home_photos = (
         HomePagePhoto.query.filter_by(is_active=True)
         .order_by(HomePagePhoto.display_order.asc(), HomePagePhoto.created_at.desc())
@@ -35,11 +36,21 @@ def home():
         .limit(4)
         .all()
     )
+    homepage_video = (
+        WebsiteMedia.query.filter_by(
+            category="homepage_video",
+            status="active",
+            media_type="video",
+        )
+        .order_by(WebsiteMedia.display_order.asc(), WebsiteMedia.created_at.desc())
+        .first()
+    )
     return render_template(
         "public/home.html",
         home_photos=home_photos,
         featured_projects=featured_projects,
         services=services,
+        homepage_video=homepage_video,
         get_optimized_delivery_url=get_optimized_delivery_url,
     )
 

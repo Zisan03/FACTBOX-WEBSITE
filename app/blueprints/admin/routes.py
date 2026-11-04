@@ -1857,8 +1857,8 @@ def upload_media_library():
                 wm = save_website_media_safely(
                     title=title,
                     category=destination,
-                    file_storage=form.image_file.data if media_type == "image" else None,
-                    youtube_url=form.youtube_url.data if media_type == "video" else None,
+                    file_storage=form.image_file.data if (form.image_file.data and form.image_file.data.filename) else None,
+                    youtube_url=form.youtube_url.data if form.youtube_url.data else None,
                     alt_text=alt_text,
                     caption=caption,
                     status="active" if status_choice == "active" else "unpublished",
