@@ -1060,4 +1060,92 @@ def restore_deleted_media(tombstone_id: Any) -> Tuple[bool, str]:
     return False, f"Unknown asset type '{asset_type}'."
 
 
+# ============================================================================
+# Canonical Curated Homepage Video Asset (Single Source of Truth)
+# ============================================================================
 
+CURATED_HOMEPAGE_VIDEO = {
+    "title": "Strategic Storytelling Documentary Reel",
+    "category": "homepage_video",
+    "media_type": "video",
+    "cloudinary_public_id": "factbox/videos/yysipv6v94ru5c4uxmpu",
+    "secure_url": "https://res.cloudinary.com/qvv0ipup/video/upload/v1793829178/factbox/videos/yysipv6v94ru5c4uxmpu.mp4",
+    "alt_text": "Fact Box Consult documentary storytelling and cinematic field production video",
+    "caption": "34-second cinematic documentary highlight showcasing high-impact storytelling, community fieldwork, and audiovisual advocacy across West Africa.",
+    "status": "active",
+    "display_order": 1,
+}
+
+
+def sync_curated_homepage_video(admin_email: str | None = None, force_restore: bool = False) -> Tuple[bool, str]:
+    """Register or synchronize the canonical 34-second Strategic Storytelling homepage video.
+
+    Single source of truth for the curated homepage video asset.
+    - Consults media_deletion_tombstone before adding records; respects administrator deletions.
+    - Idempotent: safe to run repeatedly; preserves existing record without duplicates.
+    - Activates existing record if it was inactive or category/url drifted.
+    - Safe error handling with rollback on failure.
+    """
+    video_pid = CURATED_HOMEPAGE_VIDEO["cloudinary_public_id"]
+    video_title = CURATED_HOMEPAGE_VIDEO["title"]
+    video_url = CURATED_HOMEPAGE_VIDEO["secure_url"]
+
+    # 1. Check deletion tombstones
+    tombstone = MediaDeletionTombstone.query.filter_by(
+        asset_type="website_media"
+    ).filter(
+        (MediaDeletionTombstone.cloudinary_public_id == video_pid)
+        | (MediaDeletionTombstone.title_or_name == video_title)
+    ).first()
+
+    if tombstone:
+        if not force_restore:
+            return (
+                False,
+                f"[SKIPPED - DELETED BY ADMIN] Homepage video '{video_title}' ({video_pid}) is protected by an administrator deletion tombstone.",
+            )
+        else:
+            db.session.delete(tombstone)
+            db.session.flush()
+
+    # 2. Check if already exists
+    existing = WebsiteMedia.query.filter(
+        (WebsiteMedia.cloudinary_public_id == video_pid)
+        | (WebsiteMedia.title == video_title)
+    ).first()
+
+    if existing:
+        existing.category = CURATED_HOMEPAGE_VIDEO["category"]
+        existing.media_type = CURATED_HOMEPAGE_VIDEO["media_type"]
+        existing.cloudinary_public_id = video_pid
+        existing.secure_url = video_url
+        if existing.status != "active":
+            existing.status = "active"
+        try:
+            db.session.commit()
+            return True, f"Homepage video '{existing.title}' is already registered and active."
+        except Exception as e:
+            db.session.rollback()
+            logger.exception("Failed to update existing homepage video: %s", e)
+            return False, f"Database error updating homepage video: {e}"
+
+    # 3. Create new WebsiteMedia record
+    video_record = WebsiteMedia(
+        title=video_title,
+        category=CURATED_HOMEPAGE_VIDEO["category"],
+        media_type=CURATED_HOMEPAGE_VIDEO["media_type"],
+        cloudinary_public_id=video_pid,
+        secure_url=video_url,
+        alt_text=CURATED_HOMEPAGE_VIDEO["alt_text"],
+        caption=CURATED_HOMEPAGE_VIDEO["caption"],
+        status=CURATED_HOMEPAGE_VIDEO["status"],
+        display_order=CURATED_HOMEPAGE_VIDEO["display_order"],
+    )
+    db.session.add(video_record)
+    try:
+        db.session.commit()
+        return True, f"Homepage video '{video_title}' registered successfully in Central Media Library."
+    except Exception as e:
+        db.session.rollback()
+        logger.exception("Failed to insert curated homepage video: %s", e)
+        return False, f"Database error registering homepage video: {e}"

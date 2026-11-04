@@ -23,6 +23,7 @@ from app.services.media import (
     delete_website_media_safely,
     restore_deleted_media,
     MediaValidationError,
+    CURATED_HOMEPAGE_VIDEO,
 )
 from werkzeug.datastructures import FileStorage
 
@@ -193,8 +194,8 @@ def test_seed_homepage_video_respects_tombstones(runner, db_session):
     # Create tombstone simulating prior deletion
     tombstone = MediaDeletionTombstone(
         asset_type="website_media",
-        cloudinary_public_id="factbox/videos/yysipv6v94ru5c4uxmpu",
-        title_or_name="Strategic Storytelling Documentary Reel",
+        cloudinary_public_id=CURATED_HOMEPAGE_VIDEO["cloudinary_public_id"],
+        title_or_name=CURATED_HOMEPAGE_VIDEO["title"],
         reason="Admin deliberate deletion",
     )
     db_session.add(tombstone)
@@ -206,7 +207,7 @@ def test_seed_homepage_video_respects_tombstones(runner, db_session):
     assert "[SKIPPED - DELETED BY ADMIN]" in res.output
 
     # Verify no WebsiteMedia record was resurrected
-    existing = WebsiteMedia.query.filter_by(cloudinary_public_id="factbox/videos/yysipv6v94ru5c4uxmpu").first()
+    existing = WebsiteMedia.query.filter_by(cloudinary_public_id=CURATED_HOMEPAGE_VIDEO["cloudinary_public_id"]).first()
     assert existing is None
 
 

@@ -703,67 +703,15 @@ def register_cli_commands(app: Flask):
         - Consults media_deletion_tombstone before adding records; respects administrator deletions.
         - Preserves administrator-edited fields: status, title, caption, alt_text.
         - Safe to run repeatedly; idempotent and non-destructive.
+        - Delegates directly to canonical sync_curated_homepage_video service.
         """
-        from app.models.media import WebsiteMedia
-        from app.models.tombstone import MediaDeletionTombstone
+        from app.services.media import sync_curated_homepage_video
 
-        video_pid = "factbox/videos/yysipv6v94ru5c4uxmpu"
-        video_title = "Strategic Storytelling Documentary Reel"
-        video_url = "https://res.cloudinary.com/qvv0ipup/video/upload/v1793829178/factbox/videos/yysipv6v94ru5c4uxmpu.mp4"
-
-        # 1. Check deletion tombstones
-        tombstone = MediaDeletionTombstone.query.filter_by(
-            asset_type="website_media"
-        ).filter(
-            (MediaDeletionTombstone.cloudinary_public_id == video_pid)
-            | (MediaDeletionTombstone.title_or_name == video_title)
-        ).first()
-
-        if tombstone:
-            if not force_restore:
-                click.echo(f"  [SKIPPED - DELETED BY ADMIN] {video_title} ({video_pid})")
-                return
-            else:
-                click.echo(f"  [FORCE-RESTORE] Removing tombstone for {video_title} ({video_pid})")
-                db.session.delete(tombstone)
-                db.session.flush()
-
-        # 2. Check if already exists
-        existing = WebsiteMedia.query.filter(
-            (WebsiteMedia.cloudinary_public_id == video_pid)
-            | (WebsiteMedia.title == video_title)
-        ).first()
-
-        if existing:
-            # Preserve existing metadata, ensure category and URL are synchronized
-            existing.category = "homepage_video"
-            existing.media_type = "video"
-            existing.cloudinary_public_id = video_pid
-            existing.secure_url = video_url
-            db.session.commit()
-            click.echo(f"  [PRESERVED] Homepage video '{existing.title}' already registered.")
-            return
-
-        # 3. Create new WebsiteMedia record
-        video_record = WebsiteMedia(
-            title=video_title,
-            category="homepage_video",
-            media_type="video",
-            cloudinary_public_id=video_pid,
-            secure_url=video_url,
-            alt_text="Fact Box Consult documentary storytelling and cinematic field production video",
-            caption="34-second cinematic documentary highlight showcasing high-impact storytelling, community fieldwork, and audiovisual advocacy across West Africa.",
-            status="active",
-            display_order=1,
-        )
-        db.session.add(video_record)
-        try:
-            db.session.commit()
-            click.echo(f"  [ADDED] Homepage video '{video_title}' registered successfully in WebsiteMedia.")
-        except Exception as e:
-            db.session.rollback()
-            click.echo(f"Error seeding homepage video: {e}", err=True)
-            raise e
+        success, msg = sync_curated_homepage_video(force_restore=force_restore)
+        if success:
+            click.echo(f"  {msg}")
+        else:
+            click.echo(f"  {msg}", err=True)
 
     @app.cli.command("restore-media")
     @click.option(

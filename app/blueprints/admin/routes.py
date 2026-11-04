@@ -2184,4 +2184,39 @@ def restore_deleted_media_library(tombstone_id):
         return redirect(url_for("admin.media_library", status="deleted"))
 
 
+@admin_bp.route("/media-library/sync-homepage-video", methods=["POST"])
+@login_required
+def sync_homepage_video():
+    """Register or synchronize the canonical 34-second Strategic Storytelling video.
 
+    Enforces Single Source of Truth via app.services.media.sync_curated_homepage_video.
+    Guarantees:
+    - Login required (authenticated admin only).
+    - CSRF protection via Flask-WTF.
+    - POST only; no state change on GET.
+    - Respects MediaDeletionTombstone; never overrides administrator deletions.
+    - Idempotent: safe to invoke repeatedly.
+    - Records AdminAuditEvent.
+    """
+    from app.services.media import sync_curated_homepage_video
+
+    success, msg = sync_curated_homepage_video(admin_email=current_user.email, force_restore=False)
+    if success:
+        log_admin_audit(
+            "sync_homepage_video",
+            "website_media",
+            None,
+            {"action": "sync_curated_video", "result": msg},
+        )
+        flash(msg, "success")
+    else:
+        log_admin_audit(
+            "sync_homepage_video_rejected",
+            "website_media",
+            None,
+            {"action": "sync_curated_video", "reason": msg},
+        )
+        is_tombstone = "tombstone" in msg.lower() or "deleted by admin" in msg.lower()
+        flash(msg, "warning" if is_tombstone else "error")
+
+    return redirect(url_for("admin.media_library", category="homepage_video"))

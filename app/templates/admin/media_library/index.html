@@ -14,9 +14,18 @@
       Organize, inspect, publish, archive, and manage all photographs, documentary videos, brand marks, and partner logos across the website in one unified library.
     </p>
   </div>
-  <a href="{{ url_for('admin.upload_media_library') }}" class="btn btn-primary" style="padding: 11px 20px; font-size: 14px; color: #ffffff; text-decoration: none; border-radius: var(--radius-sm); font-weight: 600; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,95,43,0.25);">
-    <span style="font-size: 16px; font-weight: 700;">+</span> Upload / Register Media
-  </a>
+  <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+    <form method="POST" action="{{ url_for('admin.sync_homepage_video') }}" style="margin: 0;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn" style="padding: 11px 18px; font-size: 14px; background: #ffffff; color: var(--color-primary, #005f2b); border: 1.5px solid var(--color-primary, #005f2b); border-radius: var(--radius-sm); font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.15s ease;" title="Register or activate the canonical 34s Strategic Storytelling video from Cloudinary.">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Register Homepage Video
+      </button>
+    </form>
+    <a href="{{ url_for('admin.upload_media_library') }}" class="btn btn-primary" style="padding: 11px 20px; font-size: 14px; color: #ffffff; text-decoration: none; border-radius: var(--radius-sm); font-weight: 600; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,95,43,0.25);">
+      <span style="font-size: 16px; font-weight: 700;">+</span> Upload / Register Media
+    </a>
+  </div>
 </div>
 
 <!-- Verified Database Metric Counters -->
