@@ -64,7 +64,6 @@ def test_homepage_renders_active_video(client, db_session):
     assert "https://res.cloudinary.com/factbox/video/upload/v1/factbox/videos/test_reel_123.mp4" in html
     assert "video/mp4" in html
     assert "Field Operations Reel" in html
-    assert "High-Impact Media &bull; 34s Reel" in html
     assert "storytellingPlayButton" in html
 
 

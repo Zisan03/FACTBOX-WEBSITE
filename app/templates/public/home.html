@@ -32,7 +32,7 @@
   <div class="slideshow-overlay" style="background: linear-gradient(180deg, rgba(12,20,15,0.45) 0%, rgba(12,20,15,0.7) 60%, rgba(12,20,15,0.92) 100%);"></div>
 
   <!-- Hero Text — Bold TVSense-Inspired Headline & Taglines -->
-  <div class="container hero-content" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; height: 100%; padding-bottom: clamp(60px, 10vh, 120px);">
+  <div class="container hero-content" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; height: 100%; padding-bottom: clamp(64px, 11vh, 120px);">
     <span class="label-caps" style="color: var(--color-accent); margin-bottom: 16px; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase;">
       The Media Think-Tank &bull; RC: 7592601
     </span>
@@ -45,19 +45,9 @@
       </span>
     </h1>
 
-    <p class="hero-subtitle" style="color: rgba(240, 237, 236, 0.94); font-size: clamp(16px, 1.6vw, 19px); line-height: 1.65; margin-top: 28px; max-width: 660px;">
+    <p class="hero-subtitle" style="color: rgba(240, 237, 236, 0.94); font-size: clamp(16px, 1.6vw, 19px); line-height: 1.65; margin-top: 28px; max-width: 680px; margin-bottom: 0;">
       Making communication simple, stories meaningful, and information accessible to all. We develop fresh ideas and transform them into purposeful documentaries and research solutions.
     </p>
-
-    <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-top: 36px;">
-      <a href="{{ url_for('public.work') }}" class="btn-stitch-primary" style="padding: 14px 28px; font-size: 14px;">
-        Explore Our Work
-        <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
-      </a>
-      <a href="{{ url_for('contact.index') }}" class="btn-stitch-ghost" style="padding: 14px 28px; font-size: 14px;">
-        Partner With Us
-      </a>
-    </div>
   </div>
 
   <!-- Slideshow Dots -->
@@ -102,13 +92,9 @@
       </h2>
       
       <div class="flip-card-desc">
-        <p style="font-size: 16px; color: rgba(255, 255, 255, 0.88); line-height: 1.65; margin-bottom: 24px; max-width: 640px;">
-          {% if featured_projects %}{{ featured_projects[0].summary }}{% else %}An in-depth documentary project capturing grassroot narratives, resilience, and community challenges. Produced through rigorous qualitative field research, ethical cinematography, and high-fidelity post-production.{% endif %}
+        <p style="font-size: 16px; color: rgba(255, 255, 255, 0.88); line-height: 1.65; margin-bottom: 0; max-width: 640px;">
+          {% if featured_projects %}{{ featured_projects[0].summary }}{% else %}Our in-depth documentary project capturing grassroots narratives, resilience, and community challenges. Produced through rigorous qualitative field research, ethical cinematography, and high-fidelity post-production.{% endif %}
         </p>
-        <a href="{{ url_for('public.work') }}" class="btn-stitch-ghost" style="padding: 10px 22px; font-size: 13px;">
-          Explore The Project
-          <span class="material-symbols-outlined" style="font-size: 15px;">arrow_forward</span>
-        </a>
       </div>
     </div>
   </div>
@@ -138,19 +124,6 @@
 <section class="panoramic-field-block" aria-label="Fieldwork Feature Panorama">
   <img src="{{ get_showcase_photo(5).secure_url }}" alt="{{ get_showcase_photo(5).alt_text }}" loading="lazy">
   <div class="panoramic-overlay"></div>
-  <div class="panoramic-caption">
-    <div>
-      <span class="inline-badge" style="background: rgba(166, 255, 77, 0.2); color: var(--color-accent); border: 1px solid rgba(166, 255, 77, 0.4); font-size: 11px; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.12em; display: inline-block; margin-bottom: 8px;">
-        On-Location Fieldwork
-      </span>
-      <h3 style="font-family: var(--font-display); font-size: clamp(20px, 2.5vw, 30px); font-weight: 700; margin: 0; color: #ffffff;">
-        Documentary Investigation &amp; Cultural Immersion
-      </h3>
-    </div>
-    <a href="{{ url_for('public.about') }}" class="btn-stitch-ghost" style="padding: 8px 18px; font-size: 12px; background: rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.4);">
-      About Our Approach
-    </a>
-  </div>
 </section>
 
 <!-- ==========================================================================
@@ -169,17 +142,6 @@
       <div class="asymmetric-card">
         <img src="{{ get_showcase_photo(6).secure_url }}" alt="{{ get_showcase_photo(6).alt_text }}" loading="lazy">
         <div class="asymmetric-overlay"></div>
-        <div class="asymmetric-content">
-          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-accent); display: block; margin-bottom: 8px;">
-            Community Voices
-          </span>
-          <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.25; margin-bottom: 8px;">
-            Stories That Connect
-          </h3>
-          <p style="font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.6; margin: 0;">
-            Capturing authentic human experiences with dignity, empathy, and deep cultural respect.
-          </p>
-        </div>
       </div>
 
       <!-- Right Card: Landscape Documentary Video / Reel -->
@@ -187,7 +149,7 @@
         <div class="asymmetric-card asymmetric-video-card" id="storytellingVideoCard" style="background: #050d08;">
           {% if homepage_video.youtube_video_id %}
             <iframe src="{{ homepage_video.embed_url }}"
-                    title="{{ homepage_video.alt_text or 'Fact Box Consult Documentary Video' }}"
+                    title="{{ homepage_video.alt_text or homepage_video.title or 'Fact Box Consult Documentary Video' }}"
                     style="position: absolute; inset: 0; width: 100%; height: 100%; border: none;"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen>
@@ -200,31 +162,18 @@
                    playsinline
                    controls
                    poster="{{ homepage_video.poster_url or get_showcase_photo(7).secure_url }}"
-                   aria-label="{{ homepage_video.alt_text or 'Fact Box Consult 34-second Strategic Storytelling Documentary Reel' }}"
+                   aria-label="{{ homepage_video.alt_text or homepage_video.title or 'Fact Box Consult 34-second Strategic Storytelling Documentary Reel' }}"
+                   title="{{ homepage_video.title or 'Fact Box Consult Strategic Storytelling Video' }}"
                    style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #050d08; z-index: 1;">
               <source src="{{ homepage_video.secure_url }}" type="video/mp4">
               Your browser does not support the video tag.
             </video>
             
-            <!-- Video Play Overlay & Storytelling Content -->
+            <!-- Video Play Overlay & Controls -->
             <button type="button" class="video-play-affordance" id="storytellingPlayButton" aria-label="Play 34-second documentary storytelling reel" style="z-index: 4; cursor: pointer; border: none; outline: none; pointer-events: auto;">
               <span class="material-symbols-outlined" style="font-size: 32px; margin-left: 3px;">play_arrow</span>
             </button>
             <div class="asymmetric-overlay" id="storytellingOverlay" style="z-index: 2; pointer-events: none; transition: opacity 0.4s ease;"></div>
-            <div class="asymmetric-content" id="storytellingContent" style="z-index: 3; pointer-events: none; transition: opacity 0.4s ease;">
-              <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-accent); display: block; margin-bottom: 8px;">
-                High-Impact Media &bull; 34s Reel
-              </span>
-              <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.25; margin-bottom: 8px;">
-                {{ homepage_video.title or 'Messages That Matter' }}
-              </h3>
-              <p style="font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.6; margin-bottom: 12px;">
-                {{ homepage_video.caption or 'Broadcast-grade documentary productions and visual advocacy campaigns that inform and inspire action.' }}
-              </p>
-              <a href="{{ url_for('public.work') }}" style="color: var(--color-accent); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; pointer-events: auto;">
-                View Completed Films <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
-              </a>
-            </div>
           {% endif %}
         </div>
       {% else %}
@@ -235,122 +184,8 @@
             <span class="material-symbols-outlined" style="font-size: 32px; margin-left: 3px;">play_arrow</span>
           </div>
           <div class="asymmetric-overlay"></div>
-          <div class="asymmetric-content">
-            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-accent); display: block; margin-bottom: 8px;">
-              High-Impact Media
-            </span>
-            <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 700; color: #ffffff; line-height: 1.25; margin-bottom: 8px;">
-              Messages That Matter
-            </h3>
-            <p style="font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.6; margin-bottom: 12px;">
-              Broadcast-grade documentary productions and visual advocacy campaigns that inform and inspire action.
-            </p>
-            <a href="{{ url_for('public.work') }}" style="color: var(--color-accent); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-              View Completed Films <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
-            </a>
-          </div>
         </div>
       {% endif %}
-    </div>
-  </div>
-</section>
-
-<!-- ==========================================================================
-     6. Photo-Backed Core Competency Cards (Integrated Media & Research Hub)
-     ========================================================================== -->
-<section style="padding: 96px 0; background: var(--color-surface-container-low);">
-  <div class="container">
-    <div style="text-align: center; margin-bottom: 56px;">
-      <span class="label-caps" style="color: var(--color-primary); margin-bottom: 12px;">What We Do</span>
-      <h2 class="section-title" style="margin-bottom: 12px;">Integrated Media &amp; Research Hub</h2>
-      <p style="font-size: 16px; color: var(--color-text-muted); max-width: 640px; margin: 0 auto 16px; line-height: 1.6;">
-        Combining creative audiovisual storytelling, rigorous evidence-based research, and strategic communication.
-      </p>
-      <div style="width: 80px; height: 3px; background: var(--color-primary); border-radius: 2px; margin: 0 auto;"></div>
-    </div>
-
-    <div class="photo-service-grid">
-      
-      <!-- Service 1: Visual Production -->
-      <article class="photo-service-card">
-        <img class="service-bg-img" src="{{ get_showcase_photo(8).secure_url }}" alt="{{ get_showcase_photo(8).alt_text }}" loading="lazy">
-        <div class="service-scrim"></div>
-        <div class="service-body">
-          <div class="stitch-icon-squircle" style="background: rgba(166, 255, 77, 0.2); color: var(--color-accent); margin-bottom: 16px;">
-            <span class="material-symbols-outlined" style="font-size: 26px;">videocam</span>
-          </div>
-          <h3 style="font-family: var(--font-display); font-size: 21px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">
-            Audiovisual Production
-          </h3>
-          <p style="font-size: 14px; color: rgba(255, 255, 255, 0.85); line-height: 1.6; margin-bottom: 16px;">
-            Documentary production, corporate videos, photography, interviews, event coverage, and visual storytelling.
-          </p>
-          <a href="{{ url_for('public.work') }}" style="color: var(--color-accent); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-            Explore Films <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- Service 2: Media Consultancy -->
-      <article class="photo-service-card">
-        <img class="service-bg-img" src="{{ get_showcase_photo(9).secure_url }}" alt="{{ get_showcase_photo(9).alt_text }}" loading="lazy">
-        <div class="service-scrim"></div>
-        <div class="service-body">
-          <div class="stitch-icon-squircle" style="background: rgba(166, 255, 77, 0.2); color: var(--color-accent); margin-bottom: 16px;">
-            <span class="material-symbols-outlined" style="font-size: 26px;">record_voice_over</span>
-          </div>
-          <h3 style="font-family: var(--font-display); font-size: 21px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">
-            Media Consultancy
-          </h3>
-          <p style="font-size: 14px; color: rgba(255, 255, 255, 0.85); line-height: 1.6; margin-bottom: 16px;">
-            Strategic media planning, communication support, content strategy, and media advisory services.
-          </p>
-          <a href="{{ url_for('public.services') }}" style="color: var(--color-accent); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-            Learn More <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- Service 3: Research & Planning -->
-      <article class="photo-service-card">
-        <img class="service-bg-img" src="{{ get_showcase_photo(10).secure_url }}" alt="{{ get_showcase_photo(10).alt_text }}" loading="lazy">
-        <div class="service-scrim"></div>
-        <div class="service-body">
-          <div class="stitch-icon-squircle" style="background: rgba(166, 255, 77, 0.2); color: var(--color-accent); margin-bottom: 16px;">
-            <span class="material-symbols-outlined" style="font-size: 26px;">analytics</span>
-          </div>
-          <h3 style="font-family: var(--font-display); font-size: 21px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">
-            Research &amp; Planning
-          </h3>
-          <p style="font-size: 14px; color: rgba(255, 255, 255, 0.85); line-height: 1.6; margin-bottom: 16px;">
-            Evidence-based research, data collection, analysis, documentation, project planning, and communication.
-          </p>
-          <a href="{{ url_for('public.services') }}" style="color: var(--color-accent); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-            Learn More <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- Service 4: Digital & New Media -->
-      <article class="photo-service-card">
-        <img class="service-bg-img" src="{{ get_showcase_photo(11).secure_url }}" alt="{{ get_showcase_photo(11).alt_text }}" loading="lazy">
-        <div class="service-scrim"></div>
-        <div class="service-body">
-          <div class="stitch-icon-squircle" style="background: rgba(166, 255, 77, 0.2); color: var(--color-accent); margin-bottom: 16px;">
-            <span class="material-symbols-outlined" style="font-size: 26px;">public</span>
-          </div>
-          <h3 style="font-family: var(--font-display); font-size: 21px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">
-            Digital &amp; New Media
-          </h3>
-          <p style="font-size: 14px; color: rgba(255, 255, 255, 0.85); line-height: 1.6; margin-bottom: 16px;">
-            Social media content, digital storytelling, online campaigns, multimedia content, and audience engagement.
-          </p>
-          <a href="{{ url_for('public.services') }}" style="color: var(--color-accent); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-            Learn More <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
-          </a>
-        </div>
-      </article>
-
     </div>
   </div>
 </section>
@@ -471,18 +306,9 @@
       <h2 style="font-family: var(--font-display); font-size: clamp(32px, 3.8vw, 46px); font-weight: 700; line-height: 1.15; color: #ffffff; margin-bottom: 16px;">
         Let's Create Something Great Together<span style="color: var(--color-accent);">.</span>
       </h2>
-      <p style="font-size: 16px; color: rgba(255, 255, 255, 0.82); line-height: 1.7; margin-bottom: 32px; max-width: 540px;">
+      <p style="font-size: 16px; color: rgba(255, 255, 255, 0.82); line-height: 1.7; margin-bottom: 0; max-width: 540px;">
         Whether you are an international development organization, a civil society group, or an enterprise looking to document your impact, our team is ready to collaborate.
       </p>
-      <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-        <a href="{{ url_for('contact.index') }}" class="btn-stitch-primary" style="padding: 14px 28px; font-size: 14px;">
-          Partner With Us
-          <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
-        </a>
-        <a href="{{ url_for('public.work') }}" class="btn-stitch-ghost" style="padding: 14px 28px; font-size: 14px;">
-          Explore Completed Work
-        </a>
-      </div>
     </div>
 
     <!-- Right side: Authentic behind-the-scenes production still -->
@@ -501,14 +327,12 @@ document.addEventListener('DOMContentLoaded', function () {
   var video = document.getElementById('storytellingVideoPlayer');
   var playBtn = document.getElementById('storytellingPlayButton');
   var overlay = document.getElementById('storytellingOverlay');
-  var content = document.getElementById('storytellingContent');
 
   if (video && playBtn) {
     function startVideo() {
       video.play().then(function () {
         if (playBtn) playBtn.style.display = 'none';
         if (overlay) overlay.style.opacity = '0';
-        if (content) content.style.opacity = '0';
       }).catch(function (e) {
         console.warn('Video playback notice:', e);
       });
@@ -519,21 +343,18 @@ document.addEventListener('DOMContentLoaded', function () {
     video.addEventListener('play', function () {
       if (playBtn) playBtn.style.display = 'none';
       if (overlay) overlay.style.opacity = '0';
-      if (content) content.style.opacity = '0';
     });
 
     video.addEventListener('pause', function () {
       if (video.currentTime === 0 || video.ended) {
         if (playBtn) playBtn.style.display = 'flex';
         if (overlay) overlay.style.opacity = '1';
-        if (content) content.style.opacity = '1';
       }
     });
 
     video.addEventListener('ended', function () {
       if (playBtn) playBtn.style.display = 'flex';
       if (overlay) overlay.style.opacity = '1';
-      if (content) content.style.opacity = '1';
     });
   }
 });
