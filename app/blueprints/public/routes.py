@@ -45,12 +45,14 @@ def home():
         .order_by(WebsiteMedia.display_order.asc(), WebsiteMedia.created_at.desc())
         .first()
     )
+    cta_photo = HomePagePhoto.query.filter_by(title="Audiovisual Production Setup").first()
     return render_template(
         "public/home.html",
         home_photos=home_photos,
         featured_projects=featured_projects,
         services=services,
         homepage_video=homepage_video,
+        cta_photo=cta_photo,
         get_optimized_delivery_url=get_optimized_delivery_url,
     )
 
