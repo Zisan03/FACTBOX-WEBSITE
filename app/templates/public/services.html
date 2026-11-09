@@ -118,6 +118,7 @@
                     {% elif s.icon_key == 'briefcase' %}work
                     {% elif s.icon_key == 'document-text' %}description
                     {% elif s.icon_key == 'lightbulb' %}psychology
+                    {% elif s.icon_key in ['live', 'streaming', 'broadcast'] %}live_tv
                     {% else %}verified{% endif %}
                   </span>
                 </div>
@@ -206,6 +207,21 @@
           </div>
           <p style="font-size: 16px; color: var(--color-text-muted); line-height: 1.7; margin-bottom: 20px;">
             Social media content, digital storytelling, online campaigns, multimedia content, and strategic audience engagement.
+          </p>
+          <a href="{{ url_for('contact.index') }}" class="btn-stitch-primary" style="padding: 10px 22px; font-size: 12px; width: fit-content;">Inquire &rarr;</a>
+        </article>
+
+        <article class="stitch-service-card" style="border-left: 4px solid var(--color-accent);">
+          <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+            <div class="stitch-icon-squircle" style="margin-bottom: 0;">
+              <span class="material-symbols-outlined" style="font-size: 26px;">live_tv</span>
+            </div>
+            <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text-main); margin: 0;">
+              Live Streaming
+            </h2>
+          </div>
+          <p style="font-size: 16px; color: var(--color-text-muted); line-height: 1.7; margin-bottom: 20px;">
+            Professional broadcast-quality live streaming, multi-camera event coverage, hybrid conferences, and real-time digital transmission.
           </p>
           <a href="{{ url_for('contact.index') }}" class="btn-stitch-primary" style="padding: 10px 22px; font-size: 12px; width: fit-content;">Inquire &rarr;</a>
         </article>
