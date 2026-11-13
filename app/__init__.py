@@ -1208,8 +1208,6 @@ def create_app(config_name: str | None = None) -> Flask:
                         .order_by(HomePagePhoto.display_order.asc(), HomePagePhoto.created_at.asc())
                         .all()
                     )
-                    if not photos:
-                        photos = HomePagePhoto.query.order_by(HomePagePhoto.created_at.desc()).all()
                     g._cached_showcase_photos = photos
                 except Exception:
                     g._cached_showcase_photos = []

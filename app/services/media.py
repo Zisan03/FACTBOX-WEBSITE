@@ -282,14 +282,11 @@ def delete_image_from_cloudinary(public_id: str, resource_type: str = "image") -
 def check_cloudinary_asset_exists(public_id: str, resource_type: str = "image") -> bool:
     """Check if an asset exists in Cloudinary storage without throwing exceptions.
 
-    Returns True if confirmed to exist or if it is a protected system showcase asset.
+    Returns True if confirmed to exist.
     Returns False if confirmed missing or destroyed.
     """
     if not public_id:
         return False
-
-    if is_system_asset(public_id):
-        return True
 
     try:
         configure_cloudinary()
@@ -686,7 +683,9 @@ SYSTEM_SHOWCASE_PIDS = {
     "factbox/home_hero/emwghkdazvbdt153sfpp",
     "factbox/home_hero/i53doietpynralczswjz",
     "factbox/home_hero/xfx85kgr4mjtucwdim4b",
+    "factbox/home_hero/gk5kxanaxpc5ex6hhi0i",
     "factbox/home_hero/zswgxxhygc4unwibalsy",
+    "factbox/home_hero/ted4vj2hmpgyhxegqskw",
     "factbox/home_hero/qp8xbacdin1nyzua3ity",
     "factbox/home_hero/ei804zdxlbrymogcbyxm",
     "factbox/home_hero/ksgxefammqhfcylffoks",
@@ -694,16 +693,19 @@ SYSTEM_SHOWCASE_PIDS = {
     "factbox/home_hero/qn4cknhojqhqrtogicjq",
     "factbox/home_hero/smgb4jqqcx8wyafbhcwh",
     "factbox/home_hero/hb8e8lltox5qgkw41uj0",
+    "factbox/home_hero/bn7vasfbmfxmumrpitvp",
     "factbox/home_hero/lsh4rvjzg62kntvjqw7x",
     "factbox/home_hero/oax73qwkxjsqzplsqdim",
     "factbox/home_hero/idzaqfvsccnvstyfrwmi",
     "factbox/home_hero/hcdz2x3fxtztfhkuvet9",
+    "factbox/home_hero/egkekisvgqkhfzevfyvm",
     "factbox/home_hero/z6nidpkdiso8ygxxpuec",
     "factbox/home_hero/ttktjsyf7j5dbnvqdyys",
     "factbox/home_hero/scpemyioaskwmoo7nlfg",
     "factbox/home_hero/no82qe6s8q6vd0uj2zfm",
     "factbox/home_hero/j5wmdstsaca2hgd2gei1",
     "factbox/home_hero/ztowroteennxanfaz77q",
+    "factbox/home_hero/gh9oyi8yzicb9a8myb3r",
     "factbox/home_hero/mwgwkyvyjkvd7ykpmd6c",
     "factbox/home_hero/ubxt7mjvtt2earl8hltp",
     "factbox/home_hero/tqybvwohve0sn6pfnkf7",
